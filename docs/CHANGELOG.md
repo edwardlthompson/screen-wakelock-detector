@@ -14,6 +14,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] — 2026-06-07
+
+Guided sideload permission setup for Android 13+.
+
+### Added
+
+- Detect sideloaded installs and restricted-settings lock; `RestrictedSetupCard` with step-by-step unlock flow.
+- Opens App info for **Allow restricted settings** (⋮ menu); OnePlus SAI fallback instructions.
+- Live permission status on onboarding Permissions page (refreshes on return from Settings without advancing pager).
+- `usePermissionStatuses()` hook shared across onboarding, Permissions screen, and home banner.
+
+### Fixed
+
+- Onboarding Permissions page no longer freezes permission chip state until Verify page.
+
 ## [1.2.1] — 2026-06-07
 
 Signed GitHub release fix.

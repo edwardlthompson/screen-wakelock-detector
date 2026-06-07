@@ -31,6 +31,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M8 | PASS | Smoke M8: PASS 2026-06-07T18:00:00Z b5214fc6 1.2.0 |
 | M8 deep | PASS | m8_adb_deep_verify: PASS 2026-06-07 b5214fc6 — root timeline, diagnostic export, pattern actions, batch mute |
 | M9 | PASS | Smoke M9: PASS 2026-06-07T19:50:00Z b5214fc6 1.2.1 |
+| M10 | PASS | Smoke M10: PASS 2026-06-07T20:15:00Z b5214fc6 1.2.2 |
 | ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |
 
 ---
@@ -261,3 +262,15 @@ Partial at M1/M4; full at M5.
 - [x] Gate GSM (M9) recorded `[AGENT]`
 - [x] Gate G9 passed → archive → commit → push → tag v1.2.1 `[AGENT]`
 - [x] Gate G9 passed; [v1.2.1](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.1) published 2026-06-07 `[AGENT]`
+
+---
+
+## Gate G10 — M10 v1.2.2 guided sideload permission setup
+
+- [x] `InstallSourceHelper` + `RestrictedSettingsHelper` detect sideload + restricted op (API 33+) `[AGENT]`
+- [x] `RestrictedSetupCard` on onboarding Permissions + Settings Permissions `[AGENT]`
+- [x] Guided flow opens Notification settings → App info; instructions for ⋮ → Allow restricted settings `[AGENT]`
+- [x] Onboarding Permissions refreshes chip state on resume (no pager advance required) `[AGENT]`
+- [x] `m10_smoke.sh` PASS `[ADB]` (b5214fc6 1.2.2)
+- [x] Gate GSM (M10) recorded `[AGENT]`
+- [ ] Gate G10 passed → archive → commit → push → tag v1.2.2 `[AGENT]`

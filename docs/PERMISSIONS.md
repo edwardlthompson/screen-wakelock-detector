@@ -46,6 +46,18 @@ All special permissions are **optional for basic screen-on logging** except wher
 - ON → open notification listener settings; refresh on resume
 - OFF → dialog directing user to revoke in system settings
 
+### Sideloaded apps (Android 13+ restricted settings)
+
+If the app was installed from a **GitHub APK, browser, or Files app** (not Play Store / F-Droid / session installer), Android blocks Notification access and Usage access until the user enables **Allow restricted settings**:
+
+1. Try enabling Notification access once (system shows “Restricted setting” — tap OK).
+2. **Settings → Apps → Screen Wakelock Detector → App info → menu (⋮) → Allow restricted settings** (confirm PIN).
+3. Grant **Notification access** and **Usage access** from Special app access.
+
+The in-app **Start setup** card on onboarding and Settings → Permissions automates opening these screens. There is **no public Intent** that toggles Allow restricted settings directly.
+
+**OnePlus / OxygenOS 15:** If the ⋮ menu item is missing, reinstall the same APK using **SAI** (from Play Store) — session install bypasses the sideload restriction.
+
 ---
 
 ## Usage access

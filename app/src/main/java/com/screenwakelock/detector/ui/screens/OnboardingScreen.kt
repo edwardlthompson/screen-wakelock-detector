@@ -1,6 +1,5 @@
 package com.screenwakelock.detector.ui.screens
 
-import android.content.Intent
 import android.os.Build
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,17 +25,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.data.repository.PermissionStatusRepository
-import com.screenwakelock.detector.domain.model.PermissionKind
 import com.screenwakelock.detector.service.WakeMonitorService
 import com.screenwakelock.detector.ui.components.PermissionChip
+import com.screenwakelock.detector.ui.components.RestrictedSetupCard
+import com.screenwakelock.detector.ui.components.openPermissionWithGuidedUnlock
+import com.screenwakelock.detector.ui.hooks.usePermissionStatuses
 import com.screenwakelock.detector.ui.viewmodel.OnboardingViewModel
-import com.screenwakelock.detector.util.IntentUtils
+import com.screenwakelock.detector.util.PermissionSetupGuide
+import com.screenwakelock.detector.util.RestrictedSettingsHelper
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -145,7 +144,7 @@ private fun OnboardingWelcome() {
 
 @Composable
 private fun OnboardingHowItWorks() {
-        val steps = listOf(
+    val steps = listOf(
         "Monitor listens for screen-on events locally",
         "Notifications posted nearby are matched to the wake",
         "Usage stats provide fallback when no notification matches",
@@ -191,39 +190,41 @@ private fun OnboardingPrivacy() {
 @Composable
 private fun OnboardingPermissions(repo: PermissionStatusRepository) {
     val context = LocalContext.current
-    val statuses = remember { repo.getAllStatuses() }
+    val statuses = usePermissionStatuses(repo)
+    var showUnlockInstructions by remember { mutableStateOf(false) }
+
+    if (showUnlockInstructions) {
+        RestrictedSettingsInstructionDialog(
+            onDismiss = { showUnlockInstructions = false },
+            onOpenAppInfo = {
+                PermissionSetupGuide.openAppInfo(context)
+                showUnlockInstructions = false
+            },
+        )
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Permissions", style = MaterialTheme.typography.headlineSmall)
         Text(
-            "Grant these for best attribution. You can change them anytime in Settings.",
+            "Grant these for best attribution. Status updates when you return from Settings.",
             style = MaterialTheme.typography.bodyMedium,
         )
-        Text(
-            "Enable Notifications for this app if you want wake alerts when the screen turns on.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        RestrictedSetupCard()
+        if (!RestrictedSettingsHelper.needsUnlock(context)) {
+            Text(
+                "Enable Notifications for this app if you want wake alerts when the screen turns on.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         statuses.forEach { status ->
             PermissionChip(
                 label = status.label,
                 granted = status.granted,
                 onClick = {
-                    val intent = when (status.kind) {
-                        PermissionKind.NOTIFICATION_LISTENER ->
-                            IntentUtils.notificationListenerSettings()
-                        PermissionKind.USAGE_STATS ->
-                            IntentUtils.usageAccessSettings()
-                        PermissionKind.POST_NOTIFICATIONS -> {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                                    putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
-                                }
-                            } else null
-                        }
-                        PermissionKind.BATTERY_OPTIMIZATION ->
-                            IntentUtils.requestIgnoreBatteryOptimizations(context)
+                    openPermissionWithGuidedUnlock(context, status.kind) {
+                        showUnlockInstructions = true
                     }
-                    intent?.let { context.startActivity(it) }
                 },
             )
         }
@@ -232,18 +233,7 @@ private fun OnboardingPermissions(repo: PermissionStatusRepository) {
 
 @Composable
 private fun OnboardingVerify(repo: PermissionStatusRepository) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    var statuses by remember { mutableStateOf(repo.getAllStatuses()) }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                statuses = repo.getAllStatuses()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
+    val statuses = usePermissionStatuses(repo)
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Verify setup", style = MaterialTheme.typography.headlineSmall)
@@ -256,9 +246,39 @@ private fun OnboardingVerify(repo: PermissionStatusRepository) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            "On Samsung and Xiaomi devices, also disable battery restrictions for reliable monitoring.",
+            "On Samsung, Xiaomi, and OnePlus devices, also disable battery restrictions for reliable monitoring.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
+}
+
+@Composable
+private fun RestrictedSettingsInstructionDialog(
+    onDismiss: () -> Unit,
+    onOpenAppInfo: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Allow restricted settings") },
+        text = {
+            Text(
+                "On the App info screen for Screen Wakelock Detector:\n\n" +
+                    "• Tap the menu (⋮) in the top-right corner\n" +
+                    "• Tap Allow restricted settings\n" +
+                    "• Confirm with your PIN or fingerprint\n\n" +
+                    "Then return here — permission status updates automatically.",
+            )
+        },
+        confirmButton = {
+            Button(onClick = onOpenAppInfo) {
+                Text("Open App info")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Done")
+            }
+        },
+    )
 }

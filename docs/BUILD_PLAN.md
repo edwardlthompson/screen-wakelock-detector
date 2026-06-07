@@ -6,24 +6,25 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 
 ---
 
-## M9 — v1.2.1 signed GitHub release
+## M10 — v1.2.2 guided sideload permission setup
 
-**Target:** `versionName` `1.2.1`, `versionCode` `1002001` in `app/build.gradle.kts`  
-**Gate:** G9 in `docs/GATES.md` · Smoke: `scripts/smoke/m9_smoke.sh`
-
-### Phase 1 — Signing infrastructure
+**Target:** `versionName` `1.2.2`, `versionCode` `1002002` in `app/build.gradle.kts`  
+**Gate:** G10 in `docs/GATES.md` · Smoke: `scripts/smoke/m10_smoke.sh`
 
 <!-- PARALLEL -->
 <!-- END PARALLEL -->
 
-### Phase 2 — CI and GitHub automation
+- [ ] [AGENT] Gate G10; archive M10; commit; push; tag `v1.2.2`
 
-<!-- PARALLEL -->
-<!-- END PARALLEL -->
+### M10 — HUMAN
+
+- [ ] [HUMAN] Verify OxygenOS 15 ⋮ menu vs SAI fallback copy on real OP13
+
+---
 
 ## M9 — HUMAN (batched, milestone end)
 
-- [ ] [HUMAN] Back up `%USERPROFILE%\.screen-wakelock-detector\release.jks` + passwords off-device (required for future in-place updates)
+- [ ] [HUMAN] Back up `%USERPROFILE%\.screen-wakelock-detector\release.jks` + passwords off-device
 - [ ] [HUMAN] Optional: deprecate v1.2.0 release note — "Download v1.2.1 signed APK instead"
 
 ---

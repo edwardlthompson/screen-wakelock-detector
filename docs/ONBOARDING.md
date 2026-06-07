@@ -95,6 +95,8 @@ Template: icon, title, three `ListItem` rationale rows, **Grant** button, **Skip
 
 **Grant opens:** Notification listener settings
 
+**Sideload note:** If installed from APK, tap **Start setup** on the Permissions page for restricted-settings unlock steps before granting.
+
 ---
 
 ### 2 — Usage access

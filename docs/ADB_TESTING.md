@@ -69,6 +69,7 @@ If no device at milestone end: mark `smoke-blocked` in AGENT_MEMORY — **do not
 | **M8** | `m8_smoke.sh` | Verify script + icon; Settings + Insights; WakeCountWidget; no crash |
 | **M8 deep** | `m8_adb_deep_verify.sh` | Root timeline on Detail; Share diagnostic report; pattern Mute/Open; batch mute dialog (OnePlus CPH2583) |
 | **M9** | `m9_smoke.sh` | Install signed `dist/Screen-Wakelock-Detector-{version}.apk`; launch; versionName match; no crash |
+| **M10** | `m10_smoke.sh` | Restricted-setup helpers present; onboarding launches after pm clear |
 
 ---
 

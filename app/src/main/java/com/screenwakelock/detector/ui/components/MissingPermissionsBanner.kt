@@ -10,20 +10,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.screenwakelock.detector.data.repository.PermissionStatusRepository
 import com.screenwakelock.detector.domain.model.PermissionKind
 import com.screenwakelock.detector.domain.model.PermissionStatus
+import com.screenwakelock.detector.ui.hooks.usePermissionStatuses
+import com.screenwakelock.detector.util.RestrictedSettingsHelper
 
 @Composable
 fun MissingPermissionsBanner(
@@ -31,21 +26,12 @@ fun MissingPermissionsBanner(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
     val repo = remember { PermissionStatusRepository(context) }
-    var missing by remember { mutableStateOf(repo.getAllStatuses().filter { !it.granted }) }
+    val allStatuses = usePermissionStatuses(repo)
+    val missing = allStatuses.filter { !it.granted }
+    val needsUnlock = RestrictedSettingsHelper.needsUnlock(context)
 
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                missing = repo.getAllStatuses().filter { !it.granted }
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    if (missing.isEmpty()) return
+    if (missing.isEmpty() && !needsUnlock) return
 
     val highlight = missing.firstHighlightKey()
     Card(
@@ -59,17 +45,25 @@ fun MissingPermissionsBanner(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                text = "${missing.size} permission(s) off",
+                text = when {
+                    needsUnlock -> "Unlock permissions required"
+                    else -> "${missing.size} permission(s) off"
+                },
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer,
             )
             Text(
-                text = "Turn on recommended permissions to identify which apps wake your screen.",
+                text = when {
+                    needsUnlock ->
+                        "This app was sideloaded. Allow restricted settings, then grant Notification and Usage access."
+                    else ->
+                        "Turn on recommended permissions to identify which apps wake your screen."
+                },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer,
             )
             TextButton(onClick = { onNavigatePermissions(highlight) }) {
-                Text("Turn on")
+                Text(if (needsUnlock) "Set up permissions" else "Turn on")
             }
         }
     }

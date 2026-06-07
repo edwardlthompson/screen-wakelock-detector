@@ -170,3 +170,17 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [ADB] Run `m9_smoke.sh` PASS on OP13 (`b5214fc6`); record in GATES.md
 - [x] [AGENT] Update `docs/AGENT_MEMORY.md` — signed release asset naming, keystore path, OP13 unsigned root cause
 - [x] [AGENT] Gate G9 checklist complete; `archive-completed-tasks.py --milestone M9`; commit; push; tag `v1.2.1`
+
+## 2026-06-07 — M10 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] Add `InstallSourceHelper` — sideload detection via `getInstallSourceInfo()`
+- [x] [AGENT] [PARALLEL-OK] Add `RestrictedSettingsHelper` — `android:access_restricted_settings` AppOps check (API 33+)
+- [x] [AGENT] [PARALLEL-OK] Add `PermissionSetupGuide` + extend `IntentUtils` for guided unlock flow
+- [x] [AGENT] [PARALLEL-OK] Add `usePermissionStatuses()` Compose hook — live refresh on ON_RESUME/ON_START
+- [x] [AGENT] [PARALLEL-OK] Fix `OnboardingPermissions` live refresh; add `RestrictedSetupCard` on Permissions + Settings Permissions
+- [x] [AGENT] [PARALLEL-OK] Unit tests for install-source allowlist + restricted-settings logic
+- [x] [AGENT] Bump version; CHANGELOG `[1.2.2]`; fastlane changelog `1002002.txt`
+- [x] [AGENT] Update `docs/PERMISSIONS.md`, `docs/ONBOARDING.md`, `docs/ADB_TESTING.md`, `docs/AGENT_MEMORY.md`
+- [x] [AGENT] Add `scripts/smoke/m10_smoke.sh`
+- [x] [AGENT] `./gradlew lint test assembleDebug`
+- [x] [ADB] Guided flow on OP13 sideload; chips update on Permissions page without pager advance
