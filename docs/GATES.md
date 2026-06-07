@@ -290,3 +290,4 @@ Partial at M1/M4; full at M5.
 - [x] m11_smoke.sh PASS (manual OP12 `b5214fc6` 1.2.3 — restricted chip green after OnePlus Allow dialog) `[ADB]`
 - [x] Gate GSM (M11) recorded `[AGENT]`
 - [x] Gate G11 passed → archive → commit → push → tag v1.2.3 `[AGENT]`
+- [x] Gate G11 passed; [v1.2.3](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.3) published 2026-06-07 `[AGENT]`

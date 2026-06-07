@@ -14,7 +14,7 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 <!-- PARALLEL -->
 <!-- END PARALLEL -->
 
-- [ ] [AGENT] Archive M11; commit; push; tag `v1.2.3`; publish signed APK
+- [x] [AGENT] Archive M11; commit; push; tag `v1.2.3`; publish signed APK
 
 ### M11 — ADB
 
@@ -58,5 +58,7 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 **M9:** Complete — tag [v1.2.1](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.1) signed release published 2026-06-07.
 
 **M10:** Complete — tag [v1.2.2](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.2) published 2026-06-07.
+
+**M11:** Complete — tag [v1.2.3](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.3) published 2026-06-07.
 
 See [`GATES.md`](GATES.md) for full checklists.
