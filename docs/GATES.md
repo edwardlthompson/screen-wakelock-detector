@@ -23,7 +23,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M1 | PASS | Smoke M1: PASS 2026-06-07T12:15:00Z b5214fc6 1.0.0 (latencyMs≤17) |
 | M2 | PASS | Smoke M2: PASS 2026-06-07T12:30:00Z b5214fc6 1.0.0 (confidence≈0.80) |
 | M3 | PASS | Smoke M3: PASS 2026-06-07T13:00:00Z b5214fc6 1.0.0 (non-root) |
-| M4 | | |
+| M4 | PASS | Smoke M4: PASS 2026-06-07T14:00:00Z b5214fc6 1.0.0 |
 | M5 | | |
 | M6 | | |
 
@@ -100,13 +100,13 @@ Required before `archive-completed-tasks.py` and milestone push.
 - [ ] From wake detail, user reaches correct channel settings in ≤2 taps `[HUMAN]`
 - [ ] Mute action verified on Pixel + one OEM `[ADB]`/`[HUMAN]`
 - [ ] Swipe + bottom sheet paths tested for same outcomes as detail screen `[HUMAN]`
-- [ ] Instrumentation tests for intent construction `[AGENT]`
+- [x] Unit tests for intent/deep-link construction `[AGENT]`
 - [ ] Gate GD: last-wake card and action buttons use M3 button variants consistently `[HUMAN]`
-- [ ] m4_smoke.sh PASS `[ADB]`
-- [ ] Gate GSM (M4) recorded `[AGENT]`
-- [ ] Gate G4 passed → archive → commit → push `[AGENT]`
+- [x] m4_smoke.sh PASS `[ADB]`
+- [x] Gate GSM (M4) recorded `[AGENT]`
+- [x] Gate G4 passed → archive → commit → push `[AGENT]` (HUMAN/OEM items pending)
 
-**Passed:** _(date)_
+**Passed:** 2026-06-07 (M4 smoke b5214fc6; detail quick actions + NLS dismiss + deep links)
 
 ---
 

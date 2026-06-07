@@ -33,12 +33,17 @@ sleep 2
 log "Attempt deep link to quick-fix sheet for latest wake"
 "${ADB}" -s "${DEVICE}" shell am start -a android.intent.action.VIEW \
   -d "screenwakelock://wake/latest/actions" -p "${PACKAGE}" 2>/dev/null || true
-sleep 2
+sleep 3
 
 UI="$("${ADB}" -s "${DEVICE}" exec-out uiautomator dump /dev/stdout 2>/dev/null || true)"
-echo "${UI}" | grep -qiE "Silence|Open notification|settings|Mute" \
-  && log "Quick-fix actions found in UI" \
-  || log "WARN: bottom sheet not detected — open manually from last-wake card"
+echo "${UI}" | grep -qiE "Silence channel|Open notification|Why this app" \
+  && log "Quick-fix bottom sheet detected" \
+  || log "WARN: bottom sheet not detected — may need a logged wake on device"
+
+log "Deep link quick-fix for event id 1 (if exists)"
+"${ADB}" -s "${DEVICE}" shell am start -a android.intent.action.VIEW \
+  -d "screenwakelock://app/quickfix/1" -p "${PACKAGE}" 2>/dev/null || true
+sleep 2
 
 log "Fire channel settings intent (generic)"
 "${ADB}" -s "${DEVICE}" shell am start -a android.settings.CHANNEL_NOTIFICATION_SETTINGS 2>/dev/null \

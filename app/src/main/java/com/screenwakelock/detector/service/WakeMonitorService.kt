@@ -23,6 +23,7 @@ import com.screenwakelock.detector.data.repository.NotificationCacheRepository
 import com.screenwakelock.detector.data.repository.PreferencesRepository
 import com.screenwakelock.detector.data.repository.WakeEventRepository
 import com.screenwakelock.detector.domain.attributor.WakeAttributor
+import com.screenwakelock.detector.domain.model.ReasonCode
 import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.widget.WakeWidgetReceiver
 import dagger.hilt.android.AndroidEntryPoint
@@ -127,13 +128,15 @@ class WakeMonitorService : LifecycleService() {
             "pkg=${event.attributedPackage} channel=${event.channelId} confidence=${event.confidence}")
         WakeWidgetReceiver.requestUpdate(this)
 
+        val stored = event.copy(id = id)
         val alertEvery = preferencesRepository.alertOnEveryWake.first()
         val thresholdEnabled = preferencesRepository.thresholdAlertsEnabled.first()
-        if (alertEvery) {
-            wakeAlertNotifier.notifySingleWake(event.copy(id = id))
-        } else if (thresholdEnabled) {
-            wakeAlertNotifier.maybeNotifyThreshold(
-                event.copy(id = id),
+        val isUnknown = stored.attributedPackage == null || stored.reasonCode == ReasonCode.UNKNOWN
+        when {
+            alertEvery && isUnknown -> wakeAlertNotifier.notifyUnknownWake(stored)
+            alertEvery -> wakeAlertNotifier.notifySingleWake(stored)
+            thresholdEnabled && !isUnknown -> wakeAlertNotifier.maybeNotifyThreshold(
+                stored,
                 wakeEventRepository,
                 preferencesRepository.thresholdCount.first(),
             )

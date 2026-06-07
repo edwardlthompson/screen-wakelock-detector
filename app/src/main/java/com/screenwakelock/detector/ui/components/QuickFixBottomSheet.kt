@@ -1,9 +1,7 @@
 package com.screenwakelock.detector.ui.components
 
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -19,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.screenwakelock.detector.domain.model.WakeEvent
+import com.screenwakelock.detector.util.ChannelMuter
 import com.screenwakelock.detector.util.IntentUtils
+import com.screenwakelock.detector.util.SilenceWake
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,11 +28,12 @@ fun QuickFixBottomSheet(
     visible: Boolean,
     onDismiss: () -> Unit,
     onWhyThisApp: (Long) -> Unit,
-    onMuteChannel: (WakeEvent) -> Unit,
+    onMuteChannel: (WakeEvent, ChannelMuter.MuteResult) -> Unit,
 ) {
     if (!visible || event == null) return
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val pkg = event.attributedPackage
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -57,32 +58,40 @@ fun QuickFixBottomSheet(
             }
             ConfidenceIndicator(confidence = event.confidence)
 
-            Button(
-                onClick = {
-                    val pkg = event.attributedPackage
-                    val channel = event.channelId
-                    if (pkg != null && channel != null && IntentUtils.canOpenChannelSettings()) {
-                        context.startActivity(IntentUtils.channelNotificationSettings(pkg, channel))
-                    } else if (pkg != null) {
-                        context.startActivity(IntentUtils.appNotificationSettings(pkg))
-                    }
-                    onDismiss()
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Silence channel")
-            }
+            if (pkg != null) {
+                Button(
+                    onClick = {
+                        val result = SilenceWake.silence(event)
+                        SilenceWake.openSettings(context, event)
+                        onMuteChannel(event, result)
+                        onDismiss()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Silence channel")
+                }
 
-            OutlinedButton(
-                onClick = {
-                    event.attributedPackage?.let {
-                        context.startActivity(IntentUtils.appNotificationSettings(it))
-                    }
-                    onDismiss()
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Open notification settings")
+                OutlinedButton(
+                    onClick = {
+                        if (event.channelId != null && IntentUtils.canOpenChannelSettings()) {
+                            context.startActivity(
+                                IntentUtils.channelNotificationSettings(pkg, event.channelId),
+                            )
+                        } else {
+                            context.startActivity(IntentUtils.appNotificationSettings(pkg))
+                        }
+                        onDismiss()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Open notification settings")
+                }
+            } else {
+                Text(
+                    text = "No app attributed — grant permissions to identify wake sources.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
 
             TextButton(

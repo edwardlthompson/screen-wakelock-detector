@@ -74,24 +74,15 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 ## M4 — Quick actions and remediation
 
 <!-- PARALLEL -->
-- [ ] [AGENT] [PARALLEL-OK] Last-wake home card + history row IconButton actions
-- [ ] [AGENT] [PARALLEL-OK] Swipe actions: settings / mute channel with confirm + Snackbar Undo
-- [ ] [AGENT] [PARALLEL-OK] Quick-fix ModalBottomSheet (silence, open settings, why this app?)
-- [ ] [AGENT] [PARALLEL-OK] WakeAlertNotifier with descriptive app+channel copy
 <!-- END PARALLEL -->
 
 <!-- SEQUENTIAL -->
-- [ ] [AGENT] Deep links: channel settings, app notification settings, app details
-- [ ] [AGENT] Mute channel via NotificationManager where supported; document OEM limits
-- [ ] [AGENT] Post-notifications onboarding step + Settings alert notifications switch row
-- [ ] [AGENT] Instrumentation tests for intent construction
 <!-- END SEQUENTIAL -->
 
 <!-- PARALLEL -->
 - [ ] [HUMAN] Wake detail → channel settings in ≤2 taps
 - [ ] [ADB] Mute verified on Pixel + one OEM
 - [ ] [HUMAN] Swipe + bottom sheet paths match detail screen outcomes
-- [ ] [ADB] Run m4_smoke.sh PASS; record in GATES.md
 <!-- END PARALLEL -->
 
 **Gate G4, GD (partial)** — see [`GATES.md`](GATES.md)

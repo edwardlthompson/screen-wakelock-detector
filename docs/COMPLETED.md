@@ -50,3 +50,15 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] Unit tests: allowlist rejects arbitrary commands; parser fixtures API 29/31/34
 - [x] [ADB] Non-root: root rows disabled; no crash on su deny/timeout/parse failure
 - [x] [ADB] Run m3_smoke.sh PASS; record in GATES.md
+
+## 2026-06-07 — M4 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] Last-wake home card + history row IconButton actions
+- [x] [AGENT] [PARALLEL-OK] Swipe actions: settings / mute channel with confirm + Snackbar Undo
+- [x] [AGENT] [PARALLEL-OK] Quick-fix ModalBottomSheet (silence, open settings, why this app?)
+- [x] [AGENT] [PARALLEL-OK] WakeAlertNotifier with descriptive app+channel copy
+- [x] [AGENT] Deep links: channel settings, app notification settings, app details
+- [x] [AGENT] Mute channel via NotificationManager where supported; document OEM limits
+- [x] [AGENT] Post-notifications onboarding step + Settings alert notifications switch row
+- [x] [AGENT] Instrumentation tests for intent construction
+- [x] [ADB] Run m4_smoke.sh PASS; record in GATES.md

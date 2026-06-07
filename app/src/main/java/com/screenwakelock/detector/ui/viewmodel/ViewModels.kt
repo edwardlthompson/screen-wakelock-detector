@@ -13,10 +13,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    wakeEventRepository: WakeEventRepository,
+    private val wakeEventRepository: WakeEventRepository,
 ) : ViewModel() {
     val latestWake: StateFlow<WakeEvent?> = wakeEventRepository.observeLatest()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    suspend fun loadEvent(id: Long): WakeEvent? = wakeEventRepository.getById(id)
 }
 
 @HiltViewModel

@@ -172,6 +172,11 @@ private fun OnboardingPermissions(repo: PermissionStatusRepository) {
             "Grant these for best attribution. You can change them anytime in Settings.",
             style = MaterialTheme.typography.bodyMedium,
         )
+        Text(
+            "Enable Notifications for this app if you want wake alerts when the screen turns on.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         statuses.forEach { status ->
             PermissionChip(
                 label = status.label,

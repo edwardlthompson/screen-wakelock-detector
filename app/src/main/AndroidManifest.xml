@@ -34,6 +34,21 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="screenwakelock" android:host="app" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="screenwakelock" android:host="wake" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="screenwakelock" android:host="settings" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="screenwakelock" android:host="insights" />
+            </intent-filter>
         </activity>
 
         <service

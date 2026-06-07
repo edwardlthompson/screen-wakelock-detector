@@ -1,6 +1,5 @@
 package com.screenwakelock.detector.ui.screens
 
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -21,9 +21,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -42,7 +44,9 @@ import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.ui.components.QuickFixBottomSheet
 import com.screenwakelock.detector.ui.components.WakeEventCard
 import com.screenwakelock.detector.ui.viewmodel.HistoryViewModel
+import com.screenwakelock.detector.util.ChannelMuter
 import com.screenwakelock.detector.util.IntentUtils
+import com.screenwakelock.detector.util.SilenceWake
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,13 +63,57 @@ fun HistoryScreen(
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var quickFixEvent by remember { mutableStateOf<WakeEvent?>(null) }
+    var pendingMuteEvent by remember { mutableStateOf<WakeEvent?>(null) }
+
+    fun onMuted(event: WakeEvent, result: ChannelMuter.MuteResult) {
+        scope.launch {
+            val message = SilenceWake.snackbarMessage(result, event.displayAppName)
+            val snackResult = snackbar.showSnackbar(message = message, actionLabel = "Undo")
+            if (snackResult == SnackbarResult.ActionPerformed) {
+                SilenceWake.openSettings(context, event)
+            }
+        }
+    }
+
+    pendingMuteEvent?.let { event ->
+        AlertDialog(
+            onDismissRequest = { pendingMuteEvent = null },
+            title = { Text("Silence ${event.displayAppName}?") },
+            text = {
+                Text(
+                    "Dismiss active notifications from this app and open channel settings " +
+                        "for a lasting fix. Android does not allow silencing other apps programmatically.",
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val result = SilenceWake.silence(event)
+                        SilenceWake.openSettings(context, event)
+                        pendingMuteEvent = null
+                        onMuted(event, result)
+                    },
+                ) {
+                    Text("Silence")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingMuteEvent = null }) {
+                    Text("Cancel")
+                }
+            },
+        )
+    }
 
     QuickFixBottomSheet(
         event = quickFixEvent,
         visible = quickFixEvent != null,
         onDismiss = { quickFixEvent = null },
         onWhyThisApp = onNavigateDetail,
-        onMuteChannel = { quickFixEvent = null },
+        onMuteChannel = { event, result ->
+            quickFixEvent = null
+            onMuted(event, result)
+        },
     )
 
     Scaffold(
@@ -112,62 +160,64 @@ fun HistoryScreen(
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                items(events, key = { it.id }) { event ->
-                    val dismissState = rememberSwipeToDismissBoxState(
-                        confirmValueChange = { value ->
-                            when (value) {
-                                SwipeToDismissBoxValue.StartToEnd -> {
-                                    event.attributedPackage?.let { pkg ->
-                                        context.startActivity(IntentUtils.appNotificationSettings(pkg))
+                    items(events, key = { it.id }) { event ->
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            confirmValueChange = { value ->
+                                when (value) {
+                                    SwipeToDismissBoxValue.StartToEnd -> {
+                                        event.attributedPackage?.let { pkg ->
+                                            context.startActivity(IntentUtils.appNotificationSettings(pkg))
+                                        }
+                                        true
                                     }
-                                    true
-                                }
-                                SwipeToDismissBoxValue.EndToStart -> {
-                                    quickFixEvent = event
-                                    true
-                                }
-                                else -> false
-                            }
-                        },
-                    )
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        enableDismissFromStartToEnd = event.attributedPackage != null,
-                        enableDismissFromEndToStart = true,
-                        backgroundContent = {
-                            val direction = dismissState.dismissDirection
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp),
-                                contentAlignment = when (direction) {
-                                    SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
-                                    SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
-                                    else -> Alignment.Center
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = when (direction) {
-                                        SwipeToDismissBoxValue.StartToEnd -> Icons.Default.Settings
-                                        else -> Icons.Default.Delete
-                                    },
-                                    contentDescription = null,
-                                )
-                            }
-                        },
-                    ) {
-                        WakeEventCard(
-                            event = event,
-                            onClick = { onNavigateDetail(event.id) },
-                            trailingContent = {
-                                IconButton(onClick = { quickFixEvent = event }) {
-                                    Icon(Icons.Default.Settings, contentDescription = "Quick fix")
+                                    SwipeToDismissBoxValue.EndToStart -> {
+                                        if (event.attributedPackage != null) {
+                                            pendingMuteEvent = event
+                                        }
+                                        false
+                                    }
+                                    else -> false
                                 }
                             },
                         )
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            enableDismissFromStartToEnd = event.attributedPackage != null,
+                            enableDismissFromEndToStart = event.attributedPackage != null,
+                            backgroundContent = {
+                                val direction = dismissState.dismissDirection
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(8.dp),
+                                    contentAlignment = when (direction) {
+                                        SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
+                                        SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
+                                        else -> Alignment.Center
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = when (direction) {
+                                            SwipeToDismissBoxValue.StartToEnd -> Icons.Default.Settings
+                                            else -> Icons.Default.Delete
+                                        },
+                                        contentDescription = null,
+                                    )
+                                }
+                            },
+                        ) {
+                            WakeEventCard(
+                                event = event,
+                                onClick = { onNavigateDetail(event.id) },
+                                trailingContent = {
+                                    IconButton(onClick = { quickFixEvent = event }) {
+                                        Icon(Icons.Default.Settings, contentDescription = "Quick fix")
+                                    }
+                                },
+                            )
+                        }
                     }
                 }
-            }
             }
         }
     }

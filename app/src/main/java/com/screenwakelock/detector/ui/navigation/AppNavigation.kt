@@ -53,6 +53,8 @@ fun AppNavigation(
     deepLinkWakeId: Long? = null,
     deepLinkHighlight: String? = null,
     deepLinkRoute: String? = null,
+    deepLinkQuickFixWakeId: Long? = null,
+    onDeepLinkConsumed: () -> Unit = {},
 ) {
     val navController = rememberNavController()
     val onboardingViewModel: OnboardingViewModel = hiltViewModel()
@@ -69,7 +71,13 @@ fun AppNavigation(
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = currentRoute in bottomItems.map { it.first }
 
-    androidx.compose.runtime.LaunchedEffect(hasCompletedIntro, deepLinkWakeId, deepLinkHighlight, deepLinkRoute) {
+    androidx.compose.runtime.LaunchedEffect(
+        hasCompletedIntro,
+        deepLinkWakeId,
+        deepLinkHighlight,
+        deepLinkRoute,
+        deepLinkQuickFixWakeId,
+    ) {
         if (!hasCompletedIntro) {
             navController.navigate(Routes.ONBOARDING) {
                 popUpTo(navController.graph.id) { inclusive = true }
@@ -80,11 +88,22 @@ fun AppNavigation(
                 "permissions" -> navController.navigate(Routes.permissions(deepLinkHighlight))
                 "insights" -> navController.navigate(Routes.INSIGHTS)
                 else -> {
+                    deepLinkQuickFixWakeId?.let {
+                        navController.navigate(Routes.HOME) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                     deepLinkWakeId?.let { id ->
                         navController.navigate(Routes.detail(id))
+                        onDeepLinkConsumed()
                     }
                     deepLinkHighlight?.let {
                         navController.navigate(Routes.permissions(it))
+                        onDeepLinkConsumed()
                     }
                 }
             }
@@ -133,6 +152,8 @@ fun AppNavigation(
                 HomeScreen(
                     onNavigateHistory = { navController.navigate(Routes.HISTORY) },
                     onNavigateDetail = { navController.navigate(Routes.detail(it)) },
+                    deepLinkQuickFixWakeId = deepLinkQuickFixWakeId,
+                    onDeepLinkConsumed = onDeepLinkConsumed,
                 )
             }
             composable(Routes.HISTORY) {

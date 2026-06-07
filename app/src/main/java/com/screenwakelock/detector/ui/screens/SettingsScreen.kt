@@ -1,6 +1,7 @@
 package com.screenwakelock.detector.ui.screens
 
 import android.content.Intent
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,12 +16,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.service.WakeMonitorService
 import com.screenwakelock.detector.ui.viewmodel.SettingsViewModel
+import com.screenwakelock.detector.data.repository.PermissionStatusRepository
 import com.screenwakelock.detector.util.ExportUtils
 import com.screenwakelock.detector.util.IntentUtils
 import kotlinx.coroutines.launch
@@ -40,6 +43,8 @@ fun SettingsScreen(
     val events by historyViewModel.events.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val permissionRepo = remember { PermissionStatusRepository(context) }
+    val alertsPermissionGranted = remember { permissionRepo.isPostNotificationsGranted() }
 
     Scaffold(topBar = { TopAppBar(title = { Text("Settings") }) }) { padding ->
         LazyColumn(
@@ -84,6 +89,23 @@ fun SettingsScreen(
                         )
                     },
                 )
+            }
+            if (!alertsPermissionGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                item {
+                    ListItem(
+                        modifier = Modifier.clickable {
+                            context.startActivity(
+                                Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                    putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+                                },
+                            )
+                        },
+                        headlineContent = { Text("Wake alert notifications") },
+                        supportingContent = {
+                            Text("Allow notifications so wake alerts can appear")
+                        },
+                    )
+                }
             }
             item {
                 ListItem(

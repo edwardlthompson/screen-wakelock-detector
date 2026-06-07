@@ -16,20 +16,31 @@ object IntentUtils {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
 
+    fun wakeDetailDeepLinkString(wakeEventId: Long): String =
+        "$DEEP_LINK_SCHEME://$DEEP_LINK_HOST/detail/$wakeEventId"
+
     fun wakeDetailDeepLink(wakeEventId: Long): Uri =
-        Uri.parse("$DEEP_LINK_SCHEME://$DEEP_LINK_HOST/detail/$wakeEventId")
+        Uri.parse(wakeDetailDeepLinkString(wakeEventId))
+
+    fun quickFixDeepLinkString(wakeEventId: Long): String =
+        "$DEEP_LINK_SCHEME://$DEEP_LINK_HOST/quickfix/$wakeEventId"
 
     fun quickFixDeepLink(wakeEventId: Long): Uri =
-        Uri.parse("$DEEP_LINK_SCHEME://$DEEP_LINK_HOST/quickfix/$wakeEventId")
+        Uri.parse(quickFixDeepLinkString(wakeEventId))
 
-    fun permissionsDeepLink(highlight: String? = null): Uri {
+    fun latestQuickFixDeepLinkString(): String =
+        "$DEEP_LINK_SCHEME://wake/latest/actions"
+
+    fun latestQuickFixDeepLink(): Uri =
+        Uri.parse(latestQuickFixDeepLinkString())
+
+    fun permissionsDeepLinkString(highlight: String? = null): String {
         val base = "$DEEP_LINK_SCHEME://$DEEP_LINK_HOST/permissions"
-        return if (highlight != null) {
-            Uri.parse("$base?highlight=$highlight")
-        } else {
-            Uri.parse(base)
-        }
+        return if (highlight != null) "$base?highlight=$highlight" else base
     }
+
+    fun permissionsDeepLink(highlight: String? = null): Uri =
+        Uri.parse(permissionsDeepLinkString(highlight))
 
     fun notificationListenerSettings(): Intent =
         Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {

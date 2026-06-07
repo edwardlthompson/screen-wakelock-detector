@@ -118,3 +118,30 @@ In-app history and Insights still update.
 - `[HUMAN]` copy review for tone and clarity
 
 See [`ADB_TESTING.md`](ADB_TESTING.md) for smoke scripts.
+
+---
+
+## OEM mute limits
+
+Android **does not** expose an API to change another app's notification channel importance. `NotificationManager` channel APIs only apply to **your own** package.
+
+**What we do instead:**
+
+| Step | Mechanism |
+|------|-----------|
+| Dismiss active notifications | `NotificationListenerService.cancelNotification()` via our listener (requires Notification access) |
+| Lasting silence | Deep link to `ACTION_CHANNEL_NOTIFICATION_SETTINGS` or `ACTION_APP_NOTIFICATION_SETTINGS` |
+| Undo snackbar | Re-opens channel/app settings (cannot restore dismissed notifications) |
+
+**OEM notes:**
+
+| OEM | Channel settings intent | Listener cancel |
+|-----|-------------------------|-----------------|
+| Pixel / AOSP | Supported API 26+ | Works when listener connected |
+| Samsung One UI | Channel screen may omit importance slider on some versions | Cancel works; user may need App info → Notifications |
+| OnePlus / Oppo (ColorOS) | Channel settings sometimes redirect to app-level screen | Same dismiss + settings fallback |
+| Xiaomi MIUI | Aggressive notification grouping; channel ID may differ from AOSP | Verify on device; document in issue if broken |
+
+**User copy:** “Silence channel” dismisses visible notifications and opens system settings — it does **not** permanently mute the app without user action in Settings.
+
+Implementation: `ChannelMuter`, `SilenceWake`, `NotificationCaptureService.dismissNotifications()`.

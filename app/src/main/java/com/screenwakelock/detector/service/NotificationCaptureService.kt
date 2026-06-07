@@ -19,6 +19,18 @@ class NotificationCaptureService : NotificationListenerService() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    override fun onCreate() {
+        super.onCreate()
+        instance = this
+    }
+
+    override fun onDestroy() {
+        if (instance === this) {
+            instance = null
+        }
+        super.onDestroy()
+    }
+
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val notification = sbn.notification ?: return
         val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -53,10 +65,37 @@ class NotificationCaptureService : NotificationListenerService() {
 
     override fun onListenerConnected() {
         super.onListenerConnected()
+        instance = this
         scope.launch {
             activeNotifications?.forEach { sbn ->
                 onNotificationPosted(sbn)
             }
         }
+    }
+
+    fun dismissMatching(packageName: String, channelId: String?): Int {
+        var count = 0
+        activeNotifications?.forEach { sbn ->
+            val matchesPackage = sbn.packageName == packageName
+            val sbnChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                sbn.notification.channelId
+            } else {
+                null
+            }
+            val matchesChannel = channelId == null || sbnChannel == channelId
+            if (matchesPackage && matchesChannel) {
+                cancelNotification(sbn.key)
+                count++
+            }
+        }
+        return count
+    }
+
+    companion object {
+        @Volatile
+        private var instance: NotificationCaptureService? = null
+
+        fun dismissNotifications(packageName: String, channelId: String?): Int =
+            instance?.dismissMatching(packageName, channelId) ?: 0
     }
 }

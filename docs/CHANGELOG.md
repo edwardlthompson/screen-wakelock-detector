@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Core wake capture: foreground monitoring service (screen on/off + DisplayManager), Room WakeEvent persistence, history UI, onboarding shell (M1).
 - Non-root attribution: NotificationListenerService metadata cache, WakeAttributor correlator, usage-stats fallback, detail screen with confidence/candidates, Permissions center (M2).
 - Root stack: libsu shell, allowlisted dumpsys/wakeup parsers, RootAttributor, Settings → Root UI with disabled state on non-root, onboarding root copy (M3).
+- Quick actions: last-wake Fix it card, history swipe (settings/mute), QuickFix bottom sheet, detail screen silence/settings buttons, ChannelMuter via NLS dismiss + settings deep links, wake/latest/actions and app/quickfix deep links (M4).
 
 ### Changed
 
