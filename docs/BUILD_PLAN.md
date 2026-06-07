@@ -41,4 +41,6 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 
 **M9:** Complete — tag [v1.2.1](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.1) signed release published 2026-06-07.
 
+**M10:** Complete — v1.2.2 guided sideload permission setup (commit on main; tag pending).
+
 See [`GATES.md`](GATES.md) for full checklists.

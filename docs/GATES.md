@@ -273,4 +273,4 @@ Partial at M1/M4; full at M5.
 - [x] Onboarding Permissions refreshes chip state on resume (no pager advance required) `[AGENT]`
 - [x] `m10_smoke.sh` PASS `[ADB]` (b5214fc6 1.2.2)
 - [x] Gate GSM (M10) recorded `[AGENT]`
-- [ ] Gate G10 passed → archive → commit → push → tag v1.2.2 `[AGENT]`
+- [x] Gate G10 passed → archive → commit → push → tag v1.2.2 `[AGENT]`
