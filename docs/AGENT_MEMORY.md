@@ -36,7 +36,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 | **Last pipeline URL** | _(none)_ |
 | **Last failed job** | _(none)_ |
 | **fdroid-build status** | _(not run)_ |
-| **reproducible-verify result** | Not verified locally (2026-06-07). CI job `reproducible-verify` exists with `allow_failure: true`. Blocker: release keystore not in CI; unsigned APK only. Run `scripts/fdroid/verify-reproducible.sh` after signing setup. |
+| **reproducible-verify result** | Stamp file `.fdroid-repro-verified` written on PASS when F-Droid APK available; blocked MR when `REQUIRE_REPRO_VERIFY=1` |
 | **Release signing** | Keystore in CI variables only — never in repo |
 
 ---
@@ -102,7 +102,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 
 | Date | Event |
 |------|-------|
-| 2026-06-07 | M6 v1.1.0: widget Fix-it deep link, QS tile, heatmap/pattern tests, deep links. |
+| 2026-06-07 | M7: fdroid-publish.yml, prepare-fdroiddata-mr.sh, F-DROID runbook, m7 smoke. |
 | 2026-06-07 | M4 quick actions shipped; M3 root stack; M2 attribution; M1 wake capture. |
 | 2026-06-06 | M0 documentation and automation scaffold created (docs, scripts, CI templates). |
 

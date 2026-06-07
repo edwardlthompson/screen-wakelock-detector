@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - _(none)_
 
+### Changed
+
+- F-Droid publish automation: `fdroid-publish.yml`, `prepare-fdroiddata-mr.sh`, verify gate (M7).
+
 ## [1.1.0] — 2026-06-07
 
 Widgets and pattern intelligence release.

@@ -225,12 +225,34 @@ reproducible-verify:
   script:
     - chmod +x scripts/fdroid/verify-reproducible.sh
     - |
-      UP="${UPSTREAM_APK:-app/build/outputs/apk/release/app-release.apk}"
-      if [ -f "${UP}" ]; then
-        bash scripts/fdroid/verify-reproducible.sh || echo "Reproducible verify pending — document blockers in AGENT_MEMORY"
-      else
-        echo "Release APK artifact missing"
+      UP="${UPSTREAM_APK:-app/build/outputs/apk/release/app-release-unsigned.apk}"
+      if [ ! -f "${UP}" ]; then
+        UP="app/build/outputs/apk/release/app-release.apk"
       fi
+      FDROID_APK="${FDROID_APK:-}"
+      if [ -z "${FDROID_APK}" ]; then
+        for candidate in build/com.screenwakelock.detector/*/app/build/outputs/apk/*/release/*.apk .fdroid-build/*.apk; do
+          if [ -f "${candidate}" ]; then
+            FDROID_APK="${candidate}"
+            break
+          fi
+        done
+      fi
+      if [ ! -f "${UP}" ]; then
+        echo "Release APK artifact missing"
+        exit 1
+      fi
+      if [ -n "${FDROID_APK}" ] && [ -f "${FDROID_APK}" ]; then
+        UPSTREAM_APK="${UP}" FDROID_APK="${FDROID_APK}" bash scripts/fdroid/verify-reproducible.sh
+        date -u +"%Y-%m-%dT%H:%M:%SZ" > .fdroid-repro-verified
+      else
+        echo "No F-Droid builder APK — verify skipped (fdroid-build may not have run)"
+      fi
+  artifacts:
+    paths:
+      - .fdroid-repro-verified
+    expire_in: 7 days
+    when: on_success
   allow_failure: true
 
 # --- publish ---
@@ -262,15 +284,21 @@ fdroiddata-mr:
   image: alpine:3.20
   rules:
     - if: $CI_COMMIT_TAG =~ /^v.*/
-      when: manual
   needs:
+    - job: assemble-release
+      artifacts: true
     - job: reproducible-verify
       optional: true
   before_script:
-    - apk add --no-cache bash git openssh-client python3
-    - pip3 install --break-system-packages pyyaml || true
+    - apk add --no-cache bash git openssh-client python3 py3-pip
+    - pip3 install --break-system-packages pyyaml 2>/dev/null || true
   script:
-    - python3 scripts/fdroid/bump-metadata.py --commit "${CI_COMMIT_TAG}"
-    - chmod +x scripts/fdroid/open-fdroiddata-mr.sh
-    - bash scripts/fdroid/open-fdroiddata-mr.sh
+    - chmod +x scripts/fdroid/prepare-fdroiddata-mr.sh scripts/fdroid/open-fdroiddata-mr.sh scripts/fdroid/verify-reproducible.sh
+    - |
+      if [ -z "${FDROIDDATA_FORK_URL:-}" ]; then
+        echo "FDROIDDATA_FORK_URL not set — skipping fdroiddata MR (configure in CI variables)"
+        exit 0
+      fi
+      export CI_COMMIT_TAG="${CI_COMMIT_TAG}"
+      bash scripts/fdroid/prepare-fdroiddata-mr.sh
   allow_failure: true

@@ -17,6 +17,11 @@ GITLAB_TOKEN="${GITLAB_TOKEN:-}"
 command -v git >/dev/null 2>&1 || fail "git required"
 [[ -f "${METADATA_SRC}" ]] || fail "missing source metadata"
 
+if [[ "${SKIP_REPRO_VERIFY:-0}" != "1" && "${REQUIRE_REPRO_VERIFY:-0}" == "1" ]]; then
+  STAMP="${ROOT}/.fdroid-repro-verified"
+  [[ -f "${STAMP}" ]] || fail "REQUIRE_REPRO_VERIFY=1 but ${STAMP} missing — run verify-reproducible.sh first"
+fi
+
 VERSION_NAME="$(grep -E '^CurrentVersion:' "${METADATA_SRC}" | awk '{print $2}')"
 BRANCH="screenwakelock-${VERSION_NAME}-$(date +%Y%m%d)"
 

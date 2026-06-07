@@ -56,7 +56,7 @@ def bump_metadata(version_name: str, version_code: int, commit: str | None) -> N
   - versionName: '{version_name}'
     versionCode: {version_code}
     commit: {commit}
-    subdir: app
+    subdir: .
     sudo:
       - apt-get update
       - apt-get install -y openjdk-17-jdk-headless
@@ -80,11 +80,15 @@ def main() -> None:
     parser.add_argument("--version-name")
     parser.add_argument("--version-code", type=int)
     parser.add_argument("--commit", default=None, help="Git commit ref for Builds block")
+    parser.add_argument("--dry-run", action="store_true", help="Print bump only; do not write file")
     args = parser.parse_args()
 
     g_name, g_code = parse_gradle_versions()
     name = args.version_name or g_name
     code = args.version_code or g_code
+    if args.dry_run:
+        print(f"Would bump metadata -> {name} ({code}) commit={args.commit or 'master'}")
+        return
     bump_metadata(name, code, args.commit)
 
 

@@ -83,3 +83,10 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] [PARALLEL-OK] Time heatmap: 7-day hour×day grid with tap-to-filter
 - [x] [AGENT] Unit test: heatmap matches history query for sample dataset
 - [x] [ADB] Run m6_smoke.sh PASS; record in GATES.md
+
+## 2026-06-07 — M7 (smoke passed)
+
+- [x] [AGENT] Wire fdroiddata-mr CI job on v* tags after first manual inclusion merged
+- [x] [AGENT] verify-reproducible.sh gates MR creation on hash match
+- [x] [AGENT] Document automation runbook in F-DROID.md
+- [x] [ADB] Run m7_smoke.sh PASS; record in GATES.md

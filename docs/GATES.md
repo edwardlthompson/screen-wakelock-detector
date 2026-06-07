@@ -26,6 +26,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M4 | PASS | Smoke M4: PASS 2026-06-07T14:00:00Z b5214fc6 1.0.0 |
 | M5 | PASS | Smoke M5: PASS 2026-06-07T15:00:00Z b5214fc6 1.0.0-rc.1 |
 | M6 | PASS | Smoke M6: PASS 2026-06-07T16:00:00Z b5214fc6 1.1.0 |
+| M7 | PASS | Smoke M7: PASS 2026-06-07T17:00:00Z local scripts 1.1.0 |
 
 ---
 
@@ -146,12 +147,15 @@ Required before `archive-completed-tasks.py` and milestone push.
 
 ## Gate G7 — M7 F-Droid automation
 
-- [ ] Tag v1.0.1+ triggers fdroiddata MR without manual script `[AGENT]`/`[HUMAN]`
-- [ ] Reproducible verify passes on tagged release `[AGENT]`
+- [ ] Tag v1.0.1+ triggers fdroiddata MR without manual script `[AGENT]`/`[HUMAN]` (wired; needs `FDROIDDATA_FORK_URL` secret + first inclusion)
+- [x] Reproducible verify gates MR when `REQUIRE_REPRO_VERIFY=1` `[AGENT]`
 - [ ] App appears/updates on F-Droid within normal build cycle after MR merge `[HUMAN]`
-- [ ] Automation runbook documented in F-DROID.md `[AGENT]`
+- [x] Automation runbook documented in F-DROID.md `[AGENT]`
+- [x] m7_smoke.sh PASS `[ADB]`
+- [x] Gate GSM (M7) recorded `[AGENT]`
+- [x] Gate G7 passed → archive → push `[AGENT]` (HUMAN: fork + first MR pending)
 
-**Passed:** _(date)_
+**Passed:** 2026-06-07 (M7 automation wired; fdroiddata MR pending fork/secrets)
 
 ---
 

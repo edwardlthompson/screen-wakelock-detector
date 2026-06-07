@@ -9,9 +9,9 @@ App:
     Gradle: assembleRelease
 
 Build:
-  - versionName: '0.1.0'
-    versionCode: 1
-    commit: HEAD
+  - versionName: '1.1.0'
+    versionCode: 1001000
+    commit: v1.1.0
 
 ArchivePolicy: 0
 

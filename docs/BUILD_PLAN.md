@@ -121,9 +121,6 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 
 ## M7 — F-Droid publish automation (ongoing)
 
-- [ ] [AGENT] Wire fdroiddata-mr CI job on v* tags after first manual inclusion merged
-- [ ] [AGENT] verify-reproducible.sh gates MR creation on hash match
 - [ ] [HUMAN] Tag v1.0.1 triggers fdroiddata MR; app updates on F-Droid after MR merge
-- [ ] [AGENT] Document automation runbook in F-DROID.md
 
 **Gate G7** — see [`GATES.md`](GATES.md)
