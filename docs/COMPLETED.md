@@ -145,3 +145,28 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] [PARALLEL-OK] Bump version; fastlane changelog + fdroid metadata
 - [x] [AGENT] [PARALLEL-OK] CHANGELOG `[1.2.0]`; update `docs/AGENT_MEMORY.md`
 - [x] [AGENT] `./gradlew lint test assembleRelease` + verify script (subagent PASS; local JAVA_HOME unset)
+
+## 2026-06-07 — M9 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] Add release `signingConfigs` in `app/build.gradle.kts` — load `keystore.properties` or `RELEASE_*` env; unsigned only when no keystore (no debug fallback)
+- [x] [AGENT] [PARALLEL-OK] Add Gradle task `copyNamedReleaseApk` → `dist/Screen-Wakelock-Detector-{versionName}.apk`
+- [x] [AGENT] [PARALLEL-OK] Add `keystore.properties.example`; add `dist/` to `.gitignore`
+- [x] [AGENT] [PARALLEL-OK] Add `scripts/release/setup-keystore.sh` — create `%USERPROFILE%\.screen-wakelock-detector\release.jks` + `keystore.properties`; non-interactive when `RELEASE_KEY_PASSWORD` set
+- [x] [AGENT] [PARALLEL-OK] Add `scripts/release/verify-signed-apk.sh` — `apksigner verify --verbose`; fail if unsigned
+- [x] [AGENT] [PARALLEL-OK] Extend `scripts/release/verify-release-apk.sh` — when `EXPECT_SIGNED=1`, require signed APK via verify-signed-apk.sh
+- [x] [AGENT] [PARALLEL-OK] Add `scripts/release/build-signed-apk.sh` — setup-keystore → assembleRelease → verify (EXPECT_SIGNED=1) → copyNamedReleaseApk → print SHA-256
+- [x] [AGENT] [PARALLEL-OK] Add `scripts/release/decode-keystore.sh` — shared CI step: base64 secret → `/tmp/release.jks` + export `RELEASE_*` env
+- [x] [AGENT] [PARALLEL-OK] Update `.github/workflows/release.yml` — decode keystore, assembleRelease, EXPECT_SIGNED=1, attach `dist/Screen-Wakelock-Detector-*.apk` + `mapping.txt` (drop unsigned)
+- [x] [AGENT] [PARALLEL-OK] Mirror signing in `.github/workflows/fdroid-publish.yml`
+- [x] [AGENT] [PARALLEL-OK] Add `.github/workflows/republish-release.yml` — `workflow_dispatch` input `tag`; rebuild signed APK and `gh release upload`
+- [x] [AGENT] [PARALLEL-OK] Add `scripts/release/push-github-secrets.sh` — `gh secret set` for `RELEASE_STORE_FILE_B64`, passwords, alias (reads local keystore.properties)
+- [x] [AGENT] [PARALLEL-OK] Add `scripts/release/publish-signed-release.sh` — build-signed-apk → verify-signed-apk → `gh release upload` → delete `app-release-unsigned.apk` asset if present
+- [x] [AGENT] [PARALLEL-OK] Wire `EXPECT_SIGNED=1` into `.gitlab-ci.yml` `assemble-release` when `RELEASE_STORE_FILE` set
+- [x] [AGENT] Bump `versionName`/`versionCode`; add `fastlane/.../changelogs/1002001.txt`; update `docs/CHANGELOG.md` `[1.2.1]`
+- [x] [AGENT] [PARALLEL-OK] Add `scripts/smoke/m9_smoke.sh` — install `dist/Screen-Wakelock-Detector-*.apk`, launch MainActivity, assert version via `dumpsys package`
+- [x] [AGENT] [PARALLEL-OK] Document m9 smoke + release scripts in `docs/ADB_TESTING.md`, `docs/F-DROID.md`, `README.md`
+- [x] [AGENT] Run `setup-keystore.sh` (once) then `push-github-secrets.sh` when `gh auth status` OK
+- [x] [AGENT] Run `./gradlew lint test assembleDebug assembleRelease`; `build-signed-apk.sh` PASS
+- [x] [ADB] Run `m9_smoke.sh` PASS on OP13 (`b5214fc6`); record in GATES.md
+- [x] [AGENT] Update `docs/AGENT_MEMORY.md` — signed release asset naming, keystore path, OP13 unsigned root cause
+- [x] [AGENT] Gate G9 checklist complete; `archive-completed-tasks.py --milestone M9`; commit; push; tag `v1.2.1`

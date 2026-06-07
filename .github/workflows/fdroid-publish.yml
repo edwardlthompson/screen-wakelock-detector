@@ -37,20 +37,32 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew scripts/release/*.sh
+
+      - name: Decode release keystore
+        env:
+          RELEASE_STORE_FILE_B64: ${{ secrets.RELEASE_STORE_FILE_B64 }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: bash scripts/release/decode-keystore.sh
+
       - name: Assemble release
         run: |
-          chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease copyNamedReleaseApk
 
       - name: Verify release APK
-        run: |
-          chmod +x scripts/release/verify-release-apk.sh
-          bash scripts/release/verify-release-apk.sh
+        env:
+          EXPECT_SIGNED: ${{ secrets.RELEASE_STORE_FILE_B64 != '' && '1' || '0' }}
+        run: bash scripts/release/verify-release-apk.sh
 
       - uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: app/build/outputs/apk/release/
+          path: |
+            app/build/outputs/apk/release/
+            dist/
 
   reproducible-verify:
     runs-on: ubuntu-latest
@@ -68,6 +80,7 @@ jobs:
           chmod +x scripts/fdroid/verify-reproducible.sh
           UP="app/build/outputs/apk/release/app-release-unsigned.apk"
           [[ -f "${UP}" ]] || UP="app/build/outputs/apk/release/app-release.apk"
+          [[ -f "${UP}" ]] || UP="dist/Screen-Wakelock-Detector-"*.apk
           FDROID_APK=""
           for candidate in build/com.screenwakelock.detector/*/app/build/outputs/apk/*/release/*.apk .fdroid-build/*.apk; do
             if [[ -f "${candidate}" ]]; then

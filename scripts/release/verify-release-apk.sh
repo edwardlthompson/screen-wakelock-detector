@@ -62,4 +62,10 @@ else
   log "zipalign not available — skipping alignment check"
 fi
 
+if [[ "${EXPECT_SIGNED:-0}" == "1" ]]; then
+  VERIFY_SIGNED="${SCRIPT_DIR}/verify-signed-apk.sh"
+  [[ -x "${VERIFY_SIGNED}" ]] || chmod +x "${VERIFY_SIGNED}"
+  bash "${VERIFY_SIGNED}" "${APK}" || fail "Signed APK required (EXPECT_SIGNED=1)"
+fi
+
 log "PASS: release APK verified"

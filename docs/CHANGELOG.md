@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] — 2026-06-07
+
+Signed GitHub release fix.
+
+### Fixed
+
+- GitHub release APK is now **signed** (`Screen-Wakelock-Detector-{version}.apk`); unsigned v1.2.0 artifact failed to launch on some devices (e.g. OnePlus 13).
+
+### Added
+
+- Release signing: `keystore.properties` / CI secrets, `scripts/release/build-signed-apk.sh`, `verify-signed-apk.sh`, `m9_smoke.sh`.
+- `republish-release.yml` workflow_dispatch for re-uploading signed assets.
+
 ## [1.2.0] — 2026-06-07
 
 M8 release hardening and intelligence.

@@ -68,6 +68,20 @@ If no device at milestone end: mark `smoke-blocked` in AGENT_MEMORY — **do not
 | **M7** | `m7_smoke.sh` | F-Droid automation scripts present; verify-reproducible.sh runnable |
 | **M8** | `m8_smoke.sh` | Verify script + icon; Settings + Insights; WakeCountWidget; no crash |
 | **M8 deep** | `m8_adb_deep_verify.sh` | Root timeline on Detail; Share diagnostic report; pattern Mute/Open; batch mute dialog (OnePlus CPH2583) |
+| **M9** | `m9_smoke.sh` | Install signed `dist/Screen-Wakelock-Detector-{version}.apk`; launch; versionName match; no crash |
+
+---
+
+## Signed release build (M9+)
+
+```bash
+export RELEASE_KEY_PASSWORD='your-password'   # first run only
+bash scripts/release/setup-keystore.sh
+bash scripts/release/build-signed-apk.sh
+bash scripts/smoke/m9_smoke.sh
+```
+
+Output: `dist/Screen-Wakelock-Detector-{versionName}.apk`. See [`scripts/release/`](../scripts/release/) and [`keystore.properties.example`](../keystore.properties.example).
 
 ---
 

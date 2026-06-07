@@ -37,7 +37,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 | **Last failed job** | _(none)_ |
 | **fdroid-build status** | _(not run)_ |
 | **reproducible-verify result** | Stamp file `.fdroid-repro-verified` written on PASS when F-Droid APK available; blocked MR when `REQUIRE_REPRO_VERIFY=1` |
-| **Release signing** | Keystore in CI variables only — never in repo |
+| **Release signing** | Local: `%USERPROFILE%\.screen-wakelock-detector\release.jks` + `keystore.properties`; CI: GitHub secrets via `push-github-secrets.sh`; artifact `dist/Screen-Wakelock-Detector-{version}.apk` |
 | **Release compression (M8)** | `isMinifyEnabled` + `isShrinkResources`; `material-icons-core` (not extended); verify via `scripts/release/verify-release-apk.sh` |
 
 ---
@@ -75,6 +75,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 - **2026-06-08:** Settings About section: `BuildConfig.VERSION_NAME`, release notes copied from `fastlane/.../changelogs/{versionCode}.txt` at build time, changelog/donate via `ACTION_VIEW` (no `INTERNET` permission). F-Droid `Donate` field set to Venmo URL.
 - **2026-06-07:** M8 release compression: shrinkResources, material-icons-core, `verify-release-apk.sh` wired into GitHub/GitLab CI.
 - **2026-06-07:** M8 v1.2.0: intelligence features (ignore list, retention, WoW insights, WakeCountWidget, SAF backup). Launcher icon updated. Local `./gradlew` blocked (JAVA_HOME unset on dev machine); CI/subagent verify PASS.
+- **2026-06-07:** M9 v1.2.1: GitHub unsigned APK failed to launch on OP13; signed release via `build-signed-apk.sh`, `m9_smoke.sh`, CI `RELEASE_*` secrets. Asset name `Screen-Wakelock-Detector-{version}.apk`.
 
 ---
 

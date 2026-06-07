@@ -1,0 +1,1 @@
+Signed GitHub release APKs; fixes unsigned v1.2.0 download that failed to launch on some devices.

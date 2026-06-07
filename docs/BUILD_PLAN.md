@@ -6,6 +6,33 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 
 ---
 
+## M9 — v1.2.1 signed GitHub release
+
+**Target:** `versionName` `1.2.1`, `versionCode` `1002001` in `app/build.gradle.kts`  
+**Gate:** G9 in `docs/GATES.md` · Smoke: `scripts/smoke/m9_smoke.sh`
+
+### Phase 1 — Signing infrastructure
+
+<!-- PARALLEL -->
+<!-- END PARALLEL -->
+
+### Phase 2 — CI and GitHub automation
+
+<!-- PARALLEL -->
+<!-- END PARALLEL -->
+
+### Phase 3 — Version bump, smoke, publish
+
+- [ ] [AGENT] Confirm GitHub Release attaches signed `Screen-Wakelock-Detector-1.2.1.apk` (CI or publish-signed-release.sh)
+
+### M9 — HUMAN (batched, milestone end)
+
+- [ ] [HUMAN] Back up `%USERPROFILE%\.screen-wakelock-detector\release.jks` + passwords off-device (required for future in-place updates)
+- [ ] [HUMAN] If `gh auth status` fails, run `gh auth login` once so `push-github-secrets.sh` can run
+- [ ] [HUMAN] Optional: deprecate v1.2.0 release note — "Download v1.2.1 signed APK instead"
+
+---
+
 ## Remaining work (HUMAN only)
 
 - [ ] [HUMAN] GitLab project, MCP, README About, labels (`scripts/gitlab/create-labels.sh` ready)

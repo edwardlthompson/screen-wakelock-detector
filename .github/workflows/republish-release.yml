@@ -1,15 +1,18 @@
-name: Release
+name: Republish Signed Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v1.2.1)"
+        required: true
+        default: "v1.2.1"
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  republish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,24 +34,17 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: bash scripts/release/decode-keystore.sh
 
-      - name: Assemble signed release
+      - name: Build signed release
         run: ./gradlew assembleRelease copyNamedReleaseApk
 
-      - name: Verify release APK
+      - name: Verify signed APK
         env:
           EXPECT_SIGNED: ${{ secrets.RELEASE_STORE_FILE_B64 != '' && '1' || '0' }}
         run: bash scripts/release/verify-release-apk.sh
 
-      - name: Extract changelog
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          sed -n "/## \\[${VERSION}\\]/,/## \\[/p" docs/CHANGELOG.md | head -n -1 > release_notes.md || echo "See docs/CHANGELOG.md" > release_notes.md
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          body_path: release_notes.md
-          files: |
-            dist/Screen-Wakelock-Detector-*.apk
-            app/build/outputs/mapping/release/mapping.txt
-          fail_on_unmatched_files: false
+      - name: Upload to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.inputs.tag }}
+          SKIP_BUILD: "1"
+        run: bash scripts/release/publish-signed-release.sh "${{ github.event.inputs.tag }}"

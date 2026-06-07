@@ -172,13 +172,20 @@ assemble-release:
   rules:
     - if: $CI_COMMIT_TAG =~ /^v.*/
   script:
-    - chmod +x gradlew scripts/release/verify-release-apk.sh
-    - ./gradlew assembleRelease
+    - chmod +x gradlew scripts/release/*.sh
+    - |
+      if [[ -n "${RELEASE_STORE_FILE_B64:-}" ]]; then
+        export RELEASE_STORE_FILE_B64 RELEASE_STORE_PASSWORD RELEASE_KEY_ALIAS RELEASE_KEY_PASSWORD
+        bash scripts/release/decode-keystore.sh
+        export EXPECT_SIGNED=1
+      fi
+    - ./gradlew assembleRelease copyNamedReleaseApk
     - bash scripts/release/verify-release-apk.sh
   artifacts:
     paths:
       - app/build/outputs/apk/release/
       - app/build/outputs/mapping/release/
+      - dist/
     expire_in: 30 days
 
 # --- fdroid ---

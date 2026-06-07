@@ -30,6 +30,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M7 | PASS | Smoke M7: PASS 2026-06-07T17:00:00Z local scripts 1.1.0 |
 | M8 | PASS | Smoke M8: PASS 2026-06-07T18:00:00Z b5214fc6 1.2.0 |
 | M8 deep | PASS | m8_adb_deep_verify: PASS 2026-06-07 b5214fc6 — root timeline, diagnostic export, pattern actions, batch mute |
+| M9 | PASS | Smoke M9: PASS 2026-06-07T19:50:00Z b5214fc6 1.2.1 |
 | ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |
 
 ---
@@ -245,3 +246,17 @@ Partial at M1/M4; full at M5.
 - [x] Gate GSM (M8) recorded `[AGENT]`
 - [x] Gate G8 agent items passed; M8 archived to COMPLETED.md `[AGENT]` (2026-06-07)
 - [x] Gate G8 passed; [v1.2.0](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.0) published 2026-06-07 `[AGENT]`
+
+---
+
+## Gate G9 — M9 v1.2.1 signed GitHub release
+
+- [x] Release Gradle signing wired; no debug-key fallback on release buildType `[AGENT]`
+- [x] `scripts/release/build-signed-apk.sh` exit 0; output `dist/Screen-Wakelock-Detector-1.2.1.apk` `[AGENT]`
+- [x] `scripts/release/verify-signed-apk.sh` PASS (apksigner v2/v3) `[AGENT]`
+- [x] GitHub `release.yml` publishes signed named APK when secrets set; unsigned artifact removed `[AGENT]`
+- [x] `push-github-secrets.sh` documented; secrets not in repo `[AGENT]`
+- [x] Signed release APK launches on OP13 after package-installer sideload `[ADB]` (b5214fc6 2026-06-07)
+- [x] m9_smoke.sh PASS `[ADB]` (b5214fc6 1.2.1)
+- [x] Gate GSM (M9) recorded `[AGENT]`
+- [ ] Gate G9 passed → archive → commit → push → tag v1.2.1 `[AGENT]`

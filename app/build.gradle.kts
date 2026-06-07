@@ -1,9 +1,22 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
+}
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
+
+fun releaseKeystoreFile(): java.io.File? {
+    val path = keystoreProperties.getProperty("storeFile") ?: System.getenv("RELEASE_STORE_FILE")
+    return path?.let { file(it).takeIf { f -> f.exists() } }
 }
 
 android {
@@ -14,11 +27,24 @@ android {
         applicationId = "com.screenwakelock.detector"
         minSdk = 29
         targetSdk = 35
-        versionCode = 1002000
-        versionName = "1.2.0"
+        versionCode = 1002001
+        versionName = "1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
+    }
+
+    signingConfigs {
+        create("release") {
+            val store = releaseKeystoreFile() ?: return@create
+            storeFile = store
+            storePassword = keystoreProperties.getProperty("storePassword")
+                ?: System.getenv("RELEASE_STORE_PASSWORD")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+                ?: System.getenv("RELEASE_KEY_ALIAS")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+                ?: System.getenv("RELEASE_KEY_PASSWORD")
+        }
     }
 
     buildTypes {
@@ -29,6 +55,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            releaseKeystoreFile()?.let {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
@@ -108,4 +137,28 @@ val copyReleaseNotes by tasks.registering(Copy::class) {
     rename { "changelog_$versionCode.txt" }
 }
 
+val copyNamedReleaseApk by tasks.registering(Copy::class) {
+    dependsOn("assembleRelease")
+    val versionName = android.defaultConfig.versionName!!
+    from(layout.buildDirectory.dir("outputs/apk/release"))
+    include("app-release.apk")
+    into(rootProject.layout.projectDirectory.dir("dist"))
+    rename { "Screen-Wakelock-Detector-${versionName}.apk" }
+    doFirst {
+        val signedApk = layout.buildDirectory.file("outputs/apk/release/app-release.apk").get().asFile
+        if (!signedApk.exists()) {
+            error(
+                "Signed app-release.apk not found — configure keystore.properties or RELEASE_* env " +
+                    "(unsigned app-release-unsigned.apk cannot be renamed for distribution)",
+            )
+        }
+    }
+}
+
 tasks.named("preBuild") { dependsOn(copyReleaseNotes) }
+
+tasks.register("printVersionName") {
+    doLast {
+        println(android.defaultConfig.versionName)
+    }
+}

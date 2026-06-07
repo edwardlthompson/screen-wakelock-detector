@@ -24,7 +24,9 @@ cd screen-wakelock-detector
 ./gradlew assembleRelease
 ```
 
-Release APK: `app/build/outputs/apk/release/app-release-unsigned.apk` (unsigned) or signed if keystore configured locally.
+Release APK: `dist/Screen-Wakelock-Detector-{versionName}.apk` when signed locally or in CI, else `app/build/outputs/apk/release/app-release-unsigned.apk`.
+
+Local signed build: `bash scripts/release/build-signed-apk.sh` (see `keystore.properties.example`). GitHub Actions secrets: `RELEASE_STORE_FILE_B64`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` — sync via `bash scripts/release/push-github-secrets.sh`.
 
 Release builds enable **R8 minification** (`isMinifyEnabled = true`) and **resource shrinking** (`isShrinkResources = true`). ProGuard mapping is written to `app/build/outputs/mapping/release/mapping.txt` — retain this artifact for crash deobfuscation. CI runs `scripts/release/verify-release-apk.sh` after `assembleRelease` (requires mapping file; rejects debug-only artifacts; 25 MB size ceiling).
 

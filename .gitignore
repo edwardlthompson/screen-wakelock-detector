@@ -18,6 +18,7 @@ captures/
 *.keystore
 keystore.properties
 release.properties
+dist/
 
 # OS
 .DS_Store

@@ -65,11 +65,14 @@ cd screen-wakelock-detector
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Release build (signed keystore required):
+Release build (signed keystore required for sideload / GitHub download):
 
 ```bash
-./gradlew assembleRelease
+bash scripts/release/setup-keystore.sh    # once; set RELEASE_KEY_PASSWORD
+bash scripts/release/build-signed-apk.sh  # → dist/Screen-Wakelock-Detector-{version}.apk
 ```
+
+Or configure `keystore.properties` from [`keystore.properties.example`](keystore.properties.example). CI uses GitHub secrets `RELEASE_STORE_FILE_B64`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD`.
 
 See [`docs/F-DROID.md`](docs/F-DROID.md) for reproducible release builds.
 
