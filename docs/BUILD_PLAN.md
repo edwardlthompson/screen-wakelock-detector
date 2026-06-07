@@ -14,6 +14,6 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 - [ ] [HUMAN] Tag triggers live fdroiddata MR; app on F-Droid after merge
 - [ ] [HUMAN] M8 icon legibility on device launcher — round/square masks, light/dark wallpapers
 
-**M8:** Agent + ADB gates closed (smoke + deep verify on b5214fc6, 2026-06-07). Tag `v1.2.0` pending push.
+**M8:** Complete — tag [v1.2.0](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.0) published 2026-06-07.
 
 See [`GATES.md`](GATES.md) for full checklists.

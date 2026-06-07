@@ -244,4 +244,4 @@ Partial at M1/M4; full at M5.
 - [x] m8_smoke.sh PASS `[ADB]` (b5214fc6 2026-06-07)
 - [x] Gate GSM (M8) recorded `[AGENT]`
 - [x] Gate G8 agent items passed; M8 archived to COMPLETED.md `[AGENT]` (2026-06-07)
-- [x] Gate G8 HUMAN icon verify pending; ADB deep verify PASS; tag `v1.2.0` on push `[AGENT]`
+- [x] Gate G8 passed; [v1.2.0](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.0) published 2026-06-07 `[AGENT]`

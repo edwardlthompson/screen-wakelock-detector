@@ -106,7 +106,8 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 
 | Date | Event |
 |------|-------|
-| 2026-06-07 | M8 v1.2.0 implemented: compression, icon, phases A–D; smoke PASS b5214fc6; 46 tasks archived. |
+| 2026-06-07 | M8 v1.2.0 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.0 |
+| 2026-06-07 | M8 ADB deep verify PASS b5214fc6 (root timeline, diagnostic export, pattern actions, batch mute) |
 
 ## 2026-06-08 — ADB + agent gate closure
 
