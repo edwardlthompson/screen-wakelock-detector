@@ -2,9 +2,7 @@ package com.screenwakelock.detector.worker
 
 import android.content.Context
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.core.DataStore
+import com.screenwakelock.detector.data.settingsDataStore
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -15,15 +13,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-
 class RetentionWorker(
     context: Context,
     params: WorkerParameters,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        val retentionDays = applicationContext.dataStore.data
+        val retentionDays = applicationContext.settingsDataStore.data
             .map { it[RETENTION_DAYS_KEY] ?: 0 }
             .first()
         if (retentionDays <= 0) return Result.success()
@@ -49,7 +45,7 @@ class RetentionWorker(
         }
 
         suspend fun pruneNow(context: Context) {
-            val retentionDays = context.dataStore.data
+            val retentionDays = context.settingsDataStore.data
                 .map { it[RETENTION_DAYS_KEY] ?: 0 }
                 .first()
             if (retentionDays <= 0) return

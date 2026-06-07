@@ -1,22 +1,18 @@
 package com.screenwakelock.detector.data.repository
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import com.screenwakelock.detector.data.settingsDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
-
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 @Singleton
 class PreferencesRepository @Inject constructor(
@@ -42,118 +38,118 @@ class PreferencesRepository @Inject constructor(
     }
 
     val hasCompletedIntro: Flow<Boolean> =
-        context.dataStore.data.map { it[Keys.HAS_COMPLETED_INTRO] ?: false }
+        context.settingsDataStore.data.map { it[Keys.HAS_COMPLETED_INTRO] ?: false }
 
     val monitoringEnabled: Flow<Boolean> =
-        context.dataStore.data.map { it[Keys.MONITORING_ENABLED] ?: true }
+        context.settingsDataStore.data.map { it[Keys.MONITORING_ENABLED] ?: true }
 
     val rootEnabled: Flow<Boolean> =
-        context.dataStore.data.map { it[Keys.ROOT_ENABLED] ?: false }
+        context.settingsDataStore.data.map { it[Keys.ROOT_ENABLED] ?: false }
 
     val alertOnEveryWake: Flow<Boolean> =
-        context.dataStore.data.map { it[Keys.ALERT_ON_EVERY_WAKE] ?: false }
+        context.settingsDataStore.data.map { it[Keys.ALERT_ON_EVERY_WAKE] ?: false }
 
     val thresholdAlertsEnabled: Flow<Boolean> =
-        context.dataStore.data.map { it[Keys.THRESHOLD_ALERTS_ENABLED] ?: true }
+        context.settingsDataStore.data.map { it[Keys.THRESHOLD_ALERTS_ENABLED] ?: true }
 
     val thresholdCount: Flow<Int> =
-        context.dataStore.data.map { it[Keys.THRESHOLD_COUNT] ?: 3 }
+        context.settingsDataStore.data.map { it[Keys.THRESHOLD_COUNT] ?: 3 }
 
     val nighttimeStartHour: Flow<Int> =
-        context.dataStore.data.map { it[Keys.NIGHTTIME_START_HOUR] ?: 23 }
+        context.settingsDataStore.data.map { it[Keys.NIGHTTIME_START_HOUR] ?: 23 }
 
     val nighttimeEndHour: Flow<Int> =
-        context.dataStore.data.map { it[Keys.NIGHTTIME_END_HOUR] ?: 6 }
+        context.settingsDataStore.data.map { it[Keys.NIGHTTIME_END_HOUR] ?: 6 }
 
     val quietHoursEnabled: Flow<Boolean> =
-        context.dataStore.data.map { it[Keys.QUIET_HOURS_ENABLED] ?: false }
+        context.settingsDataStore.data.map { it[Keys.QUIET_HOURS_ENABLED] ?: false }
 
     val ignoredPackages: Flow<Set<String>> =
-        context.dataStore.data.map { it[Keys.IGNORED_PACKAGES] ?: emptySet() }
+        context.settingsDataStore.data.map { it[Keys.IGNORED_PACKAGES] ?: emptySet() }
 
     val retentionDays: Flow<Int> =
-        context.dataStore.data.map { it[Keys.RETENTION_DAYS] ?: 0 }
+        context.settingsDataStore.data.map { it[Keys.RETENTION_DAYS] ?: 0 }
 
     val minWakeDurationMs: Flow<Int> =
-        context.dataStore.data.map { it[Keys.MIN_WAKE_DURATION_MS] ?: 0 }
+        context.settingsDataStore.data.map { it[Keys.MIN_WAKE_DURATION_MS] ?: 0 }
 
     val monitorScheduleEnabled: Flow<Boolean> =
-        context.dataStore.data.map { it[Keys.MONITOR_SCHEDULE_ENABLED] ?: false }
+        context.settingsDataStore.data.map { it[Keys.MONITOR_SCHEDULE_ENABLED] ?: false }
 
     val monitorPauseStartHour: Flow<Int> =
-        context.dataStore.data.map { it[Keys.MONITOR_PAUSE_START_HOUR] ?: 23 }
+        context.settingsDataStore.data.map { it[Keys.MONITOR_PAUSE_START_HOUR] ?: 23 }
 
     val monitorPauseEndHour: Flow<Int> =
-        context.dataStore.data.map { it[Keys.MONITOR_PAUSE_END_HOUR] ?: 7 }
+        context.settingsDataStore.data.map { it[Keys.MONITOR_PAUSE_END_HOUR] ?: 7 }
 
     val nightlyBudgets: Flow<Map<String, Int>> =
-        context.dataStore.data.map { prefs ->
+        context.settingsDataStore.data.map { prefs ->
             parseNightlyBudgets(prefs[Keys.NIGHTLY_BUDGETS] ?: "")
         }
 
     suspend fun setHasCompletedIntro(completed: Boolean) {
-        context.dataStore.edit { it[Keys.HAS_COMPLETED_INTRO] = completed }
+        context.settingsDataStore.edit { it[Keys.HAS_COMPLETED_INTRO] = completed }
     }
 
     suspend fun setMonitoringEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.MONITORING_ENABLED] = enabled }
+        context.settingsDataStore.edit { it[Keys.MONITORING_ENABLED] = enabled }
     }
 
     suspend fun setRootEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.ROOT_ENABLED] = enabled }
+        context.settingsDataStore.edit { it[Keys.ROOT_ENABLED] = enabled }
     }
 
     suspend fun setAlertOnEveryWake(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.ALERT_ON_EVERY_WAKE] = enabled }
+        context.settingsDataStore.edit { it[Keys.ALERT_ON_EVERY_WAKE] = enabled }
     }
 
     suspend fun setThresholdAlertsEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.THRESHOLD_ALERTS_ENABLED] = enabled }
+        context.settingsDataStore.edit { it[Keys.THRESHOLD_ALERTS_ENABLED] = enabled }
     }
 
     suspend fun setThresholdCount(count: Int) {
-        context.dataStore.edit { it[Keys.THRESHOLD_COUNT] = count.coerceAtLeast(1) }
+        context.settingsDataStore.edit { it[Keys.THRESHOLD_COUNT] = count.coerceAtLeast(1) }
     }
 
     suspend fun setNighttimeHours(startHour: Int, endHour: Int) {
-        context.dataStore.edit {
+        context.settingsDataStore.edit {
             it[Keys.NIGHTTIME_START_HOUR] = startHour.coerceIn(0, 23)
             it[Keys.NIGHTTIME_END_HOUR] = endHour.coerceIn(0, 23)
         }
     }
 
     suspend fun setQuietHoursEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.QUIET_HOURS_ENABLED] = enabled }
+        context.settingsDataStore.edit { it[Keys.QUIET_HOURS_ENABLED] = enabled }
     }
 
     suspend fun addIgnoredPackage(packageName: String) {
-        context.dataStore.edit { prefs ->
+        context.settingsDataStore.edit { prefs ->
             val current = prefs[Keys.IGNORED_PACKAGES] ?: emptySet()
             prefs[Keys.IGNORED_PACKAGES] = current + packageName
         }
     }
 
     suspend fun removeIgnoredPackage(packageName: String) {
-        context.dataStore.edit { prefs ->
+        context.settingsDataStore.edit { prefs ->
             val current = prefs[Keys.IGNORED_PACKAGES] ?: emptySet()
             prefs[Keys.IGNORED_PACKAGES] = current - packageName
         }
     }
 
     suspend fun setRetentionDays(days: Int) {
-        context.dataStore.edit {
+        context.settingsDataStore.edit {
             it[Keys.RETENTION_DAYS] = if (days in RETENTION_OPTIONS.toSet()) days else 0
         }
     }
 
     suspend fun setMinWakeDurationMs(ms: Int) {
-        context.dataStore.edit {
+        context.settingsDataStore.edit {
             it[Keys.MIN_WAKE_DURATION_MS] = if (ms in MIN_WAKE_DURATION_OPTIONS.toSet()) ms else 0
         }
     }
 
     suspend fun setMonitorSchedule(enabled: Boolean, startHour: Int, endHour: Int) {
-        context.dataStore.edit {
+        context.settingsDataStore.edit {
             it[Keys.MONITOR_SCHEDULE_ENABLED] = enabled
             it[Keys.MONITOR_PAUSE_START_HOUR] = startHour.coerceIn(0, 23)
             it[Keys.MONITOR_PAUSE_END_HOUR] = endHour.coerceIn(0, 23)
@@ -161,7 +157,7 @@ class PreferencesRepository @Inject constructor(
     }
 
     suspend fun setNightlyBudget(packageName: String, maxWakes: Int) {
-        context.dataStore.edit { prefs ->
+        context.settingsDataStore.edit { prefs ->
             val current = parseNightlyBudgets(prefs[Keys.NIGHTLY_BUDGETS] ?: "").toMutableMap()
             if (maxWakes <= 0) {
                 current.remove(packageName)
@@ -173,7 +169,7 @@ class PreferencesRepository @Inject constructor(
     }
 
     suspend fun removeNightlyBudget(packageName: String) {
-        context.dataStore.edit { prefs ->
+        context.settingsDataStore.edit { prefs ->
             val current = parseNightlyBudgets(prefs[Keys.NIGHTLY_BUDGETS] ?: "").toMutableMap()
             current.remove(packageName)
             prefs[Keys.NIGHTLY_BUDGETS] = encodeNightlyBudgets(current)

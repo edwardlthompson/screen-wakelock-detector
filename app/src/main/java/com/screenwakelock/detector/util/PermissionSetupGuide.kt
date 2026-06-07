@@ -25,16 +25,11 @@ object PermissionSetupGuide {
             when (kind) {
                 PermissionKind.NOTIFICATION_LISTENER,
                 PermissionKind.USAGE_STATS,
+                PermissionKind.RESTRICTED_SETTINGS,
                 -> {
-                    openNotificationListenerSettings(context)
+                    openRestrictedSettingsTrigger(context)
                     return SettingsOpenResult.ShowManualSteps(
                         SettingsGuideProvider.guideFor(context, PermissionKind.RESTRICTED_SETTINGS),
-                    )
-                }
-                PermissionKind.RESTRICTED_SETTINGS -> {
-                    openAppInfo(context)
-                    return SettingsOpenResult.ShowManualSteps(
-                        SettingsGuideProvider.guideFor(context, kind),
                     )
                 }
                 else -> { /* fall through to normal open */ }
@@ -42,7 +37,7 @@ object PermissionSetupGuide {
         }
 
         if (kind == PermissionKind.RESTRICTED_SETTINGS) {
-            openAppInfo(context)
+            openRestrictedSettingsTrigger(context)
             return SettingsOpenResult.ShowManualSteps(
                 SettingsGuideProvider.guideFor(context, kind),
             )
@@ -56,12 +51,19 @@ object PermissionSetupGuide {
         }
     }
 
-    /** Step 1: trigger the restricted-setting block dialog (required before ⋮ menu appears). */
-    fun openNotificationListenerSettings(context: Context) {
-        context.startActivity(IntentUtils.notificationListenerSettings())
+    /**
+     * Opens this app's notification-access toggle when possible so the system shows the
+     * restricted-settings block dialog on sideloaded installs.
+     */
+    fun openRestrictedSettingsTrigger(context: Context) {
+        IntentUtils.startFirstResolvable(context, IntentUtils.restrictedSettingsTriggerIntents(context))
     }
 
-    /** Step 2: App info — user taps ⋮ → Allow restricted settings. */
+    /** @deprecated Use [openRestrictedSettingsTrigger] */
+    fun openNotificationListenerSettings(context: Context) {
+        openRestrictedSettingsTrigger(context)
+    }
+
     fun openAppInfo(context: Context) {
         context.startActivity(IntentUtils.appDetailsSettings(context.packageName))
     }

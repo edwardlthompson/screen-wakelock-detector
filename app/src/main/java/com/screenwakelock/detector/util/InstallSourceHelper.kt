@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.InstallSourceInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.RequiresApi
 
 /**
  * Detects whether this app was installed outside trusted store/catalogue installers.
@@ -83,6 +84,7 @@ object InstallSourceHelper {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     fun snapshotFrom(info: InstallSourceInfo): InstallSourceSnapshot {
         val packageSource = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             info.packageSource

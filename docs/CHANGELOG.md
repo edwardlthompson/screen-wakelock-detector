@@ -14,6 +14,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.6] — 2026-06-07
+
+Fix restricted-settings navigation on Lineage / sideloaded installs.
+
+### Fixed
+
+- Allow restricted settings: Grant now opens this app's **Notification access** toggle (detail settings intent) so Android shows the restricted-setting dialog; App info is a secondary button for the ⋮ menu fallback.
+- Lineage/AOSP steps updated — turn the notification switch On first, then use App info only if the dialog did not appear.
+
+## [1.2.5] — 2026-06-07
+
+Fix startup crash on cold launch.
+
+### Fixed
+
+- Startup crash: `RetentionWorker` and `PreferencesRepository` each opened a separate DataStore for `settings.preferences_pb`; when WorkManager ran before the UI, the app crashed immediately with “multiple DataStores active for the same file” (reproduced on OP13 / Lineage Android 16).
+
 ## [1.2.4] — 2026-06-07
 
 Fix sideload detection for GitHub/browser APK installs.

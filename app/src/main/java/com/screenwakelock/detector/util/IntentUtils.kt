@@ -2,6 +2,7 @@ package com.screenwakelock.detector.util
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import com.screenwakelock.detector.MainActivity
+import com.screenwakelock.detector.service.NotificationCaptureService
 
 object IntentUtils {
     private const val VENMO_PACKAGE = "com.venmo"
@@ -62,6 +64,24 @@ object IntentUtils {
         Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
+
+    /**
+     * Opens this app's notification-access toggle directly (triggers the restricted-settings
+     * dialog on sideloaded installs when the user enables the switch).
+     */
+    fun notificationListenerDetailSettings(context: Context): Intent {
+        val component = ComponentName(context, NotificationCaptureService::class.java)
+        return Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            putExtra(Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME, component.flattenToString())
+        }
+    }
+
+    /** Intents to trigger the restricted-settings block dialog, most specific first. */
+    fun restrictedSettingsTriggerIntents(context: Context): List<Intent> = listOf(
+        notificationListenerDetailSettings(context),
+        notificationListenerSettings(),
+    )
 
     fun usageAccessSettings(): Intent =
         Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {

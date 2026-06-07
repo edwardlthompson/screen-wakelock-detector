@@ -2,6 +2,7 @@ package com.screenwakelock.detector.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -52,12 +53,25 @@ fun PermissionStepsDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    IntentUtils.startFirstResolvable(context, guide.intents)
-                },
-            ) {
-                Text("Open Settings")
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = {
+                        IntentUtils.startFirstResolvable(context, guide.intents)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(guide.confirmLabel)
+                }
+                if (guide.secondaryLabel != null && guide.secondaryIntents.isNotEmpty()) {
+                    TextButton(
+                        onClick = {
+                            IntentUtils.startFirstResolvable(context, guide.secondaryIntents)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(guide.secondaryLabel)
+                    }
+                }
             }
         },
         dismissButton = {
