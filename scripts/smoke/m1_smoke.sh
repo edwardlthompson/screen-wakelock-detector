@@ -14,7 +14,9 @@ MAIN_ACTIVITY="${MAIN_ACTIVITY:-com.screenwakelock.detector.MainActivity}"
 log() { echo "[m1_smoke] $*"; }
 fail() { echo "[m1_smoke] FAIL: $*" >&2; exit 1; }
 
-DEVICE="$("${ADB}" devices | awk 'NR>1 && $2=="device" {print $1; exit}')"
+# shellcheck source=scripts/smoke/_device.sh
+source "${SCRIPT_DIR}/_device.sh"
+DEVICE="$(pick_smoke_device "${ADB}")" || fail "device selection failed"
 [[ -n "${DEVICE}" ]] || fail "no authorized device"
 
 [[ -f "${APK_PATH}" ]] || ./gradlew assembleDebug

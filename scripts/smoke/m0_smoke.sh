@@ -19,7 +19,9 @@ if ! command -v "${ADB}" >/dev/null 2>&1; then
   fail "adb not found in PATH"
 fi
 
-DEVICE="$("${ADB}" devices | awk 'NR>1 && $2=="device" {print $1; exit}')"
+# shellcheck source=scripts/smoke/_device.sh
+source "${SCRIPT_DIR}/_device.sh"
+DEVICE="$(pick_smoke_device "${ADB}")" || fail "device selection failed"
 [[ -n "${DEVICE}" ]] || fail "no authorized device (adb devices)"
 
 log "Using device: ${DEVICE}"
