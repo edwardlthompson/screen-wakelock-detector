@@ -23,16 +23,7 @@ object SettingsGuideProvider {
     fun guideFor(context: Context, kind: PermissionKind): PermissionSettingsGuide {
         val packageName = context.packageName
         return when (kind) {
-            PermissionKind.RESTRICTED_SETTINGS -> PermissionSettingsGuide(
-                kind = kind,
-                title = "Allow restricted settings",
-                steps = restrictedSettingsSteps(context),
-                intents = IntentUtils.restrictedSettingsTriggerIntents(context),
-                showInstallerWorkaround = true,
-                confirmLabel = "Open Notification access",
-                secondaryLabel = "Open App info",
-                secondaryIntents = listOf(IntentUtils.appDetailsSettings(packageName)),
-            )
+            PermissionKind.RESTRICTED_SETTINGS -> restrictedSettingsGuide(context, packageName)
             PermissionKind.NOTIFICATION_LISTENER -> PermissionSettingsGuide(
                 kind = kind,
                 title = "Notification access",
@@ -69,13 +60,39 @@ object SettingsGuideProvider {
         }
     }
 
+    private fun restrictedSettingsGuide(context: Context, packageName: String): PermissionSettingsGuide {
+        val appInfo = listOf(IntentUtils.appDetailsSettings(packageName))
+        val notificationAccess = IntentUtils.restrictedSettingsTriggerIntents(context)
+        val appInfoFirst = DeviceOsHelper.prefersAppInfoRestrictedUnlock()
+        return PermissionSettingsGuide(
+            kind = PermissionKind.RESTRICTED_SETTINGS,
+            title = "Allow restricted settings",
+            steps = restrictedSettingsSteps(context),
+            intents = if (appInfoFirst) appInfo else notificationAccess,
+            showInstallerWorkaround = true,
+            confirmLabel = if (appInfoFirst) "Open App info" else "Open Notification access",
+            secondaryLabel = if (appInfoFirst) "Open Notification access" else "Open App info",
+            secondaryIntents = if (appInfoFirst) notificationAccess else appInfo,
+        )
+    }
+
     private fun restrictedSettingsSteps(context: Context): List<String> {
+        if (DeviceOsHelper.prefersAppInfoRestrictedUnlock()) {
+            return enhancedConfirmationRestrictedSteps()
+        }
         return when {
             DeviceOsHelper.isLineageOs() -> lineageRestrictedSettingsSteps()
             DeviceOsHelper.isOnePlusStockOs() -> onePlusRestrictedSettingsSteps()
             else -> defaultRestrictedSettingsSteps()
         }
     }
+
+    private fun enhancedConfirmationRestrictedSteps(): List<String> = listOf(
+        "Tap Open App info below → top-right menu (⋮) → Allow restricted settings → confirm your screen lock.",
+        "Return here and tap Grant on Notification access — turn the switch On for $APP_LABEL.",
+        "If you see App was denied access, tap Learn how to allow access in that dialog, or repeat step 1.",
+        "Grant Usage access next — chips turn green when each permission is on.",
+    )
 
     private fun lineageRestrictedSettingsSteps(): List<String> = listOf(
         "Tap Open Notification access below — turn the switch On for $APP_LABEL.",

@@ -56,7 +56,11 @@ object PermissionSetupGuide {
      * restricted-settings block dialog on sideloaded installs.
      */
     fun openRestrictedSettingsTrigger(context: Context) {
-        IntentUtils.startFirstResolvable(context, IntentUtils.restrictedSettingsTriggerIntents(context))
+        if (DeviceOsHelper.prefersAppInfoRestrictedUnlock()) {
+            openAppInfo(context)
+        } else {
+            IntentUtils.startFirstResolvable(context, IntentUtils.restrictedSettingsTriggerIntents(context))
+        }
     }
 
     /** @deprecated Use [openRestrictedSettingsTrigger] */

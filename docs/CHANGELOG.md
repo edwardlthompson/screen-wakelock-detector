@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.7] — 2026-06-07
+
+Fix restricted-settings guidance on Android 15/16 (Enhanced Confirmation).
+
+### Fixed
+
+- Android 15+ sideloads: Grant on **Allow restricted settings** now opens **App info** first (⋮ → Allow restricted settings → screen lock), because the notification toggle shows **App was denied access** with no Allow button — only **Learn how to allow access** / Close.
+- Updated in-app steps for ECM / Lineage Android 16; Notification access remains the secondary button.
+
 ## [1.2.6] — 2026-06-07
 
 Fix restricted-settings navigation on Lineage / sideloaded installs.
