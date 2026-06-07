@@ -31,7 +31,8 @@ Required before `archive-completed-tasks.py` and milestone push.
 
 ## Gate G0 — M0 Repository and agent infrastructure
 
-- [ ] GitLab push succeeds; pipeline runs on MR
+- [x] GitHub push succeeds; CI workflow triggered on main `[AGENT]`
+- [ ] GitLab push succeeds; pipeline runs on MR `[HUMAN]`
 - [x] BUILD_PLAN.md parses; archive script dry-run works (or correctly refuses without smoke)
 - [x] LICENSE (Apache-2.0), CHANGELOG.md, SECURITY.md, AGENT_MEMORY.md, DESIGN_SYSTEM.md present and linked from README
 - [x] Dependency license CI passes (no non-FOSS deps) `[AGENT]`
@@ -41,9 +42,9 @@ Required before `archive-completed-tasks.py` and milestone push.
 - [ ] README contains all 12 standard sections; About ≤120 chars on GitLab `[HUMAN]`
 - [x] m0_smoke.sh PASS on device `[ADB]`
 - [x] Gate GSM (M0) recorded above `[AGENT]`
-- [ ] Milestone M0 gate G0 passed → committed and pushed to GitLab `[AGENT]`
+- [x] Milestone M0 gate G0 passed → committed and pushed to GitHub `[AGENT]` (GitLab pending HUMAN)
 
-**Passed:** 2026-06-07 (M0 smoke + scaffold; GitLab push pending HUMAN)
+**Passed:** 2026-06-07 (M0 smoke b5214fc6; pushed to github.com/edwardlthompson/screen-wakelock-detector)
 
 ---
 
