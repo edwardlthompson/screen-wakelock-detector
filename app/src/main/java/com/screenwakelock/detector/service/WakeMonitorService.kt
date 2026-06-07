@@ -7,8 +7,13 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.hardware.display.DisplayManager
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.util.Log
+import android.view.Display
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import com.screenwakelock.detector.MainActivity
@@ -42,14 +47,18 @@ class WakeMonitorService : LifecycleService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var screenOffMillis: Long? = null
     private var receiver: WakeMonitorReceiver? = null
+    private var displayListener: DisplayManager.DisplayListener? = null
+    private var lastScreenOnHandledAt = 0L
 
     override fun onCreate() {
         super.onCreate()
+        Log.i(TAG, "WakeMonitorService started")
         startForegroundWithNotification()
         receiver = WakeMonitorReceiver(callbackHolder).also {
             WakeMonitorReceiver.register(this, it)
         }
-        callbackHolder.onScreenOn = { serviceScope.launch { handleScreenOn() } }
+        registerDisplayListener()
+        callbackHolder.onScreenOn = { serviceScope.launch { handleScreenOn("broadcast") } }
         callbackHolder.onScreenOff = { screenOffMillis = System.currentTimeMillis() }
         serviceScope.launch {
             notificationCacheRepository.pruneOlderThan(
@@ -75,14 +84,23 @@ class WakeMonitorService : LifecycleService() {
         callbackHolder.onScreenOff = null
         receiver?.let { WakeMonitorReceiver.unregister(this, it) }
         receiver = null
+        displayListener?.let {
+            getSystemService(DisplayManager::class.java).unregisterDisplayListener(it)
+        }
+        displayListener = null
         serviceScope.cancel()
         super.onDestroy()
     }
 
     override fun onBind(intent: Intent): IBinder? = super.onBind(intent)
 
-    private suspend fun handleScreenOn() {
+    private suspend fun handleScreenOn(source: String) {
         val now = System.currentTimeMillis()
+        if (now - lastScreenOnHandledAt < SCREEN_ON_DEBOUNCE_MS) {
+            return
+        }
+        lastScreenOnHandledAt = now
+        val captureStartedAt = now
         val rootEnabled = preferencesRepository.rootEnabled.first()
         val attribution = wakeAttributor.attribute(
             screenOnMillis = now,
@@ -104,6 +122,8 @@ class WakeMonitorService : LifecycleService() {
             screenOffDurationMs = screenOffMillis?.let { now - it },
         )
         val id = wakeEventRepository.insert(event)
+        val latencyMs = System.currentTimeMillis() - captureStartedAt
+        Log.i(TAG, "WakeEvent inserted id=$id source=$source latencyMs=$latencyMs")
         WakeWidgetReceiver.requestUpdate(this)
 
         val alertEvery = preferencesRepository.alertOnEveryWake.first()
@@ -158,7 +178,30 @@ class WakeMonitorService : LifecycleService() {
         }
     }
 
+    private fun registerDisplayListener() {
+        val displayManager = getSystemService(DisplayManager::class.java)
+        displayListener = object : DisplayManager.DisplayListener {
+            override fun onDisplayChanged(displayId: Int) {
+                if (displayId != Display.DEFAULT_DISPLAY) return
+                when (displayManager.getDisplay(displayId)?.state) {
+                    Display.STATE_OFF -> screenOffMillis = System.currentTimeMillis()
+                    Display.STATE_ON, Display.STATE_ON_SUSPEND ->
+                        serviceScope.launch { handleScreenOn("display") }
+                }
+            }
+
+            override fun onDisplayAdded(displayId: Int) = Unit
+            override fun onDisplayRemoved(displayId: Int) = Unit
+        }
+        displayManager.registerDisplayListener(
+            displayListener,
+            Handler(Looper.getMainLooper()),
+        )
+    }
+
     companion object {
+        private const val TAG = "WakeMonitor"
+        private const val SCREEN_ON_DEBOUNCE_MS = 500L
         const val CHANNEL_ID = "wake_monitor"
         const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.screenwakelock.detector.STOP_MONITOR"

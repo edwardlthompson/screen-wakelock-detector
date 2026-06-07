@@ -26,21 +26,12 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 ## M1 — Core wake capture and persistence
 
 <!-- PARALLEL -->
-- [ ] [AGENT] [PARALLEL-OK] Foreground monitoring service (ACTION_SCREEN_ON/OFF + DisplayManager)
-- [ ] [AGENT] [PARALLEL-OK] Room schema: WakeEvent entity + repository + DAO
-- [ ] [AGENT] [PARALLEL-OK] Basic history UI: M3 Scaffold, TopAppBar, LazyColumn, ElevatedCard rows, empty state
-- [ ] [AGENT] [PARALLEL-OK] Onboarding shell: Welcome, How it works (4 steps), Privacy; DataStore hasCompletedIntro
 <!-- END PARALLEL -->
 
 <!-- SEQUENTIAL -->
-- [ ] [AGENT] Wire first-launch routing through intro before Home
-- [ ] [AGENT] Unit tests for entity mapping + repository
 <!-- END SEQUENTIAL -->
 
 <!-- PARALLEL -->
-- [ ] [ADB] Screen-on events logged within 500 ms on test device
-- [ ] [HUMAN] Service survives Doze with exemption flow documented
-- [ ] [ADB] Run m1_smoke.sh PASS; record in GATES.md
 <!-- END PARALLEL -->
 
 **Gate G1** — see [`GATES.md`](GATES.md)

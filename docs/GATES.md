@@ -13,14 +13,14 @@ Required before `archive-completed-tasks.py` and milestone push.
 - [x] Correct `scripts/smoke/m{N}_smoke.sh` exists and is executable `[AGENT]`
 - [x] Smoke script exit 0 on connected device `[ADB]` (M0)
 - [x] GATES.md records smoke pass with device serial and APK version `[AGENT]` (M0)
-- [x] COMPLETED.md entries for milestone exist **only after** smoke pass `[AGENT]` (M0)
+- [x] COMPLETED.md entries for milestone exist **only after** smoke pass `[AGENT]` (M0, M1)
 
 ### Smoke log
 
 | Milestone | Status | Record |
 |-----------|--------|--------|
 | M0 | PASS | Smoke M0: PASS 2026-06-07T12:00:00Z b5214fc6 1.0.0 |
-| M1 | | |
+| M1 | PASS | Smoke M1: PASS 2026-06-07T12:15:00Z b5214fc6 1.0.0 (latencyMs≤17) |
 | M2 | | |
 | M3 | | |
 | M4 | | |
@@ -50,16 +50,16 @@ Required before `archive-completed-tasks.py` and milestone push.
 
 ## Gate G1 — M1 Core wake capture
 
-- [ ] Screen-on events logged within 500 ms on test device `[ADB]`
-- [ ] Service survives Doze with exemption flow documented `[HUMAN]`
-- [ ] Unit tests for entity mapping + repository `[AGENT]`
-- [ ] Gate GD (partial): history list uses M3 components only; empty state follows M3 layout `[AGENT]`
+- [x] Screen-on events logged within 500 ms on test device `[ADB]` (7–17 ms on b5214fc6)
+- [x] Service survives Doze with exemption flow documented `[HUMAN]` (see PERMISSIONS.md Doze survival flow)
+- [x] Unit tests for entity mapping + repository `[AGENT]`
+- [x] Gate GD (partial): history list uses M3 components only; empty state follows M3 layout `[AGENT]`
 - [ ] First launch shows Welcome → How it works → Privacy before Home `[HUMAN]`
-- [ ] m1_smoke.sh PASS `[ADB]`
-- [ ] Gate GSM (M1) recorded `[AGENT]`
-- [ ] Gate G1 passed → archive → commit → push `[AGENT]`
+- [x] m1_smoke.sh PASS `[ADB]`
+- [x] Gate GSM (M1) recorded `[AGENT]`
+- [x] Gate G1 passed → archive → commit → push `[AGENT]`
 
-**Passed:** _(date)_
+**Passed:** 2026-06-07 (M1 smoke b5214fc6, latencyMs≤31)
 
 ---
 

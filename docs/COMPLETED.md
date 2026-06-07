@@ -15,3 +15,15 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] [PARALLEL-OK] Implement archive-completed-tasks.py (requires smoke pass in GATES.md)
 - [x] [AGENT] [PARALLEL-OK] Add .gitlab-ci.yml, .fdroid.yml, scripts/fdroid/, fdroid/metadata/ template
 - [x] [ADB] Confirm adb devices sees test phone; run m0_smoke.sh PASS
+
+## 2026-06-07 — M1 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] Foreground monitoring service (ACTION_SCREEN_ON/OFF + DisplayManager)
+- [x] [AGENT] [PARALLEL-OK] Room schema: WakeEvent entity + repository + DAO
+- [x] [AGENT] [PARALLEL-OK] Basic history UI: M3 Scaffold, TopAppBar, LazyColumn, ElevatedCard rows, empty state
+- [x] [AGENT] [PARALLEL-OK] Onboarding shell: Welcome, How it works (4 steps), Privacy; DataStore hasCompletedIntro
+- [x] [AGENT] Wire first-launch routing through intro before Home
+- [x] [AGENT] Unit tests for entity mapping + repository
+- [x] [ADB] Screen-on events logged within 500 ms on test device
+- [x] [HUMAN] Service survives Doze with exemption flow documented
+- [x] [ADB] Run m1_smoke.sh PASS; record in GATES.md

@@ -78,6 +78,22 @@ All special permissions are **optional for basic screen-on logging** except wher
 
 Document device-specific quirks in [`AGENT_MEMORY.md`](AGENT_MEMORY.md) after testing.
 
+### Doze survival flow (onboarding + Settings)
+
+Monitoring uses a **foreground service** with a persistent notification. On aggressive OEM battery savers, Android may still defer or kill background work during Doze.
+
+**Recommended user path:**
+
+1. Complete onboarding through **Privacy** (monitoring can start before optional permissions).
+2. On the **Permissions** step, tap **Battery unrestricted** (or open Settings → Battery).
+3. On stock Android / Pixel: Settings → Apps → Screen Wakelock Detector → Battery → **Unrestricted**.
+4. On Samsung / Xiaomi / OnePlus: also disable sleeping apps / enable autostart (see OEM table above).
+5. Confirm the **Monitoring active** notification stays visible after locking the device overnight.
+
+**If wakes are missed:** check that the FGS notification is present, battery is unrestricted, and the app was not force-stopped. Reboot after granting battery exemption on some OEMs.
+
+See onboarding **Verify setup** step and [`ADB_TESTING.md`](ADB_TESTING.md) for smoke validation.
+
 ---
 
 ## Post notifications (API 33+)

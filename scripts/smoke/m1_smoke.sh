@@ -29,7 +29,8 @@ NOTIFS="$("${ADB}" -s "${DEVICE}" shell dumpsys notification --noredact 2>/dev/n
 echo "${NOTIFS}" | grep -qiE "monitor|screen|wake" \
   || log "WARN: FGS notification text not matched — verify monitoring notification manually"
 
-log "Simulating screen off/on"
+log "Checking logcat for wake capture event"
+"${ADB}" -s "${DEVICE}" logcat -c 2>/dev/null || true
 "${ADB}" -s "${DEVICE}" shell input keyevent KEYCODE_POWER
 sleep 2
 "${ADB}" -s "${DEVICE}" shell input keyevent KEYCODE_POWER
@@ -37,9 +38,16 @@ sleep 1
 "${ADB}" -s "${DEVICE}" shell input keyevent KEYCODE_WAKEUP 2>/dev/null || true
 sleep 2
 
-log "Checking logcat for wake capture event (tag may vary)"
-LOGS="$("${ADB}" -s "${DEVICE}" logcat -d -t 300 | grep -iE "wake|screen.?on|WakeEvent" | grep -i "${PACKAGE}" || true)"
-[[ -n "${LOGS}" ]] && log "Found wake-related logs" || log "WARN: no wake logs — verify Room insert via UI"
+LOGS="$("${ADB}" -s "${DEVICE}" logcat -d -s WakeMonitor:I WakeMonitor:D 2>/dev/null || true)"
+if echo "${LOGS}" | grep -q "WakeEvent inserted"; then
+  LATENCY="$(echo "${LOGS}" | grep -oE 'latencyMs=[0-9]+' | head -1 | cut -d= -f2 || true)"
+  log "WakeEvent captured (latencyMs=${LATENCY:-unknown})"
+  if [[ -n "${LATENCY}" ]] && [[ "${LATENCY}" -gt 500 ]]; then
+    log "WARN: capture latency ${LATENCY}ms exceeds 500ms target"
+  fi
+else
+  log "WARN: no WakeEvent inserted log — verify Room insert via History tab"
+fi
 
 log "Relaunch app to verify history UI reachable"
 "${ADB}" -s "${DEVICE}" shell am start -n "${PACKAGE}/${MAIN_ACTIVITY}" 2>/dev/null || true
