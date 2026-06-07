@@ -259,4 +259,5 @@ Partial at M1/M4; full at M5.
 - [x] Signed release APK launches on OP13 after package-installer sideload `[ADB]` (b5214fc6 2026-06-07)
 - [x] m9_smoke.sh PASS `[ADB]` (b5214fc6 1.2.1)
 - [x] Gate GSM (M9) recorded `[AGENT]`
-- [ ] Gate G9 passed → archive → commit → push → tag v1.2.1 `[AGENT]`
+- [x] Gate G9 passed → archive → commit → push → tag v1.2.1 `[AGENT]`
+- [x] Gate G9 passed; [v1.2.1](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.1) published 2026-06-07 `[AGENT]`
