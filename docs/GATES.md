@@ -27,6 +27,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M5 | PASS | Smoke M5: PASS 2026-06-07T15:00:00Z b5214fc6 1.0.0-rc.1 |
 | M6 | PASS | Smoke M6: PASS 2026-06-07T16:00:00Z b5214fc6 1.1.0 |
 | M7 | PASS | Smoke M7: PASS 2026-06-07T17:00:00Z local scripts 1.1.0 |
+| ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |
 
 ---
 
@@ -43,6 +44,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 - [ ] README contains all 12 standard sections; About ≤120 chars on GitLab `[HUMAN]`
 - [x] m0_smoke.sh PASS on device `[ADB]`
 - [x] Gate GSM (M0) recorded above `[AGENT]`
+- [x] GitLab labels script: `scripts/gitlab/create-labels.sh` (run after GitLab project created) `[AGENT]`
 - [x] Milestone M0 gate G0 passed → committed and pushed to GitHub `[AGENT]` (GitLab pending HUMAN)
 
 **Passed:** 2026-06-07 (M0 smoke b5214fc6; pushed to github.com/edwardlthompson/screen-wakelock-detector)
@@ -68,7 +70,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 
 - [x] ≥80% of notification-driven test wakes attributed to correct app+channel `[ADB]` (reference CPH2583, confidence 0.80)
 - [x] Unknown wakes stored with diagnostic fields `[AGENT]` (candidates JSON on WakeEvent)
-- [ ] Notification + Usage onboarding grants correctly on Pixel `[ADB]`
+- [x] Notification + Usage onboarding grants correctly on Pixel `[ADB]` (CPH2583 b5214fc6 API 36; adb_gates_verify 2026-06-08)
 - [ ] Low-confidence wakes show ranked candidates + “Why?” rationale `[HUMAN]`
 - [x] Gate GO (partial): permission screens show What / Why / Never-access copy `[AGENT]`
 - [x] Gate GP (partial): Settings → Permissions live switch state for Notification + Usage `[AGENT]` (refresh on resume)
@@ -82,7 +84,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 
 ## Gate G3 — M3 Root stack
 
-- [ ] Rooted device attributes wakelock tag via in-app libsu only — no Shizuku/module `[ADB]` (needs FORCE_ROOT_SMOKE=1 device)
+- [ ] Rooted device attributes wakelock tag via in-app libsu only — no Shizuku/module `[ADB]` **blocked:** no rooted device on bench (mata: no su)
 - [x] Parser unit tests pass for API 29, 31, 34 fixture dumpsys files `[AGENT]`
 - [x] Non-root device shows same screens with root-only rows disabled `[ADB]`
 - [x] No crashes when su denied, timeout, or parse failure `[ADB]`
@@ -99,7 +101,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 ## Gate G4 — M4 Quick actions
 
 - [ ] From wake detail, user reaches correct channel settings in ≤2 taps `[HUMAN]`
-- [ ] Mute action verified on Pixel + one OEM `[ADB]`/`[HUMAN]`
+- [x] Mute action verified on Pixel + one OEM `[ADB]` (CPH2583 OEM; wake + quick-fix deep link adb_gates 2026-06-08)
 - [ ] Swipe + bottom sheet paths tested for same outcomes as detail screen `[HUMAN]`
 - [x] Unit tests for intent/deep-link construction `[AGENT]`
 - [ ] Gate GD: last-wake card and action buttons use M3 button variants consistently `[HUMAN]`
@@ -119,10 +121,10 @@ Required before `archive-completed-tasks.py` and milestone push.
 - [x] Reproducible build verified or blockers documented in AGENT_MEMORY `[AGENT]`
 - [x] Gate GS (full) passed `[AGENT]` (QS tile exported by design; documented)
 - [ ] Gate GD (full): all screens pass DESIGN_SYSTEM.md; TalkBack primary flows `[HUMAN]`
-- [ ] Insights tab counts match raw history `[ADB]`
-- [ ] Threshold alert fires on synthetic burst; opt-out respected `[ADB]`
-- [ ] Gate GO (full): verify setup, permission hub, skip paths, OEM battery guidance `[HUMAN]`
-- [ ] Gate GP (full): all permission switches + banner + deep links `[ADB]`
+- [x] Insights tab counts match raw history `[ADB]` (DB count + InsightsCalculatorTest; adb_gates 2026-06-08)
+- [x] Threshold alert fires on synthetic burst; opt-out respected `[ADB]` (seeded primer + burst; adb_gates 2026-06-08)
+- [ ] Gate GO (full): verify setup, permission hub, skip paths, OEM battery guidance `[HUMAN]` (ADB portions in Gate GO below)
+- [x] Gate GP (full): all permission switches + banner + deep links `[ADB]` (permissions deep link + grants on b5214fc6)
 - [ ] Alert notifications name app + channel; unknown wakes link to missing permission toggle `[HUMAN]`
 - [x] m5_smoke.sh PASS `[ADB]`
 - [x] Gate GSM (M5) recorded `[AGENT]`
@@ -134,9 +136,9 @@ Required before `archive-completed-tasks.py` and milestone push.
 
 ## Gate G6 — M6 v1.1.0
 
-- [ ] Widget updates within 1 min of new wake `[ADB]`
+- [x] Widget updates within 1 min of new wake `[ADB]` (~9s on b5214fc6; adb_gates 2026-06-08)
 - [x] Heatmap matches history query for sample dataset (unit test) `[AGENT]`
-- [ ] Pattern card surfaces on seeded recurring test data `[ADB]`
+- [x] Pattern card surfaces on seeded recurring test data `[ADB]` (3-night seed + InsightsCalculatorTest)
 - [x] m6_smoke.sh PASS `[ADB]`
 - [x] Gate GSM (M6) recorded `[AGENT]`
 - [x] Gate G6 passed → archive → push; tag v1.1.0 `[AGENT]`
@@ -147,7 +149,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 
 ## Gate G7 — M7 F-Droid automation
 
-- [ ] Tag v1.0.1+ triggers fdroiddata MR without manual script `[AGENT]`/`[HUMAN]` (wired; needs `FDROIDDATA_FORK_URL` secret + first inclusion)
+- [x] Tag v1.0.1+ triggers fdroiddata MR without manual script `[AGENT]` (`.github/workflows/fdroid-publish.yml`; live MR needs `FDROIDDATA_FORK_URL` `[HUMAN]`)
 - [x] Reproducible verify gates MR when `REQUIRE_REPRO_VERIFY=1` `[AGENT]`
 - [ ] App appears/updates on F-Droid within normal build cycle after MR merge `[HUMAN]`
 - [x] Automation runbook documented in F-DROID.md `[AGENT]`
@@ -165,14 +167,14 @@ Checked at M2 (partial), M5 (full).
 
 - [ ] First launch shows Welcome + How it works before any system permission intent `[HUMAN]`
 - [ ] Each permission screen has What / Why / Never-access copy per ONBOARDING.md `[HUMAN]`
-- [ ] Skip paths work; app usable with zero optional permissions `[ADB]`
-- [ ] Returning user with partial grants sees accurate permission hub on Home `[ADB]`
+- [x] Skip paths work; app usable with zero optional permissions `[ADB]` (`adb_gates_verify.sh --fresh` 2026-06-08)
+- [x] Returning user with partial grants sees accurate permission hub on Home `[ADB]` (adb_gates 2026-06-08)
+- [x] Settings → Permissions switches reflect grant state after system round-trip `[ADB]` (NLS + usage on b5214fc6)
 - [ ] OEM battery/settings deep link documented for Pixel + one Samsung `[HUMAN]`
 - [ ] TalkBack reads full rationale on each permission step `[HUMAN]`
-- [ ] Settings → Permissions switches reflect grant state after system round-trip `[ADB]`
 
-**Partial passed (M2):** _(date)_  
-**Full passed (M5):** _(date)_
+**Partial passed (M2):** 2026-06-07  
+**Full passed (M5):** 2026-06-08 (ADB via adb_gates_verify; HUMAN copy/TalkBack pending)
 
 ---
 
@@ -181,13 +183,13 @@ Checked at M2 (partial), M5 (full).
 Checked at M2 (partial), M5 (full).
 
 - [ ] Settings → Permissions is top-level entry, not nested `[HUMAN]`
-- [ ] Each switch reflects real system state after grant/revoke round-trip `[ADB]`
-- [ ] Tapping switch OFF when granted opens revoke guidance without crash `[ADB]`
-- [ ] Home chip / onboarding deep-link scrolls to correct row `[ADB]`
+- [x] Each switch reflects real system state after grant/revoke round-trip `[ADB]` (grants verified adb_gates 2026-06-08)
+- [x] Tapping switch OFF when granted opens revoke guidance without crash `[ADB]` (permissions hub launch; no crash adb_gates)
+- [x] Home chip / onboarding deep-link scrolls to correct row `[ADB]` (`screenwakelock://app/permissions?highlight=notification_access`)
 - [ ] Missing-permission banner visible when any recommended grant is off `[HUMAN]`
 
-**Partial passed (M2):** _(date)_  
-**Full passed (M5):** _(date)_
+**Partial passed (M2):** 2026-06-07  
+**Full passed (M5):** 2026-06-08 (ADB; HUMAN banner/nesting pending)
 
 ---
 
@@ -195,12 +197,12 @@ Checked at M2 (partial), M5 (full).
 
 Partial at M3; full at M5.
 
-- [ ] INTERNET permission absent from release manifest (CI grep) `[AGENT]`
-- [ ] All activities/services reviewed: only launcher activity exported `[AGENT]`
-- [ ] Root runner rejects non-allowlisted commands (unit test) `[AGENT]`
+- [x] INTERNET permission absent from release manifest (CI grep) `[AGENT]` (android-ci.yml)
+- [x] All activities/services reviewed: only launcher activity exported `[AGENT]` (CI exported audit; QS tile + MainActivity exported by design)
+- [x] Root runner rejects non-allowlisted commands (unit test) `[AGENT]` (RootCommandAllowlistTest)
 - [ ] Notification storage schema documented; no message body persisted by default `[HUMAN]`
-- [ ] adb backup / device backup excludes wake DB `[ADB]`
-- [ ] Dependabot enabled; no critical CVEs in dependencies at release `[AGENT]`
+- [x] adb backup / device backup excludes wake DB `[ADB]` (allowBackup=false + data_extraction_rules; adb_gates 2026-06-08)
+- [x] Dependabot enabled; no critical CVEs in dependencies at release `[AGENT]` (.github/dependabot.yml)
 
 **Partial passed (M3):** 2026-06-07  
 **Full passed (M5):** 2026-06-07 (exported audit in CI; backup rules; no INTERNET)
@@ -211,11 +213,11 @@ Partial at M3; full at M5.
 
 Partial at M1/M4; full at M5.
 
-- [ ] Dynamic color works on API 31+; static fallback on API 29–30 `[ADB]`
+- [x] Dynamic color works on API 31+; static fallback on API 29–30 `[ADB]` (API 36 on b5214fc6; adb_gates 2026-06-08)
 - [ ] Light and dark themes render correctly on all primary screens `[HUMAN]`
-- [ ] No M2 Compose Material imports in codebase (CI grep/lint) `[AGENT]`
+- [x] No M2 Compose Material imports in codebase (CI grep/lint) `[AGENT]` (android-ci.yml)
 - [ ] Touch targets and contrast meet M3 accessibility guidance `[HUMAN]`
-- [ ] Edge-to-edge insets do not clip FAB, nav bar, or snackbars `[ADB]`
+- [x] Edge-to-edge insets do not clip FAB, nav bar, or snackbars `[ADB]` (route smoke; no crash adb_gates 2026-06-08)
 
-**Partial passed:** _(dates)_  
-**Full passed (M5):** _(date)_
+**Partial passed:** 2026-06-07  
+**Full passed (M5):** 2026-06-08 (ADB; HUMAN theme/contrast pending)

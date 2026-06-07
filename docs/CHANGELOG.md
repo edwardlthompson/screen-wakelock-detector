@@ -16,7 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- _(none)_
+- `scripts/smoke/adb_gates_verify.sh` — closes remaining ADB gate items on device
+- `scripts/gitlab/create-labels.sh` — GitLab label bootstrap
+- `.github/dependabot.yml` — weekly dependency updates
+
+### Changed
+
+- `docs/GATES.md` — ADB/agent gate sign-offs (b5214fc6, 2026-06-08)
+- `docs/BUILD_PLAN.md` — only HUMAN + rooted-ADB items remain
 
 ### Changed
 

@@ -90,3 +90,9 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] verify-reproducible.sh gates MR creation on hash match
 - [x] [AGENT] Document automation runbook in F-DROID.md
 - [x] [ADB] Run m7_smoke.sh PASS; record in GATES.md
+
+## 2026-06-08 — ADB + agent gate closure
+
+- [x] [AGENT] dependabot.yml; GitLab create-labels.sh; adb_gates_verify.sh
+- [x] [ADB] adb_gates_verify PASS on b5214fc6 (grants, mute, insights, threshold, widget, patterns, permissions, backup, M3 theme)
+- [ ] [ADB] Rooted wakelock path — blocked until rooted device available

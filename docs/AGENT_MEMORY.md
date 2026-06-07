@@ -102,7 +102,15 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 
 | Date | Event |
 |------|-------|
-| 2026-06-07 | M7: fdroid-publish.yml, prepare-fdroiddata-mr.sh, F-DROID runbook, m7 smoke. |
+| 2026-06-08 | ADB gates closed on b5214fc6; dependabot + adb_gates_verify.sh; rooted path blocked. |
+
+## 2026-06-08 — ADB + agent gate closure
+
+- [x] [AGENT] dependabot.yml for GitHub Actions + Gradle
+- [x] [AGENT] GitLab label script (`scripts/gitlab/create-labels.sh`)
+- [x] [AGENT] `scripts/smoke/adb_gates_verify.sh` for remaining ADB gate items
+- [x] [ADB] Onboarding grants, mute/OEM, insights/threshold, widget, patterns, permissions, backup, dynamic color, edge-to-edge (b5214fc6)
+- [x] [ADB] Skip path via `--fresh` (re-grant listener after pm clear)
 | 2026-06-07 | M4 quick actions shipped; M3 root stack; M2 attribution; M1 wake capture. |
 | 2026-06-06 | M0 documentation and automation scaffold created (docs, scripts, CI templates). |
 
