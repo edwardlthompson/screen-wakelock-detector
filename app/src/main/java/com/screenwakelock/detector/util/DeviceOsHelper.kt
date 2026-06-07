@@ -17,7 +17,7 @@ object DeviceOsHelper {
 
     /**
      * Android 15+ Enhanced Confirmation (ECM): notification-access toggle shows
-     * "App was denied access" with no Allow button — unlock via App info ⋮ first.
+     * "App was denied access" with no Allow button — unlock via App info More options first.
      */
     fun prefersAppInfoRestrictedUnlock(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM

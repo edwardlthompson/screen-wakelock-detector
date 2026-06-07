@@ -14,16 +14,23 @@ data class PermissionSettingsGuide(
     val confirmLabel: String = "Open Settings",
     val secondaryLabel: String? = null,
     val secondaryIntents: List<Intent> = emptyList(),
+    /** True when [PermissionSetupGuide] already launched a settings screen before showing steps. */
+    val settingsScreenOpened: Boolean = false,
 )
 
 object SettingsGuideProvider {
 
     private const val APP_LABEL = "Screen Wakelock Detector"
 
-    fun guideFor(context: Context, kind: PermissionKind): PermissionSettingsGuide {
+    fun guideFor(
+        context: Context,
+        kind: PermissionKind,
+        settingsScreenOpened: Boolean = false,
+    ): PermissionSettingsGuide {
         val packageName = context.packageName
         return when (kind) {
-            PermissionKind.RESTRICTED_SETTINGS -> restrictedSettingsGuide(context, packageName)
+            PermissionKind.RESTRICTED_SETTINGS ->
+                restrictedSettingsGuide(context, packageName, settingsScreenOpened)
             PermissionKind.NOTIFICATION_LISTENER -> PermissionSettingsGuide(
                 kind = kind,
                 title = "Notification access",
@@ -60,25 +67,30 @@ object SettingsGuideProvider {
         }
     }
 
-    private fun restrictedSettingsGuide(context: Context, packageName: String): PermissionSettingsGuide {
+    private fun restrictedSettingsGuide(
+        context: Context,
+        packageName: String,
+        settingsScreenOpened: Boolean,
+    ): PermissionSettingsGuide {
         val appInfo = listOf(IntentUtils.appDetailsSettings(packageName))
         val notificationAccess = IntentUtils.restrictedSettingsTriggerIntents(context)
         val appInfoFirst = DeviceOsHelper.prefersAppInfoRestrictedUnlock()
         return PermissionSettingsGuide(
             kind = PermissionKind.RESTRICTED_SETTINGS,
             title = "Allow restricted settings",
-            steps = restrictedSettingsSteps(context),
+            steps = restrictedSettingsSteps(context, settingsScreenOpened),
             intents = if (appInfoFirst) appInfo else notificationAccess,
             showInstallerWorkaround = true,
             confirmLabel = if (appInfoFirst) "Open App info" else "Open Notification access",
             secondaryLabel = if (appInfoFirst) "Open Notification access" else "Open App info",
             secondaryIntents = if (appInfoFirst) notificationAccess else appInfo,
+            settingsScreenOpened = settingsScreenOpened,
         )
     }
 
-    private fun restrictedSettingsSteps(context: Context): List<String> {
+    private fun restrictedSettingsSteps(context: Context, settingsScreenOpened: Boolean): List<String> {
         if (DeviceOsHelper.prefersAppInfoRestrictedUnlock()) {
-            return enhancedConfirmationRestrictedSteps()
+            return enhancedConfirmationRestrictedSteps(settingsScreenOpened)
         }
         return when {
             DeviceOsHelper.isLineageOs() -> lineageRestrictedSettingsSteps()
@@ -87,31 +99,40 @@ object SettingsGuideProvider {
         }
     }
 
-    private fun enhancedConfirmationRestrictedSteps(): List<String> = listOf(
-        "Tap Open App info below → top-right menu (⋮) → Allow restricted settings → confirm your screen lock.",
-        "Return here and tap Grant on Notification access — turn the switch On for $APP_LABEL.",
-        "If you see App was denied access, tap Learn how to allow access in that dialog, or repeat step 1.",
+    private fun appInfoAllowRestrictedStep(settingsScreenOpened: Boolean): String =
+        if (settingsScreenOpened) {
+            "On App info (already open): top-right, tap More options — the menu button beside Open, " +
+                "not on the Notification access screen — then Allow restricted settings. Confirm your screen lock."
+        } else {
+            "Tap Open App info below. Top-right, tap More options (beside Open) → Allow restricted settings → " +
+                "confirm your screen lock."
+        }
+
+    private fun enhancedConfirmationRestrictedSteps(settingsScreenOpened: Boolean): List<String> = listOf(
+        appInfoAllowRestrictedStep(settingsScreenOpened),
+        "Return here and tap Open Notification access — turn the switch On for $APP_LABEL.",
+        "If App was denied access appears, tap Learn how to allow access (that screen has no More options menu).",
         "Grant Usage access next — chips turn green when each permission is on.",
     )
 
     private fun lineageRestrictedSettingsSteps(): List<String> = listOf(
         "Tap Open Notification access below — turn the switch On for $APP_LABEL.",
         "When the Restricted setting dialog appears, tap Allow (confirm PIN if asked).",
-        "If the switch stays blocked: tap Open App info → menu (⋮) → Allow restricted settings.",
+        "If the switch stays blocked: Open App info → More options (beside Open) → Allow restricted settings.",
         "Return here — chips turn green when restricted settings and permissions are on.",
     )
 
     private fun onePlusRestrictedSettingsSteps(): List<String> = listOf(
         "Tap Open Notification access below — turn the switch On for $APP_LABEL.",
         "When the Restricted setting dialog appears, tap Allow — OxygenOS often grants here.",
-        "If the switch stays blocked: Open App info → menu (⋮) → Allow restricted settings → confirm PIN.",
+        "If the switch stays blocked: Open App info → More options → Allow restricted settings → confirm PIN.",
         "Return here — the chip turns green once Notification or Usage access is enabled.",
     )
 
     private fun defaultRestrictedSettingsSteps(): List<String> = listOf(
         "Tap Open Notification access below — turn the switch On for $APP_LABEL.",
         "When the Restricted setting dialog appears, tap Allow (confirm PIN if asked).",
-        "If the switch stays blocked: Open App info → menu (⋮) → Allow restricted settings.",
+        "If the switch stays blocked: Open App info → More options → Allow restricted settings.",
         "Return here — the chip turns green once Notification or Usage access is enabled.",
     )
 

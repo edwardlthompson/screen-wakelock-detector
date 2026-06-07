@@ -29,7 +29,11 @@ object PermissionSetupGuide {
                 -> {
                     openRestrictedSettingsTrigger(context)
                     return SettingsOpenResult.ShowManualSteps(
-                        SettingsGuideProvider.guideFor(context, PermissionKind.RESTRICTED_SETTINGS),
+                        SettingsGuideProvider.guideFor(
+                            context,
+                            PermissionKind.RESTRICTED_SETTINGS,
+                            settingsScreenOpened = true,
+                        ),
                     )
                 }
                 else -> { /* fall through to normal open */ }
@@ -39,7 +43,7 @@ object PermissionSetupGuide {
         if (kind == PermissionKind.RESTRICTED_SETTINGS) {
             openRestrictedSettingsTrigger(context)
             return SettingsOpenResult.ShowManualSteps(
-                SettingsGuideProvider.guideFor(context, kind),
+                SettingsGuideProvider.guideFor(context, kind, settingsScreenOpened = true),
             )
         }
 

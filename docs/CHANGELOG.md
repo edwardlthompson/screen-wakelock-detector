@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.8] — 2026-06-07
+
+Fix misleading restricted-settings menu guidance after OP13 smoke.
+
+### Fixed
+
+- Steps now say **More options** (beside **Open** on **App info**), not a generic three-dot menu — the Notification access screen has no overflow menu.
+- When Grant opens App info first, step 1 says the screen is already open instead of asking to tap Open App info again.
+
 ## [1.2.7] — 2026-06-07
 
 Fix restricted-settings guidance on Android 15/16 (Enhanced Confirmation).
