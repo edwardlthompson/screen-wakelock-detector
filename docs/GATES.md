@@ -274,3 +274,4 @@ Partial at M1/M4; full at M5.
 - [x] `m10_smoke.sh` PASS `[ADB]` (b5214fc6 1.2.2)
 - [x] Gate GSM (M10) recorded `[AGENT]`
 - [x] Gate G10 passed → archive → commit → push → tag v1.2.2 `[AGENT]`
+- [x] Gate G10 passed; [v1.2.2](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.2) published 2026-06-07 `[AGENT]`
