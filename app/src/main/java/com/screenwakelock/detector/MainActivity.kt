@@ -1,6 +1,6 @@
 package com.screenwakelock.detector
 
-import android.net.Uri
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,10 +37,17 @@ class MainActivity : ComponentActivity() {
                         deepLinkHighlight = deepLinkParams.highlight,
                         deepLinkRoute = deepLinkParams.route,
                         deepLinkQuickFixWakeId = deepLinkParams.quickFixWakeId,
+                        deepLinkRootAutomation = deepLinkParams.rootAutomation,
                         onDeepLinkConsumed = { deepLinkParams = DeepLinkParams() },
                     )
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        deepLinkParams = parseDeepLinkString(intent.data?.toString())
     }
 }

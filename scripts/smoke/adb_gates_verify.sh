@@ -129,19 +129,22 @@ fi
 USAGE="$("${ADB_S[@]}" shell appops get "${PACKAGE}" GET_USAGE_STATS 2>/dev/null | tr -d '\r' || true)"
 echo "${USAGE}" | grep -qiE "allow|foreground" && pass "Usage stats granted" || warn "Usage stats not allow — grant for full attribution"
 
-# --- G3: root (optional second device) ---
+# --- G3: root (OP12 / rooted bench) ---
 if [[ "${FORCE_ROOT_SMOKE:-0}" == "1" ]]; then
   SU_OUT="$("${ADB_S[@]}" shell su -c id 2>/dev/null || true)"
-  if echo "${SU_OUT}" | grep -q "uid=0"; then
-    "${ADB_S[@]}" shell am start -n "${PACKAGE}/.MainActivity" >/dev/null 2>&1 || true
-    sleep 2
-    "${ADB_S[@]}" shell am start -a android.intent.action.VIEW -d "screenwakelock://settings/root" -p "${PACKAGE}" >/dev/null 2>&1 || true
-    sleep 2
+  ADB_ID="$("${ADB_S[@]}" shell id 2>/dev/null || true)"
+  if echo "${SU_OUT}" | grep -q "uid=0" || echo "${ADB_ID}" | grep -q "uid=0(root)"; then
+    # shellcheck source=scripts/smoke/_root_enable.sh
+    source "${SCRIPT_DIR}/_root_enable.sh"
+    ROOT_ENABLE_PACKAGE="${PACKAGE}" root_enable_app "${ADB}" -s "${DEVICE}"
     trigger_test_wake
     LOGS="$("${ADB_S[@]}" logcat -d -s RootAttributor:I WakeMonitor:I 2>/dev/null || true)"
-    echo "${LOGS}" | grep -qiE "Root wakelock|rootEnhanced|wakelockTag" \
-      && pass "Root attribution logs present" \
-      || warn "Enable root in Settings on rooted device"
+    if echo "${LOGS}" | grep -qiE "Root wakelock|rootEnhanced=true"; then
+      pass "Root wakelock via in-app libsu (${MODEL})"
+      echo "${LOGS}" | grep -iE "RootAttributor|rootEnhanced" | tail -3
+    else
+      warn "Root enabled but no rootEnhanced wake — check Magisk grant"
+    fi
   else
     warn "FORCE_ROOT_SMOKE=1 but su unavailable on ${DEVICE}"
   fi

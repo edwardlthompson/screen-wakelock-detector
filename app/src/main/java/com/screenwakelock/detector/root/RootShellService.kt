@@ -1,5 +1,6 @@
 package com.screenwakelock.detector.root
 
+import android.util.Log
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -18,6 +19,7 @@ class RootShellService {
                     Shell.getShell().isRoot
                 } ?: false
                 sessionReady = result
+                Log.i(TAG, "Root preheat: isRoot=$result")
                 result
             }.getOrDefault(false)
         }
@@ -66,6 +68,7 @@ class RootShellService {
     }
 
     companion object {
+        private const val TAG = "RootShellService"
         const val MAX_OUTPUT_BYTES = 512_000
     }
 }

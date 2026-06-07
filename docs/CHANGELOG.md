@@ -16,18 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scripts/smoke/adb_gates_verify.sh` — closes remaining ADB gate items on device
-- `scripts/gitlab/create-labels.sh` — GitLab label bootstrap
-- `.github/dependabot.yml` — weekly dependency updates
+- Settings About section: version, bundled release notes, GitHub changelog link, Venmo donate link
+- `scripts/smoke/grant-magisk-su.py` — Magisk su grant for smoke automation
+- Debug smoke deep link `screenwakelock://settings/root?automation=enable` (debug builds only)
 
 ### Changed
 
-- `docs/GATES.md` — ADB/agent gate sign-offs (b5214fc6, 2026-06-08)
-- `docs/BUILD_PLAN.md` — only HUMAN + rooted-ADB items remain
-
-### Changed
-
-- F-Droid publish automation: `fdroid-publish.yml`, `prepare-fdroiddata-mr.sh`, verify gate (M7).
+- M3 root smoke on OP12: libsu attribution, `rootEnhanced=true` in WakeMonitor logs
+- `docs/GATES.md` — rooted wakelock gate closed (b5214fc6, 2026-06-08)
+- `docs/BUILD_PLAN.md` — HUMAN-only items remain
 
 ## [1.1.0] — 2026-06-07
 

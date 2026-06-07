@@ -125,7 +125,8 @@ class WakeMonitorService : LifecycleService() {
         val id = wakeEventRepository.insert(event)
         val latencyMs = System.currentTimeMillis() - captureStartedAt
         Log.i(TAG, "WakeEvent inserted id=$id source=$source latencyMs=$latencyMs " +
-            "pkg=${event.attributedPackage} channel=${event.channelId} confidence=${event.confidence}")
+            "pkg=${event.attributedPackage} channel=${event.channelId} confidence=${event.confidence}" +
+            if (event.rootEnhanced) " rootEnhanced=true tag=${event.wakelockTag}" else "")
         WakeWidgetReceiver.requestUpdate(this)
 
         val stored = event.copy(id = id)

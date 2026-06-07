@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.screenwakelock.detector.BuildConfig
 import com.screenwakelock.detector.root.RootAvailabilityState
 import com.screenwakelock.detector.ui.viewmodel.RootViewModel
 import kotlinx.coroutines.launch
@@ -36,6 +37,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RootScreen(
     onBack: () -> Unit,
+    automation: String? = null,
     viewModel: RootViewModel = hiltViewModel(),
 ) {
     val rootEnabled by viewModel.rootEnabled.collectAsState()
@@ -47,6 +49,22 @@ fun RootScreen(
 
     LaunchedEffect(Unit) {
         probeState = viewModel.probe()
+    }
+
+    LaunchedEffect(automation) {
+        if (BuildConfig.DEBUG && automation == "enable") {
+            val state = viewModel.probe()
+            probeState = state
+            if (state.isRooted) {
+                viewModel.setRootEnabled(true)
+                val result = viewModel.runDiagnostics()
+                diagnostics = if (result.success) {
+                    "Smoke: root enabled (${result.durationMs}ms)"
+                } else {
+                    "Smoke: diagnostics failed: ${result.error ?: "unknown"}"
+                }
+            }
+        }
     }
 
     Scaffold(

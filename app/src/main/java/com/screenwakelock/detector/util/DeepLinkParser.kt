@@ -8,6 +8,8 @@ data class DeepLinkParams(
     val route: String? = null,
     /** null = none; 0 = latest wake quick-fix; >0 = specific wake event id */
     val quickFixWakeId: Long? = null,
+    /** Debug smoke only: "enable" turns on root attribution when su is available */
+    val rootAutomation: String? = null,
 )
 
 fun parseDeepLinkString(raw: String?): DeepLinkParams {
@@ -40,8 +42,13 @@ fun parseDeepLinkString(raw: String?): DeepLinkParams {
                 .takeIf { it.isNotEmpty() }
             DeepLinkParams(route = "permissions", highlight = highlight)
         }
-        raw.startsWith("screenwakelock://settings/root") ->
-            DeepLinkParams(route = "root")
+        raw.startsWith("screenwakelock://settings/root") -> {
+            val automation = raw.substringAfter('?', missingDelimiterValue = "")
+                .substringAfter("automation=", missingDelimiterValue = "")
+                .substringBefore('&')
+                .takeIf { it.isNotEmpty() }
+            DeepLinkParams(route = "root", rootAutomation = automation)
+        }
         raw.startsWith("screenwakelock://settings/permissions") -> {
             val highlight = raw.substringAfter('?', missingDelimiterValue = "")
                 .substringAfter("highlight=", missingDelimiterValue = "")

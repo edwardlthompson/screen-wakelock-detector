@@ -19,6 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,6 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.screenwakelock.detector.BuildConfig
 import com.screenwakelock.detector.ui.screens.DetailScreen
 import com.screenwakelock.detector.ui.screens.HistoryScreen
 import com.screenwakelock.detector.ui.screens.HomeScreen
@@ -61,6 +65,7 @@ fun AppNavigation(
     deepLinkHighlight: String? = null,
     deepLinkRoute: String? = null,
     deepLinkQuickFixWakeId: Long? = null,
+    deepLinkRootAutomation: String? = null,
     onDeepLinkConsumed: () -> Unit = {},
 ) {
     val navController = rememberNavController()
@@ -78,20 +83,34 @@ fun AppNavigation(
     val currentRoute = navBackStackEntry?.destination?.route
     val showNavChrome = currentRoute?.substringBefore('?') in bottomItems.map { it.first.substringBefore('?') }
 
+    var pendingRootAutomation by remember { mutableStateOf<String?>(null) }
+
     androidx.compose.runtime.LaunchedEffect(
         hasCompletedIntro,
         deepLinkWakeId,
         deepLinkHighlight,
         deepLinkRoute,
         deepLinkQuickFixWakeId,
+        deepLinkRootAutomation,
     ) {
+        if (BuildConfig.DEBUG && deepLinkRootAutomation == "enable" && deepLinkRoute == "root") {
+            onboardingViewModel.completeIntro()
+            pendingRootAutomation = deepLinkRootAutomation
+            navController.navigate(Routes.ROOT) {
+                popUpTo(navController.graph.id) { inclusive = true }
+            }
+            return@LaunchedEffect
+        }
         if (!hasCompletedIntro) {
             navController.navigate(Routes.ONBOARDING) {
                 popUpTo(navController.graph.id) { inclusive = true }
             }
         } else {
             when (deepLinkRoute) {
-                "root" -> navController.navigate(Routes.ROOT)
+                "root" -> {
+                    pendingRootAutomation = deepLinkRootAutomation
+                    navController.navigate(Routes.ROOT)
+                }
                 "permissions" -> navController.navigate(Routes.permissions(deepLinkHighlight))
                 "insights" -> navController.navigate(Routes.INSIGHTS)
                 else -> {
@@ -207,7 +226,13 @@ fun AppNavigation(
                 )
             }
             composable(Routes.ROOT) {
-                RootScreen(onBack = { navController.popBackStack() })
+                RootScreen(
+                    automation = pendingRootAutomation,
+                    onBack = {
+                        pendingRootAutomation = null
+                        navController.popBackStack()
+                    },
+                )
             }
         }
     }

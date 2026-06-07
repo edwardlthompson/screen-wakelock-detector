@@ -23,6 +23,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M1 | PASS | Smoke M1: PASS 2026-06-07T12:15:00Z b5214fc6 1.0.0 (latencyMs≤17) |
 | M2 | PASS | Smoke M2: PASS 2026-06-07T12:30:00Z b5214fc6 1.0.0 (confidence≈0.80) |
 | M3 | PASS | Smoke M3: PASS 2026-06-07T13:00:00Z b5214fc6 1.0.0 (non-root) |
+| M3 root | PASS | Smoke M3 root: PASS 2026-06-08T09:11:00Z b5214fc6 1.1.0 rootEnhanced=true (OP12/Magisk) |
 | M4 | PASS | Smoke M4: PASS 2026-06-07T14:00:00Z b5214fc6 1.0.0 |
 | M5 | PASS | Smoke M5: PASS 2026-06-07T15:00:00Z b5214fc6 1.0.0-rc.1 |
 | M6 | PASS | Smoke M6: PASS 2026-06-07T16:00:00Z b5214fc6 1.1.0 |
@@ -84,7 +85,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 
 ## Gate G3 — M3 Root stack
 
-- [ ] Rooted device attributes wakelock tag via in-app libsu only — no Shizuku/module `[ADB]` **blocked:** no rooted device on bench (mata: no su)
+- [x] Rooted device attributes wakelock tag via in-app libsu only — no Shizuku/module `[ADB]` (OP12 b5214fc6 Magisk; m3 FORCE_ROOT_SMOKE 2026-06-08)
 - [x] Parser unit tests pass for API 29, 31, 34 fixture dumpsys files `[AGENT]`
 - [x] Non-root device shows same screens with root-only rows disabled `[ADB]`
 - [x] No crashes when su denied, timeout, or parse failure `[ADB]`
@@ -94,7 +95,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 - [x] Gate GSM (M3) recorded `[AGENT]`
 - [x] Gate G3 passed → archive → commit → push `[AGENT]`
 
-**Passed:** 2026-06-07 (M3 smoke b5214fc6 non-root; rooted path pending device)
+**Passed:** 2026-06-08 (M3 root smoke b5214fc6; rootEnhanced=true via libsu)
 
 ---
 

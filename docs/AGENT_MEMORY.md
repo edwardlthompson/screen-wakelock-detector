@@ -71,6 +71,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 - **2026-06-06:** F-Droid-only distribution; no `INTERNET` permission in release manifest.
 - **2026-06-06:** Self-contained root stack via libsu; explicitly exclude Shizuku and Magisk modules.
 - **2026-06-06:** GitLab CI replaces GitHub Actions; fdroiddata MR automation on `v*` tags (M7).
+- **2026-06-08:** Settings About section: `BuildConfig.VERSION_NAME`, release notes copied from `fastlane/.../changelogs/{versionCode}.txt` at build time, changelog/donate via `ACTION_VIEW` (no `INTERNET` permission). F-Droid `Donate` field set to Venmo URL.
 
 ---
 
@@ -102,7 +103,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 
 | Date | Event |
 |------|-------|
-| 2026-06-08 | ADB gates closed on b5214fc6; dependabot + adb_gates_verify.sh; rooted path blocked. |
+| 2026-06-08 | M3 root PASS on OP12 (Magisk grant + libsu); debug automation deep link for smoke. |
 
 ## 2026-06-08 — ADB + agent gate closure
 
