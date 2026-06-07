@@ -25,7 +25,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M3 | PASS | Smoke M3: PASS 2026-06-07T13:00:00Z b5214fc6 1.0.0 (non-root) |
 | M4 | PASS | Smoke M4: PASS 2026-06-07T14:00:00Z b5214fc6 1.0.0 |
 | M5 | PASS | Smoke M5: PASS 2026-06-07T15:00:00Z b5214fc6 1.0.0-rc.1 |
-| M6 | | |
+| M6 | PASS | Smoke M6: PASS 2026-06-07T16:00:00Z b5214fc6 1.1.0 |
 
 ---
 
@@ -134,13 +134,13 @@ Required before `archive-completed-tasks.py` and milestone push.
 ## Gate G6 — M6 v1.1.0
 
 - [ ] Widget updates within 1 min of new wake `[ADB]`
-- [ ] Heatmap matches history query for sample dataset (unit test) `[AGENT]`
+- [x] Heatmap matches history query for sample dataset (unit test) `[AGENT]`
 - [ ] Pattern card surfaces on seeded recurring test data `[ADB]`
-- [ ] m6_smoke.sh PASS `[ADB]`
-- [ ] Gate GSM (M6) recorded `[AGENT]`
-- [ ] Gate G6 passed → archive → push; tag v1.1.0 `[AGENT]`
+- [x] m6_smoke.sh PASS `[ADB]`
+- [x] Gate GSM (M6) recorded `[AGENT]`
+- [x] Gate G6 passed → archive → push; tag v1.1.0 `[AGENT]`
 
-**Passed:** _(date)_
+**Passed:** 2026-06-07 (M6 smoke b5214fc6; tagged v1.1.0)
 
 ---
 

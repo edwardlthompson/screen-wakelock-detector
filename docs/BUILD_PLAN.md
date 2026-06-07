@@ -108,17 +108,11 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 ## M6 — Widgets and pattern intelligence (v1.1.0)
 
 <!-- PARALLEL -->
-- [ ] [AGENT] [PARALLEL-OK] Glance/App Widget: last wake + Fix it deep link
-- [ ] [AGENT] [PARALLEL-OK] Quick Settings tile: pause/resume monitoring
-- [ ] [AGENT] [PARALLEL-OK] Pattern detection: recurring same app+channel ≥3 nights
-- [ ] [AGENT] [PARALLEL-OK] Time heatmap: 7-day hour×day grid with tap-to-filter
 <!-- END PARALLEL -->
 
 <!-- PARALLEL -->
 - [ ] [ADB] Widget updates within 1 min of new wake
-- [ ] [AGENT] Unit test: heatmap matches history query for sample dataset
 - [ ] [ADB] Pattern card on seeded recurring test data
-- [ ] [ADB] Run m6_smoke.sh PASS; record in GATES.md
 <!-- END PARALLEL -->
 
 **Gate G6** — see [`GATES.md`](GATES.md)

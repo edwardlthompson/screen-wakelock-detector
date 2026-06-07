@@ -34,6 +34,18 @@ object IntentUtils {
     fun latestQuickFixDeepLink(): Uri =
         Uri.parse(latestQuickFixDeepLinkString())
 
+    fun wakeLatestDeepLinkString(): String =
+        "$DEEP_LINK_SCHEME://wake/latest"
+
+    fun wakeLatestDeepLink(): Uri =
+        Uri.parse(wakeLatestDeepLinkString())
+
+    fun insightsHeatmapDeepLinkString(): String =
+        "$DEEP_LINK_SCHEME://insights/heatmap"
+
+    fun insightsHeatmapDeepLink(): Uri =
+        Uri.parse(insightsHeatmapDeepLinkString())
+
     fun permissionsDeepLinkString(highlight: String? = null): String {
         val base = "$DEEP_LINK_SCHEME://$DEEP_LINK_HOST/permissions"
         return if (highlight != null) "$base?highlight=$highlight" else base

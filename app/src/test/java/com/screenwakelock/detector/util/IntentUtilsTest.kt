@@ -21,6 +21,16 @@ class IntentUtilsTest {
     }
 
     @Test
+    fun wakeLatestDeepLink_hasExpectedPath() {
+        assertEquals("screenwakelock://wake/latest", IntentUtils.wakeLatestDeepLinkString())
+    }
+
+    @Test
+    fun insightsHeatmapDeepLink_hasExpectedPath() {
+        assertEquals("screenwakelock://insights/heatmap", IntentUtils.insightsHeatmapDeepLinkString())
+    }
+
+    @Test
     fun permissionsDeepLink_withHighlight() {
         assertEquals(
             "screenwakelock://app/permissions?highlight=notification_access",

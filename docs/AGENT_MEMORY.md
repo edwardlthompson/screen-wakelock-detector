@@ -102,7 +102,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 
 | Date | Event |
 |------|-------|
-| 2026-06-07 | M5 rc.1: insights polish, adaptive nav, quiet hours, permission banners, F-Droid metadata. |
+| 2026-06-07 | M6 v1.1.0: widget Fix-it deep link, QS tile, heatmap/pattern tests, deep links. |
 | 2026-06-07 | M4 quick actions shipped; M3 root stack; M2 attribution; M1 wake capture. |
 | 2026-06-06 | M0 documentation and automation scaffold created (docs, scripts, CI templates). |
 

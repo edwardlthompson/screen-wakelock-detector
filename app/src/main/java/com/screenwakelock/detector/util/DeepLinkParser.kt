@@ -24,6 +24,8 @@ fun parseDeepLinkString(raw: String?): DeepLinkParams {
         }
         raw.startsWith("screenwakelock://wake/latest/actions") ->
             DeepLinkParams(quickFixWakeId = 0L)
+        raw.startsWith("screenwakelock://wake/latest") ->
+            DeepLinkParams(quickFixWakeId = 0L)
         raw.startsWith("screenwakelock://app/detail/") -> {
             val id = raw
                 .removePrefix("screenwakelock://app/detail/")

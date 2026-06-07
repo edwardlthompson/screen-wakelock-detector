@@ -74,3 +74,12 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] Reproducible build verify or document blockers in AGENT_MEMORY
 - [x] [AGENT] Gate GS full: exported components, backup rules, no INTERNET
 - [x] [ADB] Run m5_smoke.sh PASS; record in GATES.md
+
+## 2026-06-07 — M6 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] Glance/App Widget: last wake + Fix it deep link
+- [x] [AGENT] [PARALLEL-OK] Quick Settings tile: pause/resume monitoring
+- [x] [AGENT] [PARALLEL-OK] Pattern detection: recurring same app+channel ≥3 nights
+- [x] [AGENT] [PARALLEL-OK] Time heatmap: 7-day hour×day grid with tap-to-filter
+- [x] [AGENT] Unit test: heatmap matches history query for sample dataset
+- [x] [ADB] Run m6_smoke.sh PASS; record in GATES.md

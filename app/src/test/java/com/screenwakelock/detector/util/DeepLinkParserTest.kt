@@ -31,4 +31,16 @@ class DeepLinkParserTest {
         val params = parseDeepLinkString("screenwakelock://settings/root")
         assertEquals("root", params.route)
     }
+
+    @Test
+    fun parseWakeLatest() {
+        val params = parseDeepLinkString("screenwakelock://wake/latest")
+        assertEquals(0L, params.quickFixWakeId)
+    }
+
+    @Test
+    fun parseInsightsHeatmap() {
+        val params = parseDeepLinkString("screenwakelock://insights/heatmap")
+        assertEquals("insights", params.route)
+    }
 }
