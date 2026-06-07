@@ -1,5 +1,6 @@
 package com.screenwakelock.detector.service
 
+import android.app.NotificationManager
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -26,9 +27,17 @@ class NotificationCaptureService : NotificationListenerService() {
             null
         }
         val channelName = runCatching {
-            val nm = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+            val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             nm.getNotificationChannel(channelId)?.name?.toString()
         }.getOrNull()
+        val importance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && channelId != null) {
+            val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            nm.getNotificationChannel(channelId)?.importance
+                ?: NotificationManager.IMPORTANCE_DEFAULT
+        } else {
+            @Suppress("DEPRECATION")
+            notification.priority
+        }
 
         scope.launch {
             notificationCacheRepository.cacheNotification(
@@ -37,7 +46,7 @@ class NotificationCaptureService : NotificationListenerService() {
                 channelName = channelName,
                 postedAtMillis = sbn.postTime,
                 category = notification.category,
-                importance = notification.priority,
+                importance = importance,
             )
         }
     }

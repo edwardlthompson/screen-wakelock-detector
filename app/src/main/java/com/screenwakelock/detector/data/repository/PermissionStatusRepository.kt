@@ -53,13 +53,16 @@ class PermissionStatusRepository @Inject constructor(
             kind = PermissionKind.NOTIFICATION_LISTENER,
             granted = isNotificationListenerEnabled(),
             label = "Notification access",
-            description = "Identify which app posted a notification before the screen turned on",
+            description = "Why: match screen wakes to the app and channel that posted nearby. " +
+                "What: package name, channel ID, importance, timestamp (metadata only). " +
+                "Never accesses: notification message text or contact names.",
         ),
         PermissionStatus(
             kind = PermissionKind.USAGE_STATS,
             granted = isUsageStatsGranted(),
             label = "Usage access",
-            description = "Fallback attribution when no notification match is found",
+            description = "Why: fallback when no notification matches the wake window. " +
+                "What: which app was recently in foreground. Never accesses: app content or files.",
         ),
         PermissionStatus(
             kind = PermissionKind.POST_NOTIFICATIONS,

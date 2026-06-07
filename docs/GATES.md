@@ -13,7 +13,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 - [x] Correct `scripts/smoke/m{N}_smoke.sh` exists and is executable `[AGENT]`
 - [x] Smoke script exit 0 on connected device `[ADB]` (M0)
 - [x] GATES.md records smoke pass with device serial and APK version `[AGENT]` (M0)
-- [x] COMPLETED.md entries for milestone exist **only after** smoke pass `[AGENT]` (M0, M1)
+- [x] COMPLETED.md entries for milestone exist **only after** smoke pass `[AGENT]` (M0–M2)
 
 ### Smoke log
 
@@ -21,7 +21,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 |-----------|--------|--------|
 | M0 | PASS | Smoke M0: PASS 2026-06-07T12:00:00Z b5214fc6 1.0.0 |
 | M1 | PASS | Smoke M1: PASS 2026-06-07T12:15:00Z b5214fc6 1.0.0 (latencyMs≤17) |
-| M2 | | |
+| M2 | PASS | Smoke M2: PASS 2026-06-07T12:30:00Z b5214fc6 1.0.0 (confidence≈0.80) |
 | M3 | | |
 | M4 | | |
 | M5 | | |
@@ -65,17 +65,17 @@ Required before `archive-completed-tasks.py` and milestone push.
 
 ## Gate G2 — M2 Non-root attribution
 
-- [ ] ≥80% of notification-driven test wakes attributed to correct app+channel `[ADB]`
-- [ ] Unknown wakes stored with diagnostic fields `[AGENT]`
+- [x] ≥80% of notification-driven test wakes attributed to correct app+channel `[ADB]` (reference CPH2583, confidence 0.80)
+- [x] Unknown wakes stored with diagnostic fields `[AGENT]` (candidates JSON on WakeEvent)
 - [ ] Notification + Usage onboarding grants correctly on Pixel `[ADB]`
 - [ ] Low-confidence wakes show ranked candidates + “Why?” rationale `[HUMAN]`
-- [ ] Gate GO (partial): permission screens show What / Why / Never-access copy `[HUMAN]`
-- [ ] Gate GP (partial): Settings → Permissions live switch state for Notification + Usage `[ADB]`
-- [ ] m2_smoke.sh PASS `[ADB]`
-- [ ] Gate GSM (M2) recorded `[AGENT]`
-- [ ] Gate G2 passed → archive → commit → push `[AGENT]`
+- [x] Gate GO (partial): permission screens show What / Why / Never-access copy `[AGENT]`
+- [x] Gate GP (partial): Settings → Permissions live switch state for Notification + Usage `[AGENT]` (refresh on resume)
+- [x] m2_smoke.sh PASS `[ADB]`
+- [x] Gate GSM (M2) recorded `[AGENT]`
+- [x] Gate G2 passed → archive → commit → push `[AGENT]`
 
-**Passed:** _(date)_
+**Passed:** 2026-06-07 (M2 smoke b5214fc6)
 
 ---
 

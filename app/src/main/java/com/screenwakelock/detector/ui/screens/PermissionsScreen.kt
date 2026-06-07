@@ -17,11 +17,15 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.screenwakelock.detector.data.repository.PermissionStatusRepository
 import com.screenwakelock.detector.domain.model.PermissionKind
 import com.screenwakelock.detector.util.IntentUtils
@@ -33,11 +37,22 @@ fun PermissionsScreen(
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val repo = remember { PermissionStatusRepository(context) }
     val statuses = remember { mutableStateOf(repo.getAllStatuses()) }
 
-    androidx.compose.runtime.LaunchedEffect(Unit) {
+    fun refreshStatuses() {
         statuses.value = repo.getAllStatuses()
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                refreshStatuses()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     Scaffold(

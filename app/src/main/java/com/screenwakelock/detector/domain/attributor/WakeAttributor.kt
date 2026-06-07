@@ -6,6 +6,7 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import com.screenwakelock.detector.data.repository.NotificationCacheRepository
 import com.screenwakelock.detector.domain.model.AttributionData
 import com.screenwakelock.detector.domain.model.ReasonCode
@@ -103,7 +104,14 @@ class WakeAttributor @Inject constructor(
             rootEnhanced = rootSnapshot != null,
             wakelockTag = rootSnapshot?.wakelockTag,
             wakelockName = rootSnapshot?.wakelockName,
-        )
+        ).also { result ->
+            Log.i(
+                TAG,
+                "Attributed wake pkg=${result.packageName} channel=${result.channelId} " +
+                    "confidence=${result.confidence} reason=${result.reasonCode} " +
+                    "candidates=${result.candidates.size}",
+            )
+        }
     }
 
     private fun findUsageCandidates(screenOnMillis: Long): List<WakeCandidate> {
@@ -189,6 +197,7 @@ class WakeAttributor @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "WakeAttributor"
         const val DEFAULT_WINDOW_MS = 5_000L
     }
 }

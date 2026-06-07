@@ -41,22 +41,14 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 ## M2 — Non-root attribution
 
 <!-- PARALLEL -->
-- [ ] [AGENT] [PARALLEL-OK] NotificationListenerService + Room notification cache (metadata only)
-- [ ] [AGENT] [PARALLEL-OK] Notification + Usage permission onboarding screens with grant intents
-- [ ] [AGENT] [PARALLEL-OK] Settings → Permissions screen (Notification + Usage switch rows)
 <!-- END PARALLEL -->
 
 <!-- SEQUENTIAL -->
-- [ ] [AGENT] WakeAttributor correlator (±N second window, reason codes)
-- [ ] [AGENT] Usage stats fallback when no notification match
-- [ ] [AGENT] Wake detail screen: confidence bar, “Why this app?”, ranked candidates when low confidence
 <!-- END SEQUENTIAL -->
 
 <!-- PARALLEL -->
-- [ ] [ADB] ≥80% notification-driven test wakes attributed to correct app+channel on reference device
 - [ ] [ADB] Notification + Usage onboarding grants correctly on Pixel
 - [ ] [HUMAN] Confirm onboarding What/Why/Never-access copy; low-confidence candidate UI review
-- [ ] [ADB] Run m2_smoke.sh PASS; record in GATES.md
 <!-- END PARALLEL -->
 
 **Gate G2, GO (partial), GP (partial)** — see [`GATES.md`](GATES.md)

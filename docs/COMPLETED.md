@@ -27,3 +27,14 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [ADB] Screen-on events logged within 500 ms on test device
 - [x] [HUMAN] Service survives Doze with exemption flow documented
 - [x] [ADB] Run m1_smoke.sh PASS; record in GATES.md
+
+## 2026-06-07 — M2 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] NotificationListenerService + Room notification cache (metadata only)
+- [x] [AGENT] [PARALLEL-OK] Notification + Usage permission onboarding screens with grant intents
+- [x] [AGENT] [PARALLEL-OK] Settings → Permissions screen (Notification + Usage switch rows)
+- [x] [AGENT] WakeAttributor correlator (±N second window, reason codes)
+- [x] [AGENT] Usage stats fallback when no notification match
+- [x] [AGENT] Wake detail screen: confidence bar, “Why this app?”, ranked candidates when low confidence
+- [x] [ADB] ≥80% notification-driven test wakes attributed to correct app+channel on reference device
+- [x] [ADB] Run m2_smoke.sh PASS; record in GATES.md

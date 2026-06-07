@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial project documentation, automation scripts, GitLab CI skeleton, and F-Droid metadata templates (M0).
 - Core wake capture: foreground monitoring service (screen on/off + DisplayManager), Room WakeEvent persistence, history UI, onboarding shell (M1).
+- Non-root attribution: NotificationListenerService metadata cache, WakeAttributor correlator, usage-stats fallback, detail screen with confidence/candidates, Permissions center (M2).
 
 ### Changed
 
