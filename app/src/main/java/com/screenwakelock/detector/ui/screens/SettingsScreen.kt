@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.service.WakeMonitorService
 import com.screenwakelock.detector.ui.viewmodel.SettingsViewModel
@@ -40,6 +42,8 @@ fun SettingsScreen(
     val monitoring by viewModel.monitoringEnabled.collectAsState()
     val alertEvery by viewModel.alertOnEveryWake.collectAsState()
     val thresholdAlerts by viewModel.thresholdAlertsEnabled.collectAsState()
+    val thresholdCount by viewModel.thresholdCount.collectAsState()
+    val quietHours by viewModel.quietHoursEnabled.collectAsState()
     val events by historyViewModel.events.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -86,6 +90,39 @@ fun SettingsScreen(
                         Switch(
                             checked = thresholdAlerts,
                             onCheckedChange = { scope.launch { viewModel.setThresholdAlertsEnabled(it) } },
+                        )
+                    },
+                )
+            }
+            if (thresholdAlerts) {
+                item {
+                    ListItem(
+                        headlineContent = { Text("Threshold count") },
+                        supportingContent = {
+                            Text("$thresholdCount wakes per hour from same app+channel")
+                        },
+                    )
+                    Slider(
+                        value = thresholdCount.toFloat(),
+                        onValueChange = { scope.launch { viewModel.setThresholdCount(it.toInt()) } },
+                        valueRange = 2f..10f,
+                        steps = 7,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                    )
+                }
+            }
+            item {
+                ListItem(
+                    headlineContent = { Text("Quiet hours") },
+                    supportingContent = {
+                        Text("Suppress threshold and wake alerts from 11pm–6am")
+                    },
+                    trailingContent = {
+                        Switch(
+                            checked = quietHours,
+                            onCheckedChange = { scope.launch { viewModel.setQuietHoursEnabled(it) } },
                         )
                     },
                 )

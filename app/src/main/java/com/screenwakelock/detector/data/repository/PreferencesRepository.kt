@@ -28,6 +28,7 @@ class PreferencesRepository @Inject constructor(
         val THRESHOLD_COUNT = intPreferencesKey("threshold_count")
         val NIGHTTIME_START_HOUR = intPreferencesKey("nighttime_start_hour")
         val NIGHTTIME_END_HOUR = intPreferencesKey("nighttime_end_hour")
+        val QUIET_HOURS_ENABLED = booleanPreferencesKey("quiet_hours_enabled")
     }
 
     val hasCompletedIntro: Flow<Boolean> =
@@ -54,6 +55,9 @@ class PreferencesRepository @Inject constructor(
     val nighttimeEndHour: Flow<Int> =
         context.dataStore.data.map { it[Keys.NIGHTTIME_END_HOUR] ?: 6 }
 
+    val quietHoursEnabled: Flow<Boolean> =
+        context.dataStore.data.map { it[Keys.QUIET_HOURS_ENABLED] ?: false }
+
     suspend fun setHasCompletedIntro(completed: Boolean) {
         context.dataStore.edit { it[Keys.HAS_COMPLETED_INTRO] = completed }
     }
@@ -76,5 +80,16 @@ class PreferencesRepository @Inject constructor(
 
     suspend fun setThresholdCount(count: Int) {
         context.dataStore.edit { it[Keys.THRESHOLD_COUNT] = count.coerceAtLeast(1) }
+    }
+
+    suspend fun setNighttimeHours(startHour: Int, endHour: Int) {
+        context.dataStore.edit {
+            it[Keys.NIGHTTIME_START_HOUR] = startHour.coerceIn(0, 23)
+            it[Keys.NIGHTTIME_END_HOUR] = endHour.coerceIn(0, 23)
+        }
+    }
+
+    suspend fun setQuietHoursEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.QUIET_HOURS_ENABLED] = enabled }
     }
 }

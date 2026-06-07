@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.domain.model.WakeEvent
+import com.screenwakelock.detector.ui.components.MissingPermissionsBanner
 import com.screenwakelock.detector.ui.components.QuickFixBottomSheet
 import com.screenwakelock.detector.ui.components.WakeEventCard
 import com.screenwakelock.detector.ui.viewmodel.HomeViewModel
@@ -39,6 +40,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     onNavigateHistory: () -> Unit,
     onNavigateDetail: (Long) -> Unit,
+    onNavigatePermissions: (String?) -> Unit,
     deepLinkQuickFixWakeId: Long? = null,
     onDeepLinkConsumed: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
@@ -107,6 +109,7 @@ fun HomeScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            MissingPermissionsBanner(onNavigatePermissions = onNavigatePermissions)
             Text(
                 text = "Last screen wake",
                 style = MaterialTheme.typography.headlineSmall,

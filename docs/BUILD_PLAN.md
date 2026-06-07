@@ -92,22 +92,13 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 ## M5 — Polish, F-Droid release, security audit (v1.0.0)
 
 <!-- PARALLEL -->
-- [ ] [AGENT] [PARALLEL-OK] Insights dashboard tab: top offenders, nighttime highlight, counts
-- [ ] [AGENT] [PARALLEL-OK] Threshold alerts (opt-in) + permission-missing callout variants
-- [ ] [AGENT] [PARALLEL-OK] Onboarding polish: verify setup, battery row, permission chips, replay wizard
-- [ ] [AGENT] [PARALLEL-OK] Search/filter: SearchBar, FilterChip, DatePickerDialog
-- [ ] [AGENT] [PARALLEL-OK] fastlane metadata + screenshots; fdroiddata MR prep
-- [ ] [AGENT] [PARALLEL-OK] Adaptive navigation for tablets/foldables
 <!-- END SEQUENTIAL -->
 
 <!-- PARALLEL -->
 - [ ] [HUMAN] 1.0.0-rc.1 soak 1 week on daily driver
-- [ ] [AGENT] Reproducible build verify or document blockers in AGENT_MEMORY
 - [ ] [HUMAN] F-Droid inclusion checklist; fdroiddata MR submitted
-- [ ] [AGENT] Gate GS full: exported components, backup rules, no INTERNET
 - [ ] [HUMAN] Gate GD full: all screens design checklist; TalkBack walkthrough
 - [ ] [ADB] Insights counts match history; threshold alert on synthetic burst
-- [ ] [ADB] Run m5_smoke.sh PASS; record in GATES.md
 <!-- END PARALLEL -->
 
 **Gate G5, GO (full), GP (full), GS (full), GD (full)** — see [`GATES.md`](GATES.md)

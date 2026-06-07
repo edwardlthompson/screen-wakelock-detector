@@ -62,3 +62,15 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] Post-notifications onboarding step + Settings alert notifications switch row
 - [x] [AGENT] Instrumentation tests for intent construction
 - [x] [ADB] Run m4_smoke.sh PASS; record in GATES.md
+
+## 2026-06-07 — M5 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] Insights dashboard tab: top offenders, nighttime highlight, counts
+- [x] [AGENT] [PARALLEL-OK] Threshold alerts (opt-in) + permission-missing callout variants
+- [x] [AGENT] [PARALLEL-OK] Onboarding polish: verify setup, battery row, permission chips, replay wizard
+- [x] [AGENT] [PARALLEL-OK] Search/filter: SearchBar, FilterChip, DatePickerDialog
+- [x] [AGENT] [PARALLEL-OK] fastlane metadata + screenshots; fdroiddata MR prep
+- [x] [AGENT] [PARALLEL-OK] Adaptive navigation for tablets/foldables
+- [x] [AGENT] Reproducible build verify or document blockers in AGENT_MEMORY
+- [x] [AGENT] Gate GS full: exported components, backup rules, no INTERNET
+- [x] [ADB] Run m5_smoke.sh PASS; record in GATES.md

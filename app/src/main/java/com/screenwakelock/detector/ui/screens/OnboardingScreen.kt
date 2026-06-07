@@ -18,11 +18,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.data.repository.PermissionStatusRepository
 import com.screenwakelock.detector.domain.model.PermissionKind
@@ -81,6 +88,25 @@ fun OnboardingScreen(
                     scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
                 }) {
                     Text("Back")
+                }
+            } else {
+                TextButton(onClick = {}) { Text("") }
+            }
+            if (pagerState.currentPage >= OnboardingPage.Permissions.ordinal) {
+                TextButton(
+                    onClick = {
+                        scope.launch {
+                            if (pagerState.currentPage < pages.lastIndex) {
+                                pagerState.animateScrollToPage(pages.lastIndex)
+                            } else {
+                                viewModel.completeIntro()
+                                WakeMonitorService.start(context)
+                                onComplete()
+                            }
+                        }
+                    },
+                ) {
+                    Text("Skip")
                 }
             } else {
                 TextButton(onClick = {}) { Text("") }
@@ -206,14 +232,31 @@ private fun OnboardingPermissions(repo: PermissionStatusRepository) {
 
 @Composable
 private fun OnboardingVerify(repo: PermissionStatusRepository) {
-    val statuses = remember { repo.getAllStatuses() }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var statuses by remember { mutableStateOf(repo.getAllStatuses()) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                statuses = repo.getAllStatuses()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Verify setup", style = MaterialTheme.typography.headlineSmall)
         statuses.forEach { status ->
             PermissionChip(label = status.label, granted = status.granted)
         }
         Text(
-            "Monitoring will start when you tap Get started.",
+            "Monitoring will start when you tap Get started. You can grant permissions later in Settings.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            "On Samsung and Xiaomi devices, also disable battery restrictions for reliable monitoring.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

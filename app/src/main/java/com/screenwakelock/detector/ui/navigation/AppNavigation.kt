@@ -1,5 +1,8 @@
 package com.screenwakelock.detector.ui.navigation
 
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
@@ -9,12 +12,15 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -36,7 +42,7 @@ import com.screenwakelock.detector.ui.viewmodel.OnboardingViewModel
 object Routes {
     const val ONBOARDING = "onboarding"
     const val HOME = "home"
-    const val HISTORY = "history"
+    const val HISTORY = "history?filterHour={filterHour}"
     const val INSIGHTS = "insights"
     const val SETTINGS = "settings"
     const val DETAIL = "detail/{wakeEventId}"
@@ -44,6 +50,7 @@ object Routes {
     const val ROOT = "root"
 
     fun detail(id: Long) = "detail/$id"
+    fun history(filterHour: Int = -1) = "history?filterHour=$filterHour"
     fun permissions(highlight: String? = null) =
         if (highlight != null) "permissions?highlight=$highlight" else "permissions?highlight="
 }
@@ -69,7 +76,7 @@ fun AppNavigation(
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val showBottomBar = currentRoute in bottomItems.map { it.first }
+    val showNavChrome = currentRoute?.substringBefore('?') in bottomItems.map { it.first.substringBefore('?') }
 
     androidx.compose.runtime.LaunchedEffect(
         hasCompletedIntro,
@@ -110,34 +117,21 @@ fun AppNavigation(
         }
     }
 
-    Scaffold(
-        bottomBar = {
-            if (showBottomBar) {
-                NavigationBar {
-                    bottomItems.forEach { (route, label, icon) ->
-                        NavigationBarItem(
-                            selected = currentRoute == route,
-                            onClick = {
-                                navController.navigate(route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = { Icon(icon, contentDescription = label) },
-                            label = { Text(label) },
-                        )
-                    }
-                }
+    val navigateTo: (String) -> Unit = { route ->
+        navController.navigate(route) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
             }
-        },
-    ) { padding ->
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    val navHost: @Composable (Modifier) -> Unit = { modifier ->
         NavHost(
             navController = navController,
             startDestination = if (hasCompletedIntro) Routes.HOME else Routes.ONBOARDING,
-            modifier = Modifier.padding(padding),
+            modifier = modifier,
         ) {
             composable(Routes.ONBOARDING) {
                 OnboardingScreen(
@@ -150,17 +144,32 @@ fun AppNavigation(
             }
             composable(Routes.HOME) {
                 HomeScreen(
-                    onNavigateHistory = { navController.navigate(Routes.HISTORY) },
+                    onNavigateHistory = { navigateTo(Routes.history()) },
                     onNavigateDetail = { navController.navigate(Routes.detail(it)) },
+                    onNavigatePermissions = { navController.navigate(Routes.permissions(it)) },
                     deepLinkQuickFixWakeId = deepLinkQuickFixWakeId,
                     onDeepLinkConsumed = onDeepLinkConsumed,
                 )
             }
-            composable(Routes.HISTORY) {
-                HistoryScreen(onNavigateDetail = { navController.navigate(Routes.detail(it)) })
+            composable(
+                route = Routes.HISTORY,
+                arguments = listOf(
+                    navArgument("filterHour") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    },
+                ),
+            ) { entry ->
+                val filterHour = entry.arguments?.getInt("filterHour") ?: -1
+                HistoryScreen(
+                    initialFilterHour = filterHour.takeIf { it >= 0 },
+                    onNavigateDetail = { navController.navigate(Routes.detail(it)) },
+                )
             }
             composable(Routes.INSIGHTS) {
-                InsightsScreen()
+                InsightsScreen(
+                    onFilterHour = { hour -> navigateTo(Routes.history(hour)) },
+                )
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(
@@ -177,6 +186,7 @@ fun AppNavigation(
                 DetailScreen(
                     wakeEventId = id,
                     onBack = { navController.popBackStack() },
+                    onNavigatePermissions = { navController.navigate(Routes.permissions(it)) },
                 )
             }
             composable(
@@ -193,10 +203,59 @@ fun AppNavigation(
                 PermissionsScreen(
                     highlight = highlight,
                     onBack = { navController.popBackStack() },
+                    onReplayOnboarding = { navController.navigate(Routes.ONBOARDING) },
                 )
             }
             composable(Routes.ROOT) {
                 RootScreen(onBack = { navController.popBackStack() })
+            }
+        }
+    }
+
+    BoxWithConstraints {
+        val useRail = maxWidth >= 600.dp
+        if (useRail && showNavChrome) {
+            Row {
+                NavigationRail {
+                    bottomItems.forEach { (route, label, icon) ->
+                        val baseRoute = route.substringBefore('?')
+                        NavigationRailItem(
+                            selected = currentRoute?.substringBefore('?') == baseRoute,
+                            onClick = { navigateTo(if (baseRoute == Routes.HISTORY.substringBefore('?')) Routes.history() else baseRoute) },
+                            icon = { Icon(icon, contentDescription = label) },
+                            label = { Text(label) },
+                        )
+                    }
+                }
+                navHost(Modifier.weight(1f).fillMaxHeight())
+            }
+        } else {
+            Scaffold(
+                bottomBar = {
+                    if (showNavChrome) {
+                        NavigationBar {
+                            bottomItems.forEach { (route, label, icon) ->
+                                val baseRoute = route.substringBefore('?')
+                                NavigationBarItem(
+                                    selected = currentRoute?.substringBefore('?') == baseRoute,
+                                    onClick = {
+                                        navigateTo(
+                                            if (baseRoute == Routes.HISTORY.substringBefore('?')) {
+                                                Routes.history()
+                                            } else {
+                                                baseRoute
+                                            },
+                                        )
+                                    },
+                                    icon = { Icon(icon, contentDescription = label) },
+                                    label = { Text(label) },
+                                )
+                            }
+                        }
+                    }
+                },
+            ) { padding ->
+                navHost(Modifier.padding(padding))
             }
         }
     }

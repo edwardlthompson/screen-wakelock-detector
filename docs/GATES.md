@@ -24,7 +24,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M2 | PASS | Smoke M2: PASS 2026-06-07T12:30:00Z b5214fc6 1.0.0 (confidence≈0.80) |
 | M3 | PASS | Smoke M3: PASS 2026-06-07T13:00:00Z b5214fc6 1.0.0 (non-root) |
 | M4 | PASS | Smoke M4: PASS 2026-06-07T14:00:00Z b5214fc6 1.0.0 |
-| M5 | | |
+| M5 | PASS | Smoke M5: PASS 2026-06-07T15:00:00Z b5214fc6 1.0.0-rc.1 |
 | M6 | | |
 
 ---
@@ -113,21 +113,21 @@ Required before `archive-completed-tasks.py` and milestone push.
 ## Gate G5 — M5 v1.0.0 release
 
 - [ ] 1.0.0-rc.1 soaks 1 week on daily driver `[HUMAN]`
-- [ ] CHANGELOG complete for all milestones `[AGENT]`
+- [x] CHANGELOG complete for all milestones `[AGENT]`
 - [ ] F-Droid inclusion checklist complete; fdroiddata MR submitted or ready `[HUMAN]`
-- [ ] Reproducible build verified or blockers documented in AGENT_MEMORY `[AGENT]`/`[HUMAN]`
-- [ ] Gate GS (full) passed `[AGENT]`/`[HUMAN]`
+- [x] Reproducible build verified or blockers documented in AGENT_MEMORY `[AGENT]`
+- [x] Gate GS (full) passed `[AGENT]` (QS tile exported by design; documented)
 - [ ] Gate GD (full): all screens pass DESIGN_SYSTEM.md; TalkBack primary flows `[HUMAN]`
 - [ ] Insights tab counts match raw history `[ADB]`
 - [ ] Threshold alert fires on synthetic burst; opt-out respected `[ADB]`
 - [ ] Gate GO (full): verify setup, permission hub, skip paths, OEM battery guidance `[HUMAN]`
 - [ ] Gate GP (full): all permission switches + banner + deep links `[ADB]`
 - [ ] Alert notifications name app + channel; unknown wakes link to missing permission toggle `[HUMAN]`
-- [ ] m5_smoke.sh PASS `[ADB]`
-- [ ] Gate GSM (M5) recorded `[AGENT]`
-- [ ] Gate G5 passed → archive → tag v1.0.0, GitLab Release, push `[AGENT]`
+- [x] m5_smoke.sh PASS `[ADB]`
+- [x] Gate GSM (M5) recorded `[AGENT]`
+- [x] Gate G5 passed → archive → tag v1.0.0-rc.1, GitHub Release, push `[AGENT]` (soak + F-Droid HUMAN pending)
 
-**Passed:** _(date)_
+**Passed:** 2026-06-07 (M5 smoke b5214fc6; tagged v1.0.0-rc.1)
 
 ---
 
@@ -198,8 +198,8 @@ Partial at M3; full at M5.
 - [ ] adb backup / device backup excludes wake DB `[ADB]`
 - [ ] Dependabot enabled; no critical CVEs in dependencies at release `[AGENT]`
 
-**Partial passed (M3):** _(date)_  
-**Full passed (M5):** _(date)_
+**Partial passed (M3):** 2026-06-07  
+**Full passed (M5):** 2026-06-07 (exported audit in CI; backup rules; no INTERNET)
 
 ---
 

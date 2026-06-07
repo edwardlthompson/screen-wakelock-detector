@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.ui.components.ConfidenceIndicator
+import com.screenwakelock.detector.ui.components.MissingPermissionsBanner
 import com.screenwakelock.detector.ui.viewmodel.DetailViewModel
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.SilenceWake
@@ -43,6 +44,7 @@ import kotlinx.coroutines.launch
 fun DetailScreen(
     wakeEventId: Long,
     onBack: () -> Unit,
+    onNavigatePermissions: (String?) -> Unit = {},
     viewModel: DetailViewModel = hiltViewModel(),
 ) {
     val eventFlow = androidx.compose.runtime.remember(wakeEventId) {
@@ -84,6 +86,11 @@ fun DetailScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (e.isLowConfidence || e.attributedPackage == null) {
+                    item {
+                        MissingPermissionsBanner(onNavigatePermissions = onNavigatePermissions)
+                    }
+                }
                 item {
                     Text(e.displayAppName, style = MaterialTheme.typography.headlineSmall)
                     e.displayChannel?.let {

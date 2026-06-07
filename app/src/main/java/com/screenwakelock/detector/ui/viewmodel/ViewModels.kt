@@ -34,11 +34,33 @@ class HistoryViewModel @Inject constructor(
     private val _nightOnly = kotlinx.coroutines.flow.MutableStateFlow(false)
     val nightOnly: StateFlow<Boolean> = _nightOnly
 
+    private val _startDateMillis = kotlinx.coroutines.flow.MutableStateFlow<Long?>(null)
+    val startDateMillis: StateFlow<Long?> = _startDateMillis
+
+    private val _endDateMillis = kotlinx.coroutines.flow.MutableStateFlow<Long?>(null)
+    val endDateMillis: StateFlow<Long?> = _endDateMillis
+
+    private val _hourFilter = kotlinx.coroutines.flow.MutableStateFlow<Int?>(null)
+    val hourFilter: StateFlow<Int?> = _hourFilter
+
     val events: StateFlow<List<WakeEvent>> = kotlinx.coroutines.flow.combine(
-        allEvents,
-        _query,
-        _nightOnly,
-    ) { events, query, nightOnly ->
+        kotlinx.coroutines.flow.combine(
+            allEvents,
+            _query,
+            _nightOnly,
+        ) { events, query, nightOnly ->
+            Triple(events, query, nightOnly)
+        },
+        kotlinx.coroutines.flow.combine(
+            _startDateMillis,
+            _endDateMillis,
+            _hourFilter,
+        ) { startDate, endDate, hourFilter ->
+            Triple(startDate, endDate, hourFilter)
+        },
+    ) { filters, dateFilters ->
+        val (events, query, nightOnly) = filters
+        val (startDate, endDate, hourFilter) = dateFilters
         events.filter { event ->
             val matchesQuery = query.isBlank() ||
                 event.displayAppName.contains(query, ignoreCase = true) ||
@@ -49,7 +71,9 @@ class HistoryViewModel @Inject constructor(
             }.get(java.util.Calendar.HOUR_OF_DAY)
             val isNight = hour >= 23 || hour < 6
             val matchesNight = !nightOnly || isNight
-            matchesQuery && matchesNight
+            val matchesHour = hourFilter == null || hour == hourFilter
+            val matchesDate = matchesDateRange(event.timestampMillis, startDate, endDate)
+            matchesQuery && matchesNight && matchesHour && matchesDate
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -59,6 +83,47 @@ class HistoryViewModel @Inject constructor(
 
     fun setNightOnly(enabled: Boolean) {
         _nightOnly.value = enabled
+    }
+
+    fun setDateRange(startMillis: Long?, endMillis: Long?) {
+        _startDateMillis.value = startMillis
+        _endDateMillis.value = endMillis
+    }
+
+    fun clearDateRange() {
+        _startDateMillis.value = null
+        _endDateMillis.value = null
+    }
+
+    fun setHourFilter(hour: Int?) {
+        _hourFilter.value = hour
+    }
+
+    fun clearHourFilter() {
+        _hourFilter.value = null
+    }
+
+    private fun matchesDateRange(
+        timestampMillis: Long,
+        startMillis: Long?,
+        endMillis: Long?,
+    ): Boolean {
+        if (startMillis == null && endMillis == null) return true
+        val eventDay = dayStart(timestampMillis)
+        val afterStart = startMillis == null || eventDay >= dayStart(startMillis)
+        val beforeEnd = endMillis == null || eventDay <= dayStart(endMillis)
+        return afterStart && beforeEnd
+    }
+
+    private fun dayStart(timestampMillis: Long): Long {
+        val cal = java.util.Calendar.getInstance().apply {
+            timeInMillis = timestampMillis
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }
+        return cal.timeInMillis
     }
 }
 
@@ -100,12 +165,24 @@ class SettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
     val thresholdAlertsEnabled = preferencesRepository.thresholdAlertsEnabled
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+    val thresholdCount = preferencesRepository.thresholdCount
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 3)
+    val quietHoursEnabled = preferencesRepository.quietHoursEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val nighttimeStartHour = preferencesRepository.nighttimeStartHour
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 23)
+    val nighttimeEndHour = preferencesRepository.nighttimeEndHour
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 6)
     val rootEnabled = preferencesRepository.rootEnabled
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     suspend fun setMonitoringEnabled(v: Boolean) = preferencesRepository.setMonitoringEnabled(v)
     suspend fun setAlertOnEveryWake(v: Boolean) = preferencesRepository.setAlertOnEveryWake(v)
     suspend fun setThresholdAlertsEnabled(v: Boolean) = preferencesRepository.setThresholdAlertsEnabled(v)
+    suspend fun setThresholdCount(v: Int) = preferencesRepository.setThresholdCount(v)
+    suspend fun setQuietHoursEnabled(v: Boolean) = preferencesRepository.setQuietHoursEnabled(v)
+    suspend fun setNighttimeHours(start: Int, end: Int) =
+        preferencesRepository.setNighttimeHours(start, end)
     suspend fun setRootEnabled(v: Boolean) = preferencesRepository.setRootEnabled(v)
 }
 

@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat
 import com.screenwakelock.detector.MainActivity
 import com.screenwakelock.detector.R
 import com.screenwakelock.detector.data.repository.PermissionStatusRepository
+import com.screenwakelock.detector.data.repository.PreferencesRepository
 import com.screenwakelock.detector.data.repository.WakeEventRepository
 import com.screenwakelock.detector.domain.model.ReasonCode
 import com.screenwakelock.detector.domain.model.WakeEvent
@@ -19,10 +20,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.first
 
 @Singleton
 class WakeAlertNotifier @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val preferencesRepository: PreferencesRepository,
 ) {
     private val permissionRepo = PermissionStatusRepository(context)
 
@@ -30,8 +33,8 @@ class WakeAlertNotifier @Inject constructor(
         createChannel()
     }
 
-    fun notifySingleWake(event: WakeEvent) {
-        if (!permissionRepo.isPostNotificationsGranted()) return
+    suspend fun notifySingleWake(event: WakeEvent) {
+        if (!permissionRepo.isPostNotificationsGranted() || isQuietHoursActive()) return
         val appName = event.displayAppName
         val channel = event.displayChannel ?: "Unknown channel"
         val body = "$channel · ${event.reasonCode.friendlyLabel()}"
@@ -48,7 +51,7 @@ class WakeAlertNotifier @Inject constructor(
         wakeEventRepository: WakeEventRepository,
         threshold: Int,
     ) {
-        if (!permissionRepo.isPostNotificationsGranted()) return
+        if (!permissionRepo.isPostNotificationsGranted() || isQuietHoursActive()) return
         val pkg = event.attributedPackage ?: return
         val channelId = event.channelId
         val since = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(1)
@@ -70,8 +73,8 @@ class WakeAlertNotifier @Inject constructor(
         )
     }
 
-    fun notifyUnknownWake(event: WakeEvent) {
-        if (!permissionRepo.isPostNotificationsGranted()) return
+    suspend fun notifyUnknownWake(event: WakeEvent) {
+        if (!permissionRepo.isPostNotificationsGranted() || isQuietHoursActive()) return
         val time = TimeUtils.formatTime(event.timestampMillis)
         val (title, body, highlight) = when {
             !permissionRepo.isNotificationListenerEnabled() -> Triple(
@@ -102,6 +105,13 @@ class WakeAlertNotifier @Inject constructor(
             wakeEventId = event.id,
             highlight = highlight,
         )
+    }
+
+    private suspend fun isQuietHoursActive(): Boolean {
+        if (!preferencesRepository.quietHoursEnabled.first()) return false
+        val start = preferencesRepository.nighttimeStartHour.first()
+        val end = preferencesRepository.nighttimeEndHour.first()
+        return TimeUtils.isNighttime(System.currentTimeMillis(), start, end)
     }
 
     private fun showNotification(

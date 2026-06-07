@@ -47,23 +47,66 @@ import com.screenwakelock.detector.ui.viewmodel.HistoryViewModel
 import com.screenwakelock.detector.util.ChannelMuter
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.SilenceWake
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.LaunchedEffect
+import com.screenwakelock.detector.util.TimeUtils
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
+    initialFilterHour: Int? = null,
     onNavigateDetail: (Long) -> Unit,
     viewModel: HistoryViewModel = hiltViewModel(),
 ) {
     val events by viewModel.events.collectAsState()
     val query by viewModel.query.collectAsState()
     val nightOnly by viewModel.nightOnly.collectAsState()
+    val hourFilter by viewModel.hourFilter.collectAsState()
+    val startDate by viewModel.startDateMillis.collectAsState()
+    val endDate by viewModel.endDateMillis.collectAsState()
     var searchActive by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var quickFixEvent by remember { mutableStateOf<WakeEvent?>(null) }
     var pendingMuteEvent by remember { mutableStateOf<WakeEvent?>(null) }
+
+    LaunchedEffect(initialFilterHour) {
+        if (initialFilterHour != null) {
+            viewModel.setHourFilter(initialFilterHour)
+        }
+    }
+
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val selected = datePickerState.selectedDateMillis
+                        if (selected != null) {
+                            viewModel.setDateRange(selected, selected)
+                        }
+                        showDatePicker = false
+                    },
+                ) {
+                    Text("Apply")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            },
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 
     fun onMuted(event: WakeEvent, result: ChannelMuter.MuteResult) {
         scope.launch {
@@ -157,6 +200,36 @@ fun HistoryScreen(
                     label = { Text("Night only (11pm–6am)") },
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
+                FilterChip(
+                    selected = startDate != null,
+                    onClick = { showDatePicker = true },
+                    label = {
+                        Text(
+                            if (startDate != null) {
+                                TimeUtils.formatDateTime(startDate!!).substringBefore(',')
+                            } else {
+                                "Pick date"
+                            },
+                        )
+                    },
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+                if (startDate != null || endDate != null) {
+                    FilterChip(
+                        selected = false,
+                        onClick = { viewModel.clearDateRange() },
+                        label = { Text("Clear date") },
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                }
+                if (hourFilter != null) {
+                    FilterChip(
+                        selected = true,
+                        onClick = { viewModel.clearHourFilter() },
+                        label = { Text("Hour: ${hourFilter}:00 ✕") },
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                }
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {

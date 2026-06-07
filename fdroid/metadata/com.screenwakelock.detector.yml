@@ -2,10 +2,10 @@ Categories:
   - System
 License: Apache-2.0
 AuthorName: Screen Wakelock Detector contributors
-AuthorWebSite: https://gitlab.com/<namespace>/screen-wakelock-detector
-SourceCode: https://gitlab.com/<namespace>/screen-wakelock-detector
-IssueTracker: https://gitlab.com/<namespace>/screen-wakelock-detector/-/issues
-Changelog: https://gitlab.com/<namespace>/screen-wakelock-detector/-/blob/main/docs/CHANGELOG.md
+AuthorWebSite: https://github.com/edwardlthompson/screen-wakelock-detector
+SourceCode: https://github.com/edwardlthompson/screen-wakelock-detector
+IssueTracker: https://github.com/edwardlthompson/screen-wakelock-detector/issues
+Changelog: https://github.com/edwardlthompson/screen-wakelock-detector/blob/main/docs/CHANGELOG.md
 Donate:
 
 AutoName: Screen Wakelock Detector
@@ -24,13 +24,13 @@ Description: |
 
 RequiresRoot: false
 UpdateCheckMode: Tags
-CurrentVersion: 0.1.0
-CurrentVersionCode: 1
+CurrentVersion: 1.0.0-rc.1
+CurrentVersionCode: 1000000
 
 Builds:
-  - versionName: '0.1.0'
-    versionCode: 1
-    commit: v0.1.0-alpha.1
+  - versionName: '1.0.0-rc.1'
+    versionCode: 1000000
+    commit: v1.0.0-rc.1
     subdir: .
     sudo:
       - apt-get update

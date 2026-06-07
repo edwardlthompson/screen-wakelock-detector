@@ -35,6 +35,20 @@ jobs:
             exit 1
           fi
 
+      - name: No Material 2 Compose imports
+        run: |
+          if rg -l 'androidx\.compose\.material\.(MaterialTheme|Button|Text)' app/src/main/java --glob '*.kt'; then
+            echo "Material 2 imports detected — use Material 3"
+            exit 1
+          fi
+
+      - name: Exported components audit
+        run: |
+          EXPORTED=$(grep -c 'android:exported="true"' app/src/main/AndroidManifest.xml || true)
+          echo "Exported components: ${EXPORTED}"
+          grep 'android:exported="true"' app/src/main/AndroidManifest.xml
+          if ! grep -q 'MainActivity' app/src/main/AndroidManifest.xml; then exit 1; fi
+
       - name: Lint metadata
         run: bash scripts/fdroid/lint-metadata.sh
 

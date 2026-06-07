@@ -1,0 +1,1 @@
+First release candidate: insights dashboard, threshold alerts, quiet hours, adaptive navigation, and F-Droid metadata.

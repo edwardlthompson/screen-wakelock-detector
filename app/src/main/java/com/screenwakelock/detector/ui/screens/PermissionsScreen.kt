@@ -15,6 +15,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -35,6 +36,7 @@ import com.screenwakelock.detector.util.IntentUtils
 fun PermissionsScreen(
     highlight: String? = null,
     onBack: () -> Unit,
+    onReplayOnboarding: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -72,6 +74,17 @@ fun PermissionsScreen(
                 .fillMaxSize()
                 .padding(padding),
         ) {
+            item {
+                ListItem(
+                    headlineContent = { Text("Run setup again") },
+                    supportingContent = { Text("Replay the onboarding wizard") },
+                    trailingContent = {
+                        TextButton(onClick = onReplayOnboarding) {
+                            Text("Open")
+                        }
+                    },
+                )
+            }
             items(statuses.value) { status ->
                 val highlighted = highlight?.let { key ->
                     when (key) {

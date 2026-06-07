@@ -78,7 +78,8 @@ fun InsightsScreen(
                         },
                         supportingContent = {
                             Text(
-                                "${offender.count} wakes · ${offender.nighttimeCount} at night",
+                                "${offender.channelName ?: "Unknown channel"} · " +
+                                    "${offender.count} wakes · ${offender.nighttimeCount} at night",
                             )
                         },
                     )

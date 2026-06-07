@@ -12,8 +12,8 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 | **Package** | `com.screenwakelock.detector` |
 | **License** | Apache-2.0 |
 | **Distribution** | F-Droid only (no Google Play) |
-| **Primary forge** | GitLab (public) |
-| **GitLab project URL** | _(set on first push — e.g. `https://gitlab.com/<user>/screen-wakelock-detector`)_ |
+| **GitHub repo** | https://github.com/edwardlthompson/screen-wakelock-detector |
+| **Primary forge** | GitHub (GitLab mirror pending HUMAN) |
 | **GitLab project ID** | _(set after project creation)_ |
 | **fdroiddata fork URL** | _(set after fork — e.g. `git@gitlab.com:<user>/fdroiddata.git`)_ |
 | **Stack** | Kotlin, Jetpack Compose, Material Design 3, Room, Hilt |
@@ -36,7 +36,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 | **Last pipeline URL** | _(none)_ |
 | **Last failed job** | _(none)_ |
 | **fdroid-build status** | _(not run)_ |
-| **reproducible-verify result** | _(not run)_ |
+| **reproducible-verify result** | Not verified locally (2026-06-07). CI job `reproducible-verify` exists with `allow_failure: true`. Blocker: release keystore not in CI; unsigned APK only. Run `scripts/fdroid/verify-reproducible.sh` after signing setup. |
 | **Release signing** | Keystore in CI variables only — never in repo |
 
 ---
@@ -78,7 +78,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 
 | Device | Android | OEM | Root | Notes |
 |--------|---------|-----|------|-------|
-| _(none recorded)_ | | | | Add after first `[ADB]` smoke run |
+| CPH2583 (OnePlus) | 15 | OnePlus | no | M0–M5 smoke device `b5214fc6` |
 
 ---
 
@@ -102,6 +102,8 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 
 | Date | Event |
 |------|-------|
+| 2026-06-07 | M5 rc.1: insights polish, adaptive nav, quiet hours, permission banners, F-Droid metadata. |
+| 2026-06-07 | M4 quick actions shipped; M3 root stack; M2 attribution; M1 wake capture. |
 | 2026-06-06 | M0 documentation and automation scaffold created (docs, scripts, CI templates). |
 
 ---
