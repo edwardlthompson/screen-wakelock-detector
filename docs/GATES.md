@@ -32,6 +32,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M8 deep | PASS | m8_adb_deep_verify: PASS 2026-06-07 b5214fc6 — root timeline, diagnostic export, pattern actions, batch mute |
 | M9 | PASS | Smoke M9: PASS 2026-06-07T19:50:00Z b5214fc6 1.2.1 |
 | M10 | PASS | Smoke M10: PASS 2026-06-07T20:15:00Z b5214fc6 1.2.2 |
+| M11 | PASS | Smoke M11: PASS 2026-06-07T20:45:00Z b5214fc6 1.2.3 (OP12 restricted chip) |
 | ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |
 
 ---
@@ -275,3 +276,17 @@ Partial at M1/M4; full at M5.
 - [x] Gate GSM (M10) recorded `[AGENT]`
 - [x] Gate G10 passed → archive → commit → push → tag v1.2.2 `[AGENT]`
 - [x] Gate G10 passed; [v1.2.2](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.2) published 2026-06-07 `[AGENT]`
+
+---
+
+## Gate G11 — M11 v1.2.3 condensed onboarding + version-aware settings
+
+- [x] `PermissionKind.RESTRICTED_SETTINGS` + `shortRationale`; dynamic status list by API/sideload `[AGENT]`
+- [x] `SettingsGuideProvider` + intent fallback chain; `PermissionStepsDialog` manual steps `[AGENT]`
+- [x] 2-page onboarding (Intro → Permissions); Verify page removed `[AGENT]`
+- [x] `PermissionSetupRow` with why-rationale on onboarding + Settings Permissions `[AGENT]`
+- [x] `./gradlew lint test assembleDebug` PASS `[AGENT]`
+- [x] Intent/settings navigation covered by `SettingsGuideProvider` + existing unit tests `[AGENT]`
+- [x] m11_smoke.sh PASS (manual OP12 `b5214fc6` 1.2.3 — restricted chip green after OnePlus Allow dialog) `[ADB]`
+- [x] Gate GSM (M11) recorded `[AGENT]`
+- [x] Gate G11 passed → archive → commit → push → tag v1.2.3 `[AGENT]`

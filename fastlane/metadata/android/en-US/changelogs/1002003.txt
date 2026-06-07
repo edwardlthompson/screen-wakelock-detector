@@ -1,0 +1,1 @@
+Condensed 2-page onboarding with permission rationale rows. Version-aware settings navigation with manual step fallback. Restricted-settings chip for sideloads (Android 13+). OnePlus/OxygenOS: chip infers unlock from Notification/Usage grants; updated Restricted setting dialog steps.

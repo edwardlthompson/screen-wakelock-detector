@@ -19,25 +19,42 @@ Cross-links: [`PERMISSIONS.md`](PERMISSIONS.md) · [`PRIVACY.md`](PRIVACY.md) ·
 ## Flow overview
 
 ```
-Welcome → How it works (4 steps) → Privacy → Home (monitoring starts)
-    → Permissions hub (on demand) → per-permission screens → Verify setup → Done
+Intro (welcome + how it works + privacy) → Permissions (rationale rows + live chips) → Get started
 ```
+
+Settings → Permissions remains available anytime. Tapping a permission opens the best Settings screen for the device/API; if none resolves, a numbered manual-steps dialog appears.
 
 ---
 
-## Step 0 — Welcome
+## Step 0 — Intro (consolidated)
 
 **Headline:** Find out what keeps waking your screen
 
-**Subtext:** We log every screen-on, show which app or channel likely caused it, and help you fix it in one tap. Everything stays on your device.
+**Subtext:** Logs every screen-on locally; identifies likely app/channel; fix in one tap.
 
-**Primary CTA:** Continue
+**Compact bullets:** Detect → Match → Show history → Fix (open settings or mute offenders)
 
-**Secondary:** _(none on first screen)_
+**Privacy one-liner:** All data stays on device — no account, no cloud, no Internet permission. Notification metadata only.
+
+**Primary CTA:** Next
 
 ---
 
-## Step 1 — How it works
+## Step 1 — Permissions (final onboarding step)
+
+Each row shows the permission name, a brief **why** line, and a live grant chip. Order when sideloaded (API 33+): Restricted settings → Notification access → Usage access → Alert notifications (API 33+) → Battery unrestricted.
+
+**Primary CTA:** Get started · **Secondary:** Skip
+
+**Sideload:** Restricted settings chip first; tap opens App info + numbered steps for ⋮ → Allow restricted settings (Lineage/AOSP path).
+
+---
+
+## Legacy step copy (reference)
+
+### Welcome (merged into Intro)
+
+**Headline:** Find out what keeps waking your screen
 
 Four illustrated cards (horizontal pager or vertical scroll):
 
@@ -160,21 +177,6 @@ Template: icon, title, three `ListItem` rationale rows, **Grant** button, **Skip
 **Copy highlight:** Everything is built into this app — no extra modules or plugins. Enable later in Settings → Root.
 
 **No grant button** — informational only; link to Settings → Root
-
----
-
-## Verify setup (final onboarding)
-
-Summary checklist with live status:
-
-- Monitoring active
-- Notification access: granted / missing
-- Usage access: granted / missing
-- Battery: unrestricted / restricted
-- Expected accuracy: **High** / **Medium** / **Basic**
-
-**Primary CTA:** Start monitoring  
-**Secondary:** Fix missing permissions (jumps to first incomplete step)
 
 ---
 

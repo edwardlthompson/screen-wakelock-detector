@@ -6,6 +6,22 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 
 ---
 
+## M11 — v1.2.3 condensed onboarding + version-aware settings
+
+**Target:** `versionName` `1.2.3`, `versionCode` `1002003` in `app/build.gradle.kts`  
+**Gate:** G11 in `docs/GATES.md` · Smoke: `scripts/smoke/m11_smoke.sh`
+
+<!-- PARALLEL -->
+<!-- END PARALLEL -->
+
+- [ ] [AGENT] Archive M11; commit; push; tag `v1.2.3`; publish signed APK
+
+### M11 — ADB
+
+- [ ] [ADB] OP13 Lineage: restricted chip live refresh; 2-page onboarding; no Verify page
+
+---
+
 ## M10 — v1.2.2 guided sideload permission setup
 
 **Target:** `versionName` `1.2.2`, `versionCode` `1002002` in `app/build.gradle.kts`  

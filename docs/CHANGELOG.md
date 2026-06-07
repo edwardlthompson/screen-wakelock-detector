@@ -14,6 +14,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.3] — 2026-06-07
+
+Condensed onboarding and version-aware permission setup.
+
+### Added
+
+- Two-page onboarding: Intro (welcome + how it works + privacy) → Permissions → Get started.
+- `PermissionSetupRow` with brief why-rationale under each permission chip.
+- Live **Allow restricted settings** chip when sideloaded (API 33+); replaces separate setup card.
+- `SettingsGuideProvider` with API/OEM-aware intent chains and numbered manual steps when Settings cannot open directly.
+- `PermissionStepsDialog` with Open Settings retry and generic installer workaround (session install).
+
+### Fixed
+
+- OnePlus/OxygenOS: restricted-settings chip now turns green when Notification or Usage access is granted, even if AppOps stays at `default`.
+- OnePlus restricted-settings instructions: use system **Restricted setting** dialog **Allow** first, then App info ⋮ fallback.
+
+### Changed
+
+- Removed Verify onboarding page; Permissions is the final step.
+- Alert notifications row hidden below API 33.
+- Settings → Permissions uses short rationale; shared settings navigator across onboarding and settings.
+
+### Removed
+
+- `RestrictedSetupCard` (replaced by restricted-settings permission chip + steps dialog).
+
 ## [1.2.2] — 2026-06-07
 
 Guided sideload permission setup for Android 13+.

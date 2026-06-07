@@ -54,9 +54,15 @@ If the app was installed from a **GitHub APK, browser, or Files app** (not Play 
 2. **Settings → Apps → Screen Wakelock Detector → App info → menu (⋮) → Allow restricted settings** (confirm PIN).
 3. Grant **Notification access** and **Usage access** from Special app access.
 
-The in-app **Start setup** card on onboarding and Settings → Permissions automates opening these screens. There is **no public Intent** that toggles Allow restricted settings directly.
+The in-app permission rows on onboarding and Settings → Permissions open the best Settings screen for the device. **`SettingsGuideProvider`** tries an ordered intent chain per permission; if none resolve, **`PermissionStepsDialog`** shows numbered manual steps.
 
-**OnePlus / OxygenOS 15:** If the ⋮ menu item is missing, reinstall the same APK using **SAI** (from Play Store) — session install bypasses the sideload restriction.
+**LineageOS / AOSP:** App info → menu (⋮) → **Allow restricted settings** (confirm PIN).
+
+**OnePlus / OxygenOS:** Tap Grant on Notification access — when the **Restricted setting** system dialog appears, tap **Allow**. AppOps may still read `default`; the in-app chip turns green once Notification or Usage access is enabled. If blocked, use App info → ⋮ → Allow restricted settings.
+
+**Installer workaround:** If ⋮ menu item is missing, reinstall via session install (e.g. SAI) — see in-app dialog link.
+
+**OnePlus / OxygenOS 15:** May need SAI session reinstall (same workaround dialog).
 
 ---
 
@@ -104,7 +110,7 @@ Monitoring uses a **foreground service** with a persistent notification. On aggr
 
 **If wakes are missed:** check that the FGS notification is present, battery is unrestricted, and the app was not force-stopped. Reboot after granting battery exemption on some OEMs.
 
-See onboarding **Verify setup** step and [`ADB_TESTING.md`](ADB_TESTING.md) for smoke validation.
+See onboarding Permissions step and [`ADB_TESTING.md`](ADB_TESTING.md) for smoke validation.
 
 ---
 

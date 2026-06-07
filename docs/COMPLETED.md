@@ -184,3 +184,12 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] Add `scripts/smoke/m10_smoke.sh`
 - [x] [AGENT] `./gradlew lint test assembleDebug`
 - [x] [ADB] Guided flow on OP13 sideload; chips update on Permissions page without pager advance
+
+## 2026-06-07 — M11 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] Add `PermissionKind.RESTRICTED_SETTINGS`, `shortRationale`; filter statuses by API/sideload
+- [x] [AGENT] [PARALLEL-OK] `SettingsGuideProvider` + `openWithFallback` intent chain; `PermissionStepsDialog`
+- [x] [AGENT] [PARALLEL-OK] `PermissionSetupRow`; condense onboarding to Intro + Permissions; remove Verify
+- [x] [AGENT] [PARALLEL-OK] Lineage/AOSP copy; OEM battery manual steps; unit tests
+- [x] [AGENT] Update `docs/ONBOARDING.md`, `docs/PERMISSIONS.md`, `docs/AGENT_MEMORY.md`, CHANGELOG
+- [x] [AGENT] Gate G11; `./gradlew lint test assembleDebug`; m11_smoke PASS (OP12 manual)

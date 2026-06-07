@@ -70,6 +70,7 @@ fun MissingPermissionsBanner(
 }
 
 private fun List<PermissionStatus>.firstHighlightKey(): String? = when {
+    any { it.kind == PermissionKind.RESTRICTED_SETTINGS && !it.granted } -> "restricted_settings"
     any { it.kind == PermissionKind.NOTIFICATION_LISTENER && !it.granted } -> "notification_access"
     any { it.kind == PermissionKind.USAGE_STATS && !it.granted } -> "usage_access"
     else -> null

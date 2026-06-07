@@ -3,14 +3,58 @@ package com.screenwakelock.detector.util
 import android.content.Context
 import com.screenwakelock.detector.domain.model.PermissionKind
 
+sealed class SettingsOpenResult {
+    data object Opened : SettingsOpenResult()
+
+    data class ShowManualSteps(
+        val guide: PermissionSettingsGuide,
+    ) : SettingsOpenResult()
+}
+
 /**
- * Opens the correct system settings screens for sideload restricted-settings unlock.
+ * Opens the correct system settings screens for permission setup.
  * Android does not expose an intent for the "Allow restricted settings" menu item itself.
  */
 object PermissionSetupGuide {
 
     const val GITHUB_RELEASE_URL =
         "https://github.com/edwardlthompson/screen-wakelock-detector/releases/latest"
+
+    fun openWithFallback(context: Context, kind: PermissionKind): SettingsOpenResult {
+        if (RestrictedSettingsHelper.needsUnlock(context)) {
+            when (kind) {
+                PermissionKind.NOTIFICATION_LISTENER,
+                PermissionKind.USAGE_STATS,
+                -> {
+                    openNotificationListenerSettings(context)
+                    return SettingsOpenResult.ShowManualSteps(
+                        SettingsGuideProvider.guideFor(context, PermissionKind.RESTRICTED_SETTINGS),
+                    )
+                }
+                PermissionKind.RESTRICTED_SETTINGS -> {
+                    openAppInfo(context)
+                    return SettingsOpenResult.ShowManualSteps(
+                        SettingsGuideProvider.guideFor(context, kind),
+                    )
+                }
+                else -> { /* fall through to normal open */ }
+            }
+        }
+
+        if (kind == PermissionKind.RESTRICTED_SETTINGS) {
+            openAppInfo(context)
+            return SettingsOpenResult.ShowManualSteps(
+                SettingsGuideProvider.guideFor(context, kind),
+            )
+        }
+
+        val guide = SettingsGuideProvider.guideFor(context, kind)
+        return if (IntentUtils.startFirstResolvable(context, guide.intents)) {
+            SettingsOpenResult.Opened
+        } else {
+            SettingsOpenResult.ShowManualSteps(guide)
+        }
+    }
 
     /** Step 1: trigger the restricted-setting block dialog (required before ⋮ menu appears). */
     fun openNotificationListenerSettings(context: Context) {
@@ -23,13 +67,10 @@ object PermissionSetupGuide {
     }
 
     fun openPermissionSettings(context: Context, kind: PermissionKind) {
-        val intent = when (kind) {
-            PermissionKind.NOTIFICATION_LISTENER -> IntentUtils.notificationListenerSettings()
-            PermissionKind.USAGE_STATS -> IntentUtils.usageAccessSettings()
-            PermissionKind.POST_NOTIFICATIONS -> IntentUtils.appNotificationSettings(context.packageName)
-            PermissionKind.BATTERY_OPTIMIZATION -> IntentUtils.requestIgnoreBatteryOptimizations(context)
+        when (val result = openWithFallback(context, kind)) {
+            is SettingsOpenResult.Opened -> Unit
+            is SettingsOpenResult.ShowManualSteps -> Unit
         }
-        context.startActivity(intent)
     }
 
     fun openReleaseDownload(context: Context) {

@@ -10,6 +10,8 @@ import android.provider.Settings
 import com.screenwakelock.detector.domain.model.PermissionKind
 import com.screenwakelock.detector.domain.model.PermissionStatus
 import com.screenwakelock.detector.service.NotificationCaptureService
+import com.screenwakelock.detector.util.InstallSourceHelper
+import com.screenwakelock.detector.util.RestrictedSettingsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,39 +50,71 @@ class PermissionStatusRepository @Inject constructor(
         return pm.isIgnoringBatteryOptimizations(context.packageName)
     }
 
-    fun getAllStatuses(): List<PermissionStatus> = listOf(
-        PermissionStatus(
-            kind = PermissionKind.NOTIFICATION_LISTENER,
-            granted = isNotificationListenerEnabled(),
-            label = "Notification access",
-            description = "Why: match screen wakes to the app and channel that posted nearby. " +
-                "What: package name, channel ID, importance, timestamp (metadata only). " +
-                "Never accesses: notification message text or contact names.",
-        ),
-        PermissionStatus(
-            kind = PermissionKind.USAGE_STATS,
-            granted = isUsageStatsGranted(),
-            label = "Usage access",
-            description = "Why: fallback when no notification matches the wake window. " +
-                "What: which app was recently in foreground. Never accesses: app content or files.",
-        ),
-        PermissionStatus(
-            kind = PermissionKind.POST_NOTIFICATIONS,
-            granted = isPostNotificationsGranted(),
-            label = "Alert notifications",
-            description = "Show threshold and wake alerts from this app",
-        ),
-        PermissionStatus(
-            kind = PermissionKind.BATTERY_OPTIMIZATION,
-            granted = isBatteryOptimizationIgnored(),
-            label = "Battery unrestricted",
-            description = "Helps monitoring survive Doze and background limits",
-        ),
-    )
+    fun getAllStatuses(): List<PermissionStatus> = buildList {
+        val notificationGranted = isNotificationListenerEnabled()
+        val usageGranted = isUsageStatsGranted()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            InstallSourceHelper.isSideloaded(context)
+        ) {
+            add(
+                PermissionStatus(
+                    kind = PermissionKind.RESTRICTED_SETTINGS,
+                    granted = RestrictedSettingsHelper.isRestrictedSettingsAllowed(
+                        context,
+                        notificationListenerEnabled = notificationGranted,
+                        usageStatsGranted = usageGranted,
+                    ),
+                    label = "Allow restricted settings",
+                    shortRationale = "Unlocks sensitive permissions when you installed from an APK.",
+                    description = "Required on sideloaded apps before Notification and Usage access (Android 13+).",
+                ),
+            )
+        }
+        add(
+            PermissionStatus(
+                kind = PermissionKind.NOTIFICATION_LISTENER,
+                granted = notificationGranted,
+                label = "Notification access",
+                shortRationale = "Shows which app and channel turned the screen on.",
+                description = "Why: match screen wakes to the app and channel that posted nearby. " +
+                    "What: package name, channel ID, importance, timestamp (metadata only). " +
+                    "Never accesses: notification message text or contact names.",
+            ),
+        )
+        add(
+            PermissionStatus(
+                kind = PermissionKind.USAGE_STATS,
+                granted = usageGranted,
+                label = "Usage access",
+                shortRationale = "Backup when a wake was not caused by a notification.",
+                description = "Why: fallback when no notification matches the wake window. " +
+                    "What: which app was recently in foreground. Never accesses: app content or files.",
+            ),
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            add(
+                PermissionStatus(
+                    kind = PermissionKind.POST_NOTIFICATIONS,
+                    granted = isPostNotificationsGranted(),
+                    label = "Alert notifications",
+                    shortRationale = "Optional alerts when wake patterns exceed your thresholds.",
+                    description = "Show threshold and wake alerts from this app",
+                ),
+            )
+        }
+        add(
+            PermissionStatus(
+                kind = PermissionKind.BATTERY_OPTIMIZATION,
+                granted = isBatteryOptimizationIgnored(),
+                label = "Battery unrestricted",
+                shortRationale = "Reduces missed wakes when the phone is in deep sleep.",
+                description = "Helps monitoring survive Doze and background limits",
+            ),
+        )
+    }
 
     fun missingCount(): Int = getAllStatuses().count { !it.granted }
 
-    /** Four permissions, 25% each — 100 when all granted. */
     fun healthScore(): Int {
         val statuses = getAllStatuses()
         if (statuses.isEmpty()) return 100

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -138,5 +139,22 @@ object IntentUtils {
         } catch (_: ActivityNotFoundException) {
             false
         }
+    }
+
+    fun isIntentResolvable(context: Context, intent: Intent): Boolean {
+        val resolveInfo = context.packageManager.resolveActivity(
+            intent,
+            PackageManager.MATCH_DEFAULT_ONLY,
+        )
+        return resolveInfo != null
+    }
+
+    /** Try each intent in order; return true if any activity opened successfully. */
+    fun startFirstResolvable(context: Context, intents: List<Intent>): Boolean {
+        for (intent in intents) {
+            if (!isIntentResolvable(context, intent)) continue
+            if (startViewIntent(context, intent)) return true
+        }
+        return false
     }
 }
