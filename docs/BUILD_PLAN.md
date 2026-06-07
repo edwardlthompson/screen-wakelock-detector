@@ -58,22 +58,13 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 ## M3 — Self-contained root stack + capability UI
 
 <!-- PARALLEL -->
-- [ ] [AGENT] [PARALLEL-OK] libsu + RootShellService + RootCommandAllowlist + RootCommandRunner
-- [ ] [AGENT] [PARALLEL-OK] DumpsysPowerParser, DumpsysBatteryStatsParser, WakeupSourcesParser + fixture tests
-- [ ] [AGENT] [PARALLEL-OK] Settings → Root: enable switch, diagnostics, grayed rows when not rooted
-- [ ] [AGENT] [PARALLEL-OK] Root informational onboarding step
 <!-- END PARALLEL -->
 
 <!-- SEQUENTIAL -->
-- [ ] [AGENT] RootAttributor merges wakelock snapshot into WakeEvent on screen-on
-- [ ] [AGENT] RootAvailability probe (su; Magisk/KernelSU labels for UI copy only)
 <!-- END SEQUENTIAL -->
 
 <!-- PARALLEL -->
-- [ ] [AGENT] Unit tests: allowlist rejects arbitrary commands; parser fixtures API 29/31/34
 - [ ] [ADB] Rooted device: wakelock tag via in-app libsu only (no Shizuku/module)
-- [ ] [ADB] Non-root: root rows disabled; no crash on su deny/timeout/parse failure
-- [ ] [ADB] Run m3_smoke.sh PASS; record in GATES.md
 <!-- END PARALLEL -->
 
 **Gate G3, GS (partial)** — see [`GATES.md`](GATES.md)

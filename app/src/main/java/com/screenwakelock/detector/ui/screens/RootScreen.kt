@@ -2,10 +2,10 @@ package com.screenwakelock.detector.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import android.os.Build
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -18,6 +18,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +42,12 @@ fun RootScreen(
     var probeState by remember { mutableStateOf<RootAvailabilityState?>(null) }
     var diagnostics by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+    val isRootAvailable = probeState?.isRooted == true
+    val mutedColor = MaterialTheme.colorScheme.onSurfaceVariant
+
+    LaunchedEffect(Unit) {
+        probeState = viewModel.probe()
+    }
 
     Scaffold(
         topBar = {
@@ -64,29 +71,52 @@ fun RootScreen(
             Text(
                 "Requires root — all tooling is built into this app. No modules or Shizuku needed.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = mutedColor,
             )
-            androidx.compose.foundation.layout.Row(
+            if (!isRootAvailable) {
+                Text(
+                    "Root not detected. Enable root attribution is disabled until su is available.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = mutedColor,
+                )
+            }
+            Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text("Enable root attribution")
+                Text(
+                    "Enable root attribution",
+                    color = if (isRootAvailable) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        mutedColor
+                    },
+                )
                 Switch(
-                    checked = rootEnabled,
+                    checked = rootEnabled && isRootAvailable,
+                    enabled = isRootAvailable,
                     onCheckedChange = { enabled ->
                         scope.launch {
                             if (enabled) {
-                                probeState = viewModel.probe()
+                                val state = viewModel.probe()
+                                probeState = state
+                                viewModel.setRootEnabled(state.isRooted)
+                            } else {
+                                viewModel.setRootEnabled(false)
                             }
-                            viewModel.setRootEnabled(enabled && (probeState?.isRooted == true))
                         }
                     },
                 )
             }
             probeState?.let { state ->
                 Text(
-                    "Root available: ${state.isRooted}\nManager: ${state.managerKind.name}",
+                    state.diagnostics,
                     style = MaterialTheme.typography.bodyMedium,
+                    color = if (state.isRooted) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        mutedColor
+                    },
                 )
             }
             Button(
@@ -97,7 +127,7 @@ fun RootScreen(
                         diagnostics = if (result.success) {
                             "Last command OK (${result.durationMs}ms)"
                         } else {
-                            "Failed: ${result.error}"
+                            "Failed: ${result.error ?: "Root not available"}"
                         }
                     }
                 },

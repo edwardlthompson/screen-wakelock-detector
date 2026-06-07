@@ -119,11 +119,11 @@ private fun OnboardingWelcome() {
 
 @Composable
 private fun OnboardingHowItWorks() {
-    val steps = listOf(
+        val steps = listOf(
         "Monitor listens for screen-on events locally",
         "Notifications posted nearby are matched to the wake",
         "Usage stats provide fallback when no notification matches",
-        "Optional root adds wakelock details — never required",
+        "Optional root adds wakelock tags via in-app libsu — never required",
     )
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("How it works", style = MaterialTheme.typography.headlineSmall)
@@ -150,6 +150,12 @@ private fun OnboardingPrivacy() {
         )
         Text(
             "What we store: app name, notification channel metadata, and timestamps.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            "Root (optional): grant su once in Magisk or KernelSU to read wakelock holders. " +
+                "All commands stay inside this app — no modules or Shizuku.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

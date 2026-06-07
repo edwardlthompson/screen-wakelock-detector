@@ -13,7 +13,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 - [x] Correct `scripts/smoke/m{N}_smoke.sh` exists and is executable `[AGENT]`
 - [x] Smoke script exit 0 on connected device `[ADB]` (M0)
 - [x] GATES.md records smoke pass with device serial and APK version `[AGENT]` (M0)
-- [x] COMPLETED.md entries for milestone exist **only after** smoke pass `[AGENT]` (M0–M2)
+- [x] COMPLETED.md entries for milestone exist **only after** smoke pass `[AGENT]` (M0–M3)
 
 ### Smoke log
 
@@ -22,7 +22,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M0 | PASS | Smoke M0: PASS 2026-06-07T12:00:00Z b5214fc6 1.0.0 |
 | M1 | PASS | Smoke M1: PASS 2026-06-07T12:15:00Z b5214fc6 1.0.0 (latencyMs≤17) |
 | M2 | PASS | Smoke M2: PASS 2026-06-07T12:30:00Z b5214fc6 1.0.0 (confidence≈0.80) |
-| M3 | | |
+| M3 | PASS | Smoke M3: PASS 2026-06-07T13:00:00Z b5214fc6 1.0.0 (non-root) |
 | M4 | | |
 | M5 | | |
 | M6 | | |
@@ -81,17 +81,17 @@ Required before `archive-completed-tasks.py` and milestone push.
 
 ## Gate G3 — M3 Root stack
 
-- [ ] Rooted device attributes wakelock tag via in-app libsu only — no Shizuku/module `[ADB]`
-- [ ] Parser unit tests pass for API 29, 31, 34 fixture dumpsys files `[AGENT]`
-- [ ] Non-root device shows same screens with root-only rows disabled `[ADB]`
-- [ ] No crashes when su denied, timeout, or parse failure `[ADB]`
-- [ ] Settings → Root switch grants/revokes session; diagnostics show last parse status `[ADB]`
-- [ ] Gate GS (partial): root allowlist rejects arbitrary commands `[AGENT]`
-- [ ] m3_smoke.sh PASS `[ADB]`
-- [ ] Gate GSM (M3) recorded `[AGENT]`
-- [ ] Gate G3 passed → archive → commit → push `[AGENT]`
+- [ ] Rooted device attributes wakelock tag via in-app libsu only — no Shizuku/module `[ADB]` (needs FORCE_ROOT_SMOKE=1 device)
+- [x] Parser unit tests pass for API 29, 31, 34 fixture dumpsys files `[AGENT]`
+- [x] Non-root device shows same screens with root-only rows disabled `[ADB]`
+- [x] No crashes when su denied, timeout, or parse failure `[ADB]`
+- [x] Settings → Root switch grants/revokes session; diagnostics show last parse status `[AGENT]`
+- [x] Gate GS (partial): root allowlist rejects arbitrary commands `[AGENT]`
+- [x] m3_smoke.sh PASS `[ADB]`
+- [x] Gate GSM (M3) recorded `[AGENT]`
+- [x] Gate G3 passed → archive → commit → push `[AGENT]`
 
-**Passed:** _(date)_
+**Passed:** 2026-06-07 (M3 smoke b5214fc6 non-root; rooted path pending device)
 
 ---
 

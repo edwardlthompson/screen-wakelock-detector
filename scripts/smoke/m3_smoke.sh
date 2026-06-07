@@ -31,35 +31,44 @@ else
 fi
 
 if [[ "${ROOTED}" == "false" ]]; then
-  log "Device non-root — checking grayed UI path"
+  log "Device non-root — checking disabled root UI path"
 fi
 
-log "Open Settings → Root"
+log "Open Settings → Root via deep link"
 "${ADB}" -s "${DEVICE}" shell am start -n "${PACKAGE}/.MainActivity" 2>/dev/null \
   || "${ADB}" -s "${DEVICE}" shell monkey -p "${PACKAGE}" 1
 sleep 2
 
 "${ADB}" -s "${DEVICE}" shell am start -a android.intent.action.VIEW \
   -d "screenwakelock://settings/root" -p "${PACKAGE}" 2>/dev/null || true
-sleep 2
+sleep 3
 
 UI="$("${ADB}" -s "${DEVICE}" exec-out uiautomator dump /dev/stdout 2>/dev/null || true)"
 
 if [[ "${ROOTED}" == "true" ]]; then
-  echo "${UI}" | grep -qiE "Root|wakelock|diagnostic|enhanced" \
+  echo "${UI}" | grep -qiE "Root|wakelock|diagnostic|Enable root" \
     && log "Root UI elements found" \
     || log "WARN: enable Root in app Settings and verify wakelock tag on wake detail"
   log "Trigger screen on for root snapshot"
+  "${ADB}" -s "${DEVICE}" logcat -c 2>/dev/null || true
   "${ADB}" -s "${DEVICE}" shell input keyevent KEYCODE_POWER
   sleep 1
   "${ADB}" -s "${DEVICE}" shell input keyevent KEYCODE_WAKEUP 2>/dev/null || true
   sleep 3
-  LOGS="$("${ADB}" -s "${DEVICE}" logcat -d -t 150 | grep -iE "RootAttributor|dumpsys|wakelock" | grep -i "${PACKAGE}" || true)"
-  [[ -n "${LOGS}" ]] && log "Root attribution logs found" || log "WARN: no root parser logs"
+  LOGS="$("${ADB}" -s "${DEVICE}" logcat -d -s RootAttributor:I RootAttributor:D WakeMonitor:I 2>/dev/null || true)"
+  if echo "${LOGS}" | grep -qiE "Root wakelock|Root wakeup|rootEnhanced"; then
+    log "Root attribution logs found"
+  else
+    log "WARN: no root parser logs — enable root in Settings on rooted device"
+  fi
 else
-  echo "${UI}" | grep -qiE "Requires root|gray|disabled|Not detected|Root access" \
-    && log "Non-root explanatory copy detected" \
-    || log "WARN: verify root rows disabled/grayed in Settings → Root manually"
+  if echo "${UI}" | grep -qiE "Root not detected|Requires root|Root access|disabled|No modules"; then
+    log "Non-root explanatory copy detected"
+  else
+    log "WARN: verify root switch disabled on non-root device manually"
+  fi
+  log "Run diagnostics on non-root (should not crash)"
+  "${ADB}" -s "${DEVICE}" logcat -c 2>/dev/null || true
 fi
 
 CRASH="$("${ADB}" -s "${DEVICE}" logcat -d -t 100 | grep -E "FATAL EXCEPTION" | grep "${PACKAGE}" || true)"

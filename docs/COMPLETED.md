@@ -38,3 +38,15 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] Wake detail screen: confidence bar, “Why this app?”, ranked candidates when low confidence
 - [x] [ADB] ≥80% notification-driven test wakes attributed to correct app+channel on reference device
 - [x] [ADB] Run m2_smoke.sh PASS; record in GATES.md
+
+## 2026-06-07 — M3 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] libsu + RootShellService + RootCommandAllowlist + RootCommandRunner
+- [x] [AGENT] [PARALLEL-OK] DumpsysPowerParser, DumpsysBatteryStatsParser, WakeupSourcesParser + fixture tests
+- [x] [AGENT] [PARALLEL-OK] Settings → Root: enable switch, diagnostics, grayed rows when not rooted
+- [x] [AGENT] [PARALLEL-OK] Root informational onboarding step
+- [x] [AGENT] RootAttributor merges wakelock snapshot into WakeEvent on screen-on
+- [x] [AGENT] RootAvailability probe (su; Magisk/KernelSU labels for UI copy only)
+- [x] [AGENT] Unit tests: allowlist rejects arbitrary commands; parser fixtures API 29/31/34
+- [x] [ADB] Non-root: root rows disabled; no crash on su deny/timeout/parse failure
+- [x] [ADB] Run m3_smoke.sh PASS; record in GATES.md

@@ -11,7 +11,7 @@ data class DumpsysBatteryStatsParseResult(
 )
 
 object DumpsysBatteryStatsParser {
-    private val wakeLine = Regex("""^9,(\d+),.*?wakelock,.*?,(.+?),(\d+)""")
+    private val wakeLine = Regex("""^9,(\d+),.*?wakelock,[^,]+,(.+),(\d+)\s*$""")
 
     fun parse(output: String): DumpsysBatteryStatsParseResult {
         val entries = output.lineSequence()

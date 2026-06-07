@@ -1,0 +1,2 @@
+9,10123,0,l,com.example.app,0,0,0,0,0,0,0,0,0,0,0
+9,10123,0,wakelock,partial,com.example.app:sync,12

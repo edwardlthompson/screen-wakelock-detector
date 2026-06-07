@@ -1,0 +1,4 @@
+name            active_count event_count wakeup_count expire_count active_since total_time max_time last_change prevent_suspend_time
+btn_power_key   0            0           0            0            0            0          0        0           0
+wlan            1            2           3            0            0            0          0        0           0
+alarmtimer.0.auto 0          0           1            0            0            0          0        0           0

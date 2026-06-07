@@ -23,6 +23,15 @@ class MainActivity : ComponentActivity() {
         val data = intent?.data
         val wakeId = data?.lastPathSegment?.toLongOrNull()
         val highlight = data?.getQueryParameter("highlight")
+        val deepLinkRoute = when (data?.host) {
+            "settings" -> when (data.pathSegments.firstOrNull()) {
+                "root" -> "root"
+                "permissions" -> "permissions"
+                else -> null
+            }
+            "insights" -> "insights"
+            else -> null
+        }
 
         setContent {
             ScreenWakelockTheme {
@@ -30,6 +39,7 @@ class MainActivity : ComponentActivity() {
                     AppNavigation(
                         deepLinkWakeId = wakeId,
                         deepLinkHighlight = highlight,
+                        deepLinkRoute = deepLinkRoute,
                     )
                 }
             }

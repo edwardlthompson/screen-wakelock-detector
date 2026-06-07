@@ -52,6 +52,7 @@ object Routes {
 fun AppNavigation(
     deepLinkWakeId: Long? = null,
     deepLinkHighlight: String? = null,
+    deepLinkRoute: String? = null,
 ) {
     val navController = rememberNavController()
     val onboardingViewModel: OnboardingViewModel = hiltViewModel()
@@ -68,17 +69,24 @@ fun AppNavigation(
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = currentRoute in bottomItems.map { it.first }
 
-    androidx.compose.runtime.LaunchedEffect(hasCompletedIntro, deepLinkWakeId, deepLinkHighlight) {
+    androidx.compose.runtime.LaunchedEffect(hasCompletedIntro, deepLinkWakeId, deepLinkHighlight, deepLinkRoute) {
         if (!hasCompletedIntro) {
             navController.navigate(Routes.ONBOARDING) {
                 popUpTo(navController.graph.id) { inclusive = true }
             }
         } else {
-            deepLinkWakeId?.let { id ->
-                navController.navigate(Routes.detail(id))
-            }
-            deepLinkHighlight?.let {
-                navController.navigate(Routes.permissions(it))
+            when (deepLinkRoute) {
+                "root" -> navController.navigate(Routes.ROOT)
+                "permissions" -> navController.navigate(Routes.permissions(deepLinkHighlight))
+                "insights" -> navController.navigate(Routes.INSIGHTS)
+                else -> {
+                    deepLinkWakeId?.let { id ->
+                        navController.navigate(Routes.detail(id))
+                    }
+                    deepLinkHighlight?.let {
+                        navController.navigate(Routes.permissions(it))
+                    }
+                }
             }
         }
     }

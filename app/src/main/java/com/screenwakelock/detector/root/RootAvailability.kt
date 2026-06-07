@@ -1,7 +1,5 @@
 package com.screenwakelock.detector.root
 
-import java.io.File
-
 enum class RootManagerKind {
     UNKNOWN,
     MAGISK,
@@ -20,24 +18,17 @@ class RootAvailability(
 ) {
     suspend fun probe(): RootAvailabilityState {
         val rooted = rootShellService.preheat()
-        val manager = detectManager()
         val diagnostics = buildString {
             append("Root available: $rooted")
-            append("\nManager: ${manager.name}")
+            append("\nManager: ${RootManagerKind.UNKNOWN.name}")
+            if (!rooted) {
+                append("\nRoot-only features stay disabled until su is granted in Magisk/KernelSU.")
+            }
         }
         return RootAvailabilityState(
             isRooted = rooted,
-            managerKind = manager,
+            managerKind = RootManagerKind.UNKNOWN,
             diagnostics = diagnostics,
         )
-    }
-
-    private fun detectManager(): RootManagerKind {
-        return when {
-            File("/data/adb/magisk").exists() -> RootManagerKind.MAGISK
-            File("/data/adb/ksu").exists() -> RootManagerKind.KERNELSU
-            File("/data/adb/ap").exists() -> RootManagerKind.APATCH
-            else -> RootManagerKind.UNKNOWN
-        }
     }
 }

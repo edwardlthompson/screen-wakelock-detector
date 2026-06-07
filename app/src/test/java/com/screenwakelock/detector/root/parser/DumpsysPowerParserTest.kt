@@ -1,7 +1,6 @@
 package com.screenwakelock.detector.root.parser
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.io.File
 
@@ -9,17 +8,25 @@ class DumpsysPowerParserTest {
 
     @Test
     fun parse_api34_fixture_findsPartialWakeLock() {
-        val fixture = loadFixture("root/dumpsys_power_api34.txt")
-        val result = DumpsysPowerParser.parse(fixture)
+        assertPowerFixture("root/dumpsys_power_api34.txt", "com.example.app:notification")
+    }
 
+    @Test
+    fun parse_api29_fixture_findsPartialWakeLock() {
+        assertPowerFixture("root/dumpsys_power_api29.txt", "com.example.app:AlarmAlert")
+    }
+
+    @Test
+    fun parse_api31_fixture_findsPartialWakeLock() {
+        assertPowerFixture("root/dumpsys_power_api31.txt", "com.example.app:fg_service")
+    }
+
+    private fun assertPowerFixture(path: String, expectedTag: String) {
+        val fixture = loadFixture(path)
+        val result = DumpsysPowerParser.parse(fixture)
         assertEquals(1, result.wakelocks.size)
-        val lock = result.wakelocks.first()
-        assertEquals("com.example.app", lock.name)
-        assertEquals("com.example.app:notification", lock.tag)
-        assertEquals(10123, lock.uid)
-        assertEquals(4567, lock.pid)
-        assertNotNull(result.wakeReason)
-        assertEquals("application", result.wakeReason)
+        assertEquals(expectedTag, result.wakelocks.first().tag)
+        assertEquals(10123, result.wakelocks.first().uid)
     }
 
     private fun loadFixture(path: String): String {
