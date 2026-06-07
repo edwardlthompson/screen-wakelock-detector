@@ -76,7 +76,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 - **2026-06-07:** M8 release compression: shrinkResources, material-icons-core, `verify-release-apk.sh` wired into GitHub/GitLab CI.
 - **2026-06-07:** M8 v1.2.0: intelligence features (ignore list, retention, WoW insights, WakeCountWidget, SAF backup). Launcher icon updated. Local `./gradlew` blocked (JAVA_HOME unset on dev machine); CI/subagent verify PASS.
 - **2026-06-07:** M9 v1.2.1: GitHub unsigned APK failed to launch on OP13; signed release via `build-signed-apk.sh`, `m9_smoke.sh`, CI `RELEASE_*` secrets. Asset name `Screen-Wakelock-Detector-{version}.apk`.
-- **2026-06-07:** M11 v1.2.3 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.3 — condensed onboarding, version-aware permissions, OnePlus restricted-settings inference.
+- **2026-06-07:** OP13 Lineage (`8bf09993`, CPH2655): GitHub APK via Firefox → `installer=packageinstaller`, `originating=firefox` — must NOT trust packageinstaller alone; was hiding restricted-settings chip. Fix in InstallSourceHelper snapshot logic.
 - **2026-06-07:** OP12 (`b5214fc6`, CPH2583/OxygenOS): `ACCESS_RESTRICTED_SETTINGS` AppOps stays `default` after user allows via system dialog; chip must infer unlock from Notification/Usage grants. OnePlus steps: Restricted setting dialog **Allow** first, then App info ⋮ fallback.
 - **2026-06-07:** M10 v1.2.2: OP13 sideload blocks Notification/Usage until Allow restricted settings; live onboarding permission refresh. OxygenOS 15 may need SAI session reinstall.
 

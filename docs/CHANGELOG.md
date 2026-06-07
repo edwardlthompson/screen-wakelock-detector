@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.4] — 2026-06-07
+
+Fix sideload detection for GitHub/browser APK installs.
+
+### Fixed
+
+- GitHub/browser APK installs: no longer treat `com.android.packageinstaller` as trusted — Firefox/Chrome/Files downloads correctly show the restricted-settings flow (OP13 Lineage repro).
+- LineageOS: restricted-settings steps use App info → ⋮ path instead of OxygenOS-only copy on OnePlus hardware.
+
 ## [1.2.3] — 2026-06-07
 
 Condensed onboarding and version-aware permission setup.

@@ -64,23 +64,32 @@ object SettingsGuideProvider {
     }
 
     private fun restrictedSettingsSteps(context: Context): List<String> {
-        val manufacturer = Build.MANUFACTURER.lowercase()
-        val isOnePlusFamily = manufacturer in setOf("oneplus", "oppo", "realme")
-        return if (isOnePlusFamily) {
-            listOf(
-                "Tap Grant on Notification access (or Open Settings below) to open Notification access.",
-                "When the Restricted setting dialog appears, tap Allow — OnePlus/OxygenOS often grants here.",
-                "If the toggle stays blocked: App info → menu (⋮) → Allow restricted settings → confirm PIN.",
-                "Return here — the chip turns green once Notification or Usage access is enabled.",
-            )
-        } else {
-            listOf(
-                "Tap Grant on Notification access first — accept the blocked-permission dialog if shown.",
-                "Open App info (button below) → menu (⋮) → Allow restricted settings → confirm PIN.",
-                "Return here — the chip turns green once Notification or Usage access is enabled.",
-            )
+        return when {
+            DeviceOsHelper.isLineageOs() -> lineageRestrictedSettingsSteps()
+            DeviceOsHelper.isOnePlusStockOs() -> onePlusRestrictedSettingsSteps()
+            else -> defaultRestrictedSettingsSteps()
         }
     }
+
+    private fun lineageRestrictedSettingsSteps(): List<String> = listOf(
+        "Tap Grant on Notification access — if blocked, tap OK on the Restricted setting dialog.",
+        "Open App info (button below) → menu (⋮) → Allow restricted settings → confirm PIN.",
+        "Return to Settings → Apps → Special app access and enable Notification access and Usage access.",
+        "Return here — chips turn green when each permission is on.",
+    )
+
+    private fun onePlusRestrictedSettingsSteps(): List<String> = listOf(
+        "Tap Grant on Notification access (or Open Settings below) to open Notification access.",
+        "When the Restricted setting dialog appears, tap Allow — OxygenOS often grants here.",
+        "If the toggle stays blocked: App info → menu (⋮) → Allow restricted settings → confirm PIN.",
+        "Return here — the chip turns green once Notification or Usage access is enabled.",
+    )
+
+    private fun defaultRestrictedSettingsSteps(): List<String> = listOf(
+        "Tap Grant on Notification access first — accept the blocked-permission dialog if shown.",
+        "Open App info (button below) → menu (⋮) → Allow restricted settings → confirm PIN.",
+        "Return here — the chip turns green once Notification or Usage access is enabled.",
+    )
 
     private fun notificationAccessSteps(): List<String> = listOf(
         "Open Settings → Apps → Special app access → Notification access (or tap Open Settings).",

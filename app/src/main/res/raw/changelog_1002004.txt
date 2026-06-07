@@ -1,0 +1,1 @@
+Fix GitHub/browser sideload detection: packageinstaller + Firefox/Files origin now shows restricted-settings flow. LineageOS-specific setup steps on OnePlus hardware running Lineage.
