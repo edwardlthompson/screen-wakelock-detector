@@ -1,0 +1,19 @@
+Screen Wakelock Detector logs when your phone screen turns on and shows which app or notification channel most likely caused it.
+
+<b>What it does</b>
+• Detects every screen-on event in the background
+• Identifies the likely app and notification channel
+• Shows a searchable history with confidence scores
+• Opens notification settings or mutes a channel in one tap
+
+<b>Privacy</b>
+Everything stays on your device. No account, no cloud upload, no analytics. Notification listener access reads metadata (app, channel, time)—not message text.
+
+<b>Optional root</b>
+On rooted devices, enable in-app root diagnostics for deeper wakelock attribution. All tooling is built into the app—no Shizuku, Magisk modules, or companion apps.
+
+<b>Permissions explained</b>
+The app asks for each permission only when needed, with clear skip paths. Basic screen-on logging works even if you decline optional grants.
+
+<b>Open source</b>
+Apache-2.0 licensed. Built for F-Droid.

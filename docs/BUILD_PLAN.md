@@ -1,0 +1,179 @@
+# Build Plan
+
+Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `scripts/archive-completed-tasks.py` **after** milestone smoke PASS is recorded in [`GATES.md`](GATES.md).
+
+**Labels:** `[AGENT]` = implement autonomously · `[ADB]` = needs USB device · `[HUMAN]` = defer to milestone-end checklist · `[PARALLEL-OK]` = safe in same `<!-- PARALLEL -->` block
+
+**Parallel maps:** M0 scaffold ∥ docs ∥ CI ∥ fdroid scripts ∥ AGENTS.md · M1 Room+service ∥ M3 theme ∥ onboarding · M2 NLS+cache ∥ permission UI ∥ Settings Permissions · M3 libsu+parsers ∥ Root UI ∥ root onboarding · M4 quick-fix ∥ swipe ∥ WakeAlertNotifier · M5 insights ∥ alerts ∥ onboarding polish ∥ F-Droid · M6 widget ∥ QS tile ∥ heatmap ∥ patterns
+
+---
+
+## M0 — Repository and agent infrastructure
+
+<!-- PARALLEL: spawn subagents for all lines below in one turn -->
+<!-- END PARALLEL -->
+
+<!-- PARALLEL -->
+- [ ] [AGENT] Create GitLab labels: AGENT, ADB, HUMAN, fdroid, milestone-M0…M7, gate-blocked
+- [ ] [HUMAN] Create GitLab public project + fork fdroiddata; configure CI variables (see GITLAB.md)
+- [ ] [HUMAN] Connect GitLab MCP in Cursor when ready
+<!-- END PARALLEL -->
+
+**Gate G0** — see [`GATES.md`](GATES.md)
+
+---
+
+## M1 — Core wake capture and persistence
+
+<!-- PARALLEL -->
+- [ ] [AGENT] [PARALLEL-OK] Foreground monitoring service (ACTION_SCREEN_ON/OFF + DisplayManager)
+- [ ] [AGENT] [PARALLEL-OK] Room schema: WakeEvent entity + repository + DAO
+- [ ] [AGENT] [PARALLEL-OK] Basic history UI: M3 Scaffold, TopAppBar, LazyColumn, ElevatedCard rows, empty state
+- [ ] [AGENT] [PARALLEL-OK] Onboarding shell: Welcome, How it works (4 steps), Privacy; DataStore hasCompletedIntro
+<!-- END PARALLEL -->
+
+<!-- SEQUENTIAL -->
+- [ ] [AGENT] Wire first-launch routing through intro before Home
+- [ ] [AGENT] Unit tests for entity mapping + repository
+<!-- END SEQUENTIAL -->
+
+<!-- PARALLEL -->
+- [ ] [ADB] Screen-on events logged within 500 ms on test device
+- [ ] [HUMAN] Service survives Doze with exemption flow documented
+- [ ] [ADB] Run m1_smoke.sh PASS; record in GATES.md
+<!-- END PARALLEL -->
+
+**Gate G1** — see [`GATES.md`](GATES.md)
+
+---
+
+## M2 — Non-root attribution
+
+<!-- PARALLEL -->
+- [ ] [AGENT] [PARALLEL-OK] NotificationListenerService + Room notification cache (metadata only)
+- [ ] [AGENT] [PARALLEL-OK] Notification + Usage permission onboarding screens with grant intents
+- [ ] [AGENT] [PARALLEL-OK] Settings → Permissions screen (Notification + Usage switch rows)
+<!-- END PARALLEL -->
+
+<!-- SEQUENTIAL -->
+- [ ] [AGENT] WakeAttributor correlator (±N second window, reason codes)
+- [ ] [AGENT] Usage stats fallback when no notification match
+- [ ] [AGENT] Wake detail screen: confidence bar, “Why this app?”, ranked candidates when low confidence
+<!-- END SEQUENTIAL -->
+
+<!-- PARALLEL -->
+- [ ] [ADB] ≥80% notification-driven test wakes attributed to correct app+channel on reference device
+- [ ] [ADB] Notification + Usage onboarding grants correctly on Pixel
+- [ ] [HUMAN] Confirm onboarding What/Why/Never-access copy; low-confidence candidate UI review
+- [ ] [ADB] Run m2_smoke.sh PASS; record in GATES.md
+<!-- END PARALLEL -->
+
+**Gate G2, GO (partial), GP (partial)** — see [`GATES.md`](GATES.md)
+
+---
+
+## M3 — Self-contained root stack + capability UI
+
+<!-- PARALLEL -->
+- [ ] [AGENT] [PARALLEL-OK] libsu + RootShellService + RootCommandAllowlist + RootCommandRunner
+- [ ] [AGENT] [PARALLEL-OK] DumpsysPowerParser, DumpsysBatteryStatsParser, WakeupSourcesParser + fixture tests
+- [ ] [AGENT] [PARALLEL-OK] Settings → Root: enable switch, diagnostics, grayed rows when not rooted
+- [ ] [AGENT] [PARALLEL-OK] Root informational onboarding step
+<!-- END PARALLEL -->
+
+<!-- SEQUENTIAL -->
+- [ ] [AGENT] RootAttributor merges wakelock snapshot into WakeEvent on screen-on
+- [ ] [AGENT] RootAvailability probe (su; Magisk/KernelSU labels for UI copy only)
+<!-- END SEQUENTIAL -->
+
+<!-- PARALLEL -->
+- [ ] [AGENT] Unit tests: allowlist rejects arbitrary commands; parser fixtures API 29/31/34
+- [ ] [ADB] Rooted device: wakelock tag via in-app libsu only (no Shizuku/module)
+- [ ] [ADB] Non-root: root rows disabled; no crash on su deny/timeout/parse failure
+- [ ] [ADB] Run m3_smoke.sh PASS; record in GATES.md
+<!-- END PARALLEL -->
+
+**Gate G3, GS (partial)** — see [`GATES.md`](GATES.md)
+
+---
+
+## M4 — Quick actions and remediation
+
+<!-- PARALLEL -->
+- [ ] [AGENT] [PARALLEL-OK] Last-wake home card + history row IconButton actions
+- [ ] [AGENT] [PARALLEL-OK] Swipe actions: settings / mute channel with confirm + Snackbar Undo
+- [ ] [AGENT] [PARALLEL-OK] Quick-fix ModalBottomSheet (silence, open settings, why this app?)
+- [ ] [AGENT] [PARALLEL-OK] WakeAlertNotifier with descriptive app+channel copy
+<!-- END PARALLEL -->
+
+<!-- SEQUENTIAL -->
+- [ ] [AGENT] Deep links: channel settings, app notification settings, app details
+- [ ] [AGENT] Mute channel via NotificationManager where supported; document OEM limits
+- [ ] [AGENT] Post-notifications onboarding step + Settings alert notifications switch row
+- [ ] [AGENT] Instrumentation tests for intent construction
+<!-- END SEQUENTIAL -->
+
+<!-- PARALLEL -->
+- [ ] [HUMAN] Wake detail → channel settings in ≤2 taps
+- [ ] [ADB] Mute verified on Pixel + one OEM
+- [ ] [HUMAN] Swipe + bottom sheet paths match detail screen outcomes
+- [ ] [ADB] Run m4_smoke.sh PASS; record in GATES.md
+<!-- END PARALLEL -->
+
+**Gate G4, GD (partial)** — see [`GATES.md`](GATES.md)
+
+---
+
+## M5 — Polish, F-Droid release, security audit (v1.0.0)
+
+<!-- PARALLEL -->
+- [ ] [AGENT] [PARALLEL-OK] Insights dashboard tab: top offenders, nighttime highlight, counts
+- [ ] [AGENT] [PARALLEL-OK] Threshold alerts (opt-in) + permission-missing callout variants
+- [ ] [AGENT] [PARALLEL-OK] Onboarding polish: verify setup, battery row, permission chips, replay wizard
+- [ ] [AGENT] [PARALLEL-OK] Search/filter: SearchBar, FilterChip, DatePickerDialog
+- [ ] [AGENT] [PARALLEL-OK] fastlane metadata + screenshots; fdroiddata MR prep
+- [ ] [AGENT] [PARALLEL-OK] Adaptive navigation for tablets/foldables
+<!-- END SEQUENTIAL -->
+
+<!-- PARALLEL -->
+- [ ] [HUMAN] 1.0.0-rc.1 soak 1 week on daily driver
+- [ ] [AGENT] Reproducible build verify or document blockers in AGENT_MEMORY
+- [ ] [HUMAN] F-Droid inclusion checklist; fdroiddata MR submitted
+- [ ] [AGENT] Gate GS full: exported components, backup rules, no INTERNET
+- [ ] [HUMAN] Gate GD full: all screens design checklist; TalkBack walkthrough
+- [ ] [ADB] Insights counts match history; threshold alert on synthetic burst
+- [ ] [ADB] Run m5_smoke.sh PASS; record in GATES.md
+<!-- END PARALLEL -->
+
+**Gate G5, GO (full), GP (full), GS (full), GD (full)** — see [`GATES.md`](GATES.md)
+
+---
+
+## M6 — Widgets and pattern intelligence (v1.1.0)
+
+<!-- PARALLEL -->
+- [ ] [AGENT] [PARALLEL-OK] Glance/App Widget: last wake + Fix it deep link
+- [ ] [AGENT] [PARALLEL-OK] Quick Settings tile: pause/resume monitoring
+- [ ] [AGENT] [PARALLEL-OK] Pattern detection: recurring same app+channel ≥3 nights
+- [ ] [AGENT] [PARALLEL-OK] Time heatmap: 7-day hour×day grid with tap-to-filter
+<!-- END PARALLEL -->
+
+<!-- PARALLEL -->
+- [ ] [ADB] Widget updates within 1 min of new wake
+- [ ] [AGENT] Unit test: heatmap matches history query for sample dataset
+- [ ] [ADB] Pattern card on seeded recurring test data
+- [ ] [ADB] Run m6_smoke.sh PASS; record in GATES.md
+<!-- END PARALLEL -->
+
+**Gate G6** — see [`GATES.md`](GATES.md)
+
+---
+
+## M7 — F-Droid publish automation (ongoing)
+
+- [ ] [AGENT] Wire fdroiddata-mr CI job on v* tags after first manual inclusion merged
+- [ ] [AGENT] verify-reproducible.sh gates MR creation on hash match
+- [ ] [HUMAN] Tag v1.0.1 triggers fdroiddata MR; app updates on F-Droid after MR merge
+- [ ] [AGENT] Document automation runbook in F-DROID.md
+
+**Gate G7** — see [`GATES.md`](GATES.md)

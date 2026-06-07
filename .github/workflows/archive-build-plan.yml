@@ -1,0 +1,22 @@
+name: Archive build plan
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - docs/BUILD_PLAN.md
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Archive completed tasks
+        run: python scripts/archive-completed-tasks.py --all-completed || echo "Archive skipped (smoke not passed or no completed tasks)"
+        continue-on-error: true

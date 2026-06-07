@@ -1,0 +1,50 @@
+name: Android CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: FOSS audit
+        run: |
+          FORBIDDEN="firebase|crashlytics|play-services-ads|com.google.android.gms"
+          if grep -iE "${FORBIDDEN}" app/build.gradle.kts; then
+            echo "Forbidden dependency detected"
+            exit 1
+          fi
+
+      - name: No INTERNET permission
+        run: |
+          if grep -q 'android.permission.INTERNET' app/src/main/AndroidManifest.xml; then
+            exit 1
+          fi
+
+      - name: Lint metadata
+        run: bash scripts/fdroid/lint-metadata.sh
+
+      - name: Unit tests
+        run: ./gradlew test
+
+      - name: Assemble debug APK
+        run: ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/

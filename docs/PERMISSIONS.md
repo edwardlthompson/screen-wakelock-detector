@@ -1,0 +1,120 @@
+# Permissions
+
+Technical rationale, system intent mapping, and OEM notes for **Screen Wakelock Detector**.
+
+All special permissions are **optional for basic screen-on logging** except where noted. The app degrades gracefully when grants are missing.
+
+---
+
+## Permission summary
+
+| Permission / capability | Android API | Required? | Purpose if granted | If denied |
+|-------------------------|-------------|-----------|-------------------|-----------|
+| **Notification listener** | `BIND_NOTIFICATION_LISTENER_SERVICE` | Strongly recommended | Match screen wakes to app + notification channel | Most wakes show Unknown or app-only |
+| **Usage access** | `PACKAGE_USAGE_STATS` | Recommended | Fallback when no notification in correlation window | Lower confidence on non-notification wakes |
+| **Foreground service** | `FOREGROUND_SERVICE` + type | Required for monitoring | Reliable background screen-on capture | Monitoring may not start |
+| **Post notifications** | `POST_NOTIFICATIONS` (API 33+) | Optional | Threshold alerts naming app + channel | Alerts in-app only |
+| **Battery unrestricted** | `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Recommended | Reliable capture during Doze/deep sleep | Missed wakes when aggressively optimized |
+| **Root (`su`)** | Runtime via libsu | Optional | Live wakelock holder from dumpsys parsers | Root UI grayed; non-root attribution only |
+
+**Not used:** `INTERNET`, location, contacts, SMS, microphone, camera.
+
+---
+
+## Notification access
+
+**System setting:** Settings → Apps → Special app access → Notification access
+
+**Intent:** `Settings.ACTION_NOTIFICATION_LISTENER_SERVICE` / `ACTION_NOTIFICATION_LISTENER_SETTINGS`
+
+**What we read (metadata only):**
+
+- Posting package name
+- Notification channel ID and importance
+- Category, tag, group key
+- Post time
+- Flags relevant to heads-up / full-screen intent
+
+**What we never read or store:**
+
+- Notification message body text (by default)
+- Contact names from messaging apps
+- Images / media attachments
+
+**Settings switch behavior:**
+
+- ON → open notification listener settings; refresh on resume
+- OFF → dialog directing user to revoke in system settings
+
+---
+
+## Usage access
+
+**System setting:** Settings → Apps → Special app access → Usage access
+
+**Intent:** `Settings.ACTION_USAGE_ACCESS_SETTINGS`
+
+**Purpose:** When no notification matches the wake window, check which app was foreground or recently active.
+
+**Skip consequence:** Non-notification wakes (alarms, some wakelocks) may remain Unknown.
+
+---
+
+## Battery optimization
+
+**Intent (stock):** `Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` with `package:` URI
+
+**Purpose:** Prevent Android from killing the foreground monitoring service during deep sleep.
+
+### OEM paths
+
+| OEM | Path notes |
+|-----|------------|
+| **Google Pixel / stock Android** | Settings → Apps → Screen Wakelock Detector → Battery → Unrestricted |
+| **Samsung One UI** | Settings → Apps → Screen Wakelock Detector → Battery → Unrestricted; also check Sleeping apps list |
+| **Xiaomi MIUI/HyperOS** | Security app → Permissions → Autostart ON; Battery → No restrictions |
+| **OnePlus OxygenOS** | Settings → Battery → Battery optimization → Don't optimize |
+| **Oppo/ColorOS** | Settings → Battery → App battery management → Allow background activity |
+
+Document device-specific quirks in [`AGENT_MEMORY.md`](AGENT_MEMORY.md) after testing.
+
+---
+
+## Post notifications (API 33+)
+
+**Runtime permission:** `POST_NOTIFICATIONS`
+
+**Purpose:** Optional local alerts when an app/channel wakes the screen repeatedly (see [`NOTIFICATIONS.md`](NOTIFICATIONS.md)).
+
+**Not required** for core wake logging.
+
+---
+
+## Root access
+
+See [`ROOT.md`](ROOT.md). Root is **never required** for core functionality.
+
+- One-time `su` grant via Magisk, KernelSU, APatch, etc.
+- All tooling ships inside the APK (libsu + parsers)
+- No Shizuku, Magisk modules, or companion apps
+
+---
+
+## Settings → Permissions mapping
+
+| UI row | Switch reflects | Grant action | Revoke guidance |
+|--------|-----------------|--------------|-----------------|
+| Notification access | `NotificationManagerCompat.getEnabledListenerPackages()` | Open listener settings | Dialog → same settings |
+| Usage access | `AppOpsManager` / UsageStatsManager check | Open usage access settings | Dialog → usage settings |
+| Battery unrestricted | `PowerManager.isIgnoringBatteryOptimizations()` | Battery exemption intent | Dialog → app battery settings |
+| Alert notifications | `POST_NOTIFICATIONS` granted (API 33+) | Runtime request | App notification settings |
+| Root status | Read-only | Link to Settings → Root | N/A |
+
+Deep links from Home chips and alerts use `?highlight=<permission_key>` on Settings NavHost.
+
+---
+
+## Security notes
+
+- Notification listener is system-bound; our service is not exported to third-party apps.
+- Stored notification fields are metadata-only — see [`SECURITY.md`](../SECURITY.md) and [`PRIVACY.md`](PRIVACY.md).

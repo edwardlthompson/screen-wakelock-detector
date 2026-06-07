@@ -1,0 +1,24 @@
+# In-repo F-Droid CI build recipe
+# See: https://gitlab.com/fdroid/wiki/-/wikis/Continuous-Integration-(CI)/Integrating-F-Droid-builds-into-your-own-CI-workflow
+
+App:
+  - Name: Screen Wakelock Detector
+    PackageName: com.screenwakelock.detector
+    BuildSystem: gradle
+    Subdir: .
+    Gradle: assembleRelease
+
+Build:
+  - versionName: '0.1.0'
+    versionCode: 1
+    commit: HEAD
+
+ArchivePolicy: 0
+
+Server:
+  Tools:
+    - git
+    - openjdk-17-jdk-headless
+
+Paths:
+  metadata: fdroid/metadata

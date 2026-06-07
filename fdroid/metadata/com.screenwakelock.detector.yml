@@ -1,0 +1,45 @@
+Categories:
+  - System
+License: Apache-2.0
+AuthorName: Screen Wakelock Detector contributors
+AuthorWebSite: https://gitlab.com/<namespace>/screen-wakelock-detector
+SourceCode: https://gitlab.com/<namespace>/screen-wakelock-detector
+IssueTracker: https://gitlab.com/<namespace>/screen-wakelock-detector/-/issues
+Changelog: https://gitlab.com/<namespace>/screen-wakelock-detector/-/blob/main/docs/CHANGELOG.md
+Donate:
+
+AutoName: Screen Wakelock Detector
+Name: Screen Wakelock Detector
+Summary: Find what wakes your screen—see app and channel, mute in one tap.
+Description: |
+  Screen Wakelock Detector logs when your phone screen turns on and shows which app
+  or notification channel most likely caused it. Fix unwanted wakes in one tap—open
+  that app's notification settings or mute the channel.
+
+  All data stays on your device. No account, no cloud, no analytics. Notification
+  listener access reads metadata locally to attribute wakes—not message contents.
+
+  Optional root (Magisk, KernelSU, etc.) unlocks deeper wakelock diagnostics via an
+  in-app stack—no Shizuku or extra modules required.
+
+RequiresRoot: false
+UpdateCheckMode: Tags
+CurrentVersion: 0.1.0
+CurrentVersionCode: 1
+
+Builds:
+  - versionName: '0.1.0'
+    versionCode: 1
+    commit: v0.1.0-alpha.1
+    subdir: .
+    sudo:
+      - apt-get update
+      - apt-get install -y openjdk-17-jdk-headless
+    gradle:
+      - assembleRelease
+
+AntiFeatures: []
+
+# After reproducible builds verified, add:
+# AllowedAPKSigningKeys: ...
+# Binaries: ...

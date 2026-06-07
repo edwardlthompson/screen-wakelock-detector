@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Screen Wakelock Detector</string>
+    <string name="tile_label">Wake Monitor</string>
+    <string name="widget_description">Last screen wake summary</string>
+    <string name="monitoring_notification_title">Monitoring screen wakes</string>
+    <string name="monitoring_notification_text">Tap to open history</string>
+    <string name="monitoring_paused">Monitoring paused</string>
+</resources>

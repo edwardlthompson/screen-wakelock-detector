@@ -1,0 +1,276 @@
+# Screen Wakelock Detector — GitLab CI/CD
+# Stages: validate → test → build → release → fdroid → publish
+
+stages:
+  - validate
+  - test
+  - build
+  - release
+  - fdroid
+  - publish
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true"
+  ANDROID_COMPILE_SDK: "35"
+  ANDROID_SDK_ROOT: "${CI_PROJECT_DIR}/android-sdk"
+
+.default_android:
+  image: eclipse-temurin:17-jdk-jammy
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git unzip wget curl
+    - |
+      if [ ! -d "${ANDROID_SDK_ROOT}/platform-tools" ]; then
+        mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools"
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
+        unzip -q /tmp/cmdline-tools.zip -d "${ANDROID_SDK_ROOT}/cmdline-tools"
+        mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
+        yes | "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+        "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" \
+          "platform-tools" "platforms;android-${ANDROID_COMPILE_SDK}" "build-tools;34.0.0"
+      fi
+    - export PATH="${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${PATH}"
+  cache:
+    key: "${CI_COMMIT_REF_SLUG}-gradle"
+    paths:
+      - .gradle/
+      - android-sdk/
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^v.*/
+
+# --- validate ---
+
+license-check:
+  stage: validate
+  extends: .default_android
+  script:
+    - |
+      if [ -f gradlew ]; then
+        chmod +x gradlew
+        ./gradlew :app:dependencies --configuration releaseRuntimeClasspath || ./gradlew dependencies || true
+      else
+        echo "Gradle project not scaffolded yet — skipping dependency report"
+      fi
+    - bash scripts/fdroid/lint-metadata.sh
+  allow_failure: false
+
+foss-audit:
+  stage: validate
+  image: alpine:3.20
+  script:
+    - apk add --no-cache grep
+    - |
+      FORBIDDEN="firebase|crashlytics|play-services-ads|com.google.android.gms"
+      if [ -f app/build.gradle.kts ]; then
+        if grep -iE "${FORBIDDEN}" app/build.gradle.kts; then
+          echo "Forbidden proprietary dependency detected"
+          exit 1
+        fi
+      fi
+      echo "FOSS audit passed (or no app module yet)"
+  allow_failure: false
+
+no-internet-manifest:
+  stage: validate
+  image: alpine:3.20
+  script:
+    - apk add --no-cache grep
+    - |
+      MANIFEST="app/src/main/AndroidManifest.xml"
+      if [ -f "${MANIFEST}" ]; then
+        if grep -q 'android.permission.INTERNET' "${MANIFEST}"; then
+          echo "INTERNET permission found in manifest — forbidden for release"
+          exit 1
+        fi
+        echo "No INTERNET permission in manifest"
+      else
+        echo "Manifest not present yet — policy documented in docs/FOSS.md"
+      fi
+
+m2-material-check:
+  stage: validate
+  image: alpine:3.20
+  script:
+    - apk add --no-cache grep findutils
+    - |
+      if [ -d app/src/main/java ]; then
+        if grep -r "androidx.compose.material[^3]" app/src/main/java --include="*.kt" | grep -v material3; then
+          echo "Material 2 imports detected — use material3 only"
+          exit 1
+        fi
+        echo "No M2 Compose Material imports"
+      else
+        echo "No Kotlin sources yet"
+      fi
+  allow_failure: false
+
+archive-build-plan:
+  stage: validate
+  image: python:3.12-alpine
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - docs/BUILD_PLAN.md
+  script:
+    - python scripts/archive-completed-tasks.py --all-completed || echo "Archive skipped (smoke not passed or no [x] tasks)"
+  allow_failure: true
+
+# --- test ---
+
+lint:
+  stage: test
+  extends: .default_android
+  script:
+    - |
+      if [ -f gradlew ]; then
+        chmod +x gradlew
+        ./gradlew lint detekt test --continue || ./gradlew test || echo "Tests pending app scaffold"
+      else
+        echo "Skip lint — no gradlew"
+      fi
+  allow_failure: true
+
+unit-test:
+  stage: test
+  extends: .default_android
+  script:
+    - |
+      if [ -f gradlew ]; then
+        chmod +x gradlew
+        ./gradlew test
+      else
+        echo "Skip unit tests — no gradlew"
+      fi
+  allow_failure: true
+
+# --- build ---
+
+assemble-debug:
+  stage: build
+  extends: .default_android
+  script:
+    - |
+      if [ -f gradlew ]; then
+        chmod +x gradlew
+        ./gradlew assembleDebug
+      else
+        echo "Skip assembleDebug — scaffold pending"
+        mkdir -p app/build/outputs/apk/debug
+      fi
+  artifacts:
+    when: always
+    paths:
+      - app/build/outputs/apk/debug/
+    expire_in: 7 days
+
+assemble-release:
+  stage: release
+  extends: .default_android
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v.*/
+  script:
+    - chmod +x gradlew
+    - |
+      if [ -n "${RELEASE_STORE_FILE:-}" ] && [ -f "${RELEASE_STORE_FILE}" ]; then
+        ./gradlew assembleRelease
+      else
+        echo "Release signing not configured — assembleRelease may use debug signing"
+        ./gradlew assembleRelease || ./gradlew assembleDebug
+      fi
+  artifacts:
+    paths:
+      - app/build/outputs/apk/release/
+      - app/build/outputs/apk/debug/
+    expire_in: 30 days
+
+# --- fdroid ---
+
+fdroid-build:
+  stage: fdroid
+  image: registry.gitlab.com/fdroid/fdroidserver:master
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v.*/
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+  script:
+    - |
+      if command -v fdroid >/dev/null 2>&1; then
+        fdroid build --on-server com.screenwakelock.detector || fdroid build com.screenwakelock.detector || echo "fdroid build pending full scaffold"
+      else
+        echo "fdroid CLI not available in image"
+      fi
+  artifacts:
+    paths:
+      - build/
+      - .fdroid-build/
+    expire_in: 14 days
+  allow_failure: true
+
+reproducible-verify:
+  stage: fdroid
+  image: alpine:3.20
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v.*/
+  needs:
+    - job: assemble-release
+      artifacts: true
+    - job: fdroid-build
+      artifacts: true
+      optional: true
+  before_script:
+    - apk add --no-cache bash coreutils
+  script:
+    - chmod +x scripts/fdroid/verify-reproducible.sh
+    - |
+      UP="${UPSTREAM_APK:-app/build/outputs/apk/release/app-release.apk}"
+      if [ -f "${UP}" ]; then
+        bash scripts/fdroid/verify-reproducible.sh || echo "Reproducible verify pending — document blockers in AGENT_MEMORY"
+      else
+        echo "Release APK artifact missing"
+      fi
+  allow_failure: true
+
+# --- publish ---
+
+gitlab-release:
+  stage: publish
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v.*/
+  needs:
+    - job: assemble-release
+      artifacts: true
+  script:
+    - |
+      VERSION="${CI_COMMIT_TAG#v}"
+      CHANGELOG=$(sed -n "/## \\[${VERSION}\\]/,/## \\[/p" docs/CHANGELOG.md | head -n -1 || echo "See docs/CHANGELOG.md")
+      echo "${CHANGELOG}" > release_notes.md
+  release:
+    tag_name: $CI_COMMIT_TAG
+    name: "Screen Wakelock Detector $CI_COMMIT_TAG"
+    description: release_notes.md
+    assets:
+      links:
+        - name: "Release APK"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/app/build/outputs/apk/release/app-release.apk?job=assemble-release"
+
+fdroiddata-mr:
+  stage: publish
+  image: alpine:3.20
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v.*/
+      when: manual
+  needs:
+    - job: reproducible-verify
+      optional: true
+  before_script:
+    - apk add --no-cache bash git openssh-client python3
+    - pip3 install --break-system-packages pyyaml || true
+  script:
+    - python3 scripts/fdroid/bump-metadata.py --commit "${CI_COMMIT_TAG}"
+    - chmod +x scripts/fdroid/open-fdroiddata-mr.sh
+    - bash scripts/fdroid/open-fdroiddata-mr.sh
+  allow_failure: true

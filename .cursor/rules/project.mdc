@@ -1,0 +1,59 @@
+---
+description: Screen Wakelock Detector — FOSS Android project rules
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Screen Wakelock Detector — project rules
+
+@AGENTS.md is **required reading** every session.
+
+## FOSS and security
+
+- Apache-2.0; F-Droid-only distribution
+- **No `INTERNET` permission** in release manifest
+- No Firebase, Play Services, proprietary analytics, or non-OSI Gradle deps
+- New dependencies: check [`docs/FOSS.md`](docs/FOSS.md); update AGENT_MEMORY
+
+## Material Design 3 only
+
+- Use `androidx.compose.material3` — **never** `androidx.compose.material` (M2)
+- Follow [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md)
+- Dynamic color API 31+; static fallback 29–30
+- Expressive APIs opt-in only; never block release on alpha
+
+## Milestone workflow
+
+- Work from [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md) labels: AGENT / ADB / HUMAN
+- Spawn **parallel subagents** for `<!-- PARALLEL -->` blocks (see AGENTS.md)
+- **Run until milestone complete** — do not stop after one task
+- Gate checklists in [`docs/GATES.md`](docs/GATES.md) before marking milestone done
+
+## Validate before push
+
+Never push without:
+
+1. `./gradlew lint test assembleDebug` (when app module exists)
+2. Applicable gate checklist items
+3. **`scripts/smoke/m{N}_smoke.sh` exit 0** before archive
+4. CHANGELOG `[Unreleased]` + AGENT_MEMORY updated
+
+## Smoke before archive
+
+- **Never** run `archive-completed-tasks.py` without smoke PASS in GATES.md
+- Record: `Smoke M{N}: PASS <timestamp> <serial> <version>`
+
+## Git
+
+- Lead agent only commits/pushes per milestone
+- Do not start M(N+1) until M(N) gate passed and pushed to GitLab
+
+## Root
+
+- libsu in-app only; command allowlist — no user input in shell
+- Document in [`docs/ROOT.md`](docs/ROOT.md)
+
+## Do not edit
+
+- Plan files in uploads/ or external `.plan.md` sources — use BUILD_PLAN.md instead

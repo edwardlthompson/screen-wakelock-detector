@@ -1,0 +1,129 @@
+package com.screenwakelock.detector.ui.screens
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.screenwakelock.detector.ui.components.ConfidenceIndicator
+import com.screenwakelock.detector.ui.viewmodel.DetailViewModel
+import com.screenwakelock.detector.util.TimeUtils
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailScreen(
+    wakeEventId: Long,
+    onBack: () -> Unit,
+    viewModel: DetailViewModel = hiltViewModel(),
+) {
+    val eventFlow = androidx.compose.runtime.remember(wakeEventId) {
+        viewModel.observeEvent(wakeEventId)
+    }
+    val event by eventFlow.collectAsState()
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Wake detail") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        if (event == null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
+            ) {
+                Text("Loading…")
+            }
+        } else {
+            val e = event!!
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                item {
+                    Text(e.displayAppName, style = MaterialTheme.typography.headlineSmall)
+                    e.displayChannel?.let {
+                        Text(it, style = MaterialTheme.typography.titleMedium)
+                    }
+                    Text(
+                        TimeUtils.formatDateTime(e.timestampMillis),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                item {
+                    ConfidenceIndicator(confidence = e.confidence)
+                    Text(
+                        e.reasonCode.friendlyLabel(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
+                }
+                if (e.wakelockTag != null) {
+                    item {
+                        Text(
+                            "Wakelock: ${e.wakelockTag}",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+                if (e.isLowConfidence || e.candidates.size > 1) {
+                    item {
+                        Text(
+                            "Why this app?",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        Text(
+                            "Ranked candidates when attribution is uncertain:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    items(e.candidates) { candidate ->
+                        ListItem(
+                            headlineContent = {
+                                Text(candidate.appLabel ?: candidate.packageName)
+                            },
+                            supportingContent = {
+                                Text(
+                                    "${candidate.reasonCode.friendlyLabel()} · " +
+                                        "${(candidate.confidence * 100).toInt()}%",
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
