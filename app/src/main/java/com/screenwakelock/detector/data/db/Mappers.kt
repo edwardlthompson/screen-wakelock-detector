@@ -19,6 +19,7 @@ fun WakeEventEntity.toDomain(): WakeEvent = WakeEvent(
     rootEnhanced = rootEnhanced,
     wakelockTag = wakelockTag,
     wakelockName = wakelockName,
+    rootParserId = rootParserId,
     screenOffDurationMs = screenOffDurationMs,
 )
 
@@ -35,6 +36,7 @@ fun WakeEvent.toEntity(): WakeEventEntity = WakeEventEntity(
     rootEnhanced = rootEnhanced,
     wakelockTag = wakelockTag,
     wakelockName = wakelockName,
+    rootParserId = rootParserId,
     screenOffDurationMs = screenOffDurationMs,
 )
 

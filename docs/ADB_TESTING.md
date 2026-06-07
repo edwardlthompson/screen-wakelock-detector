@@ -65,6 +65,9 @@ If no device at milestone end: mark `smoke-blocked` in AGENT_MEMORY — **do not
 | **M4** | `m4_smoke.sh` | Last-wake card → bottom sheet → channel settings intent resolves |
 | **M5** | `m5_smoke.sh` | Insights counts match history; threshold alert on synthetic burst |
 | **M6** | `m6_smoke.sh` | Widget shows last wake; tap opens app; heatmap renders |
+| **M7** | `m7_smoke.sh` | F-Droid automation scripts present; verify-reproducible.sh runnable |
+| **M8** | `m8_smoke.sh` | Verify script + icon; Settings + Insights; WakeCountWidget; no crash |
+| **M8 deep** | `m8_adb_deep_verify.sh` | Root timeline on Detail; Share diagnostic report; pattern Mute/Open; batch mute dialog (OnePlus CPH2583) |
 
 ---
 

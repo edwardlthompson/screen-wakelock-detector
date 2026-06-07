@@ -26,6 +26,8 @@ cd screen-wakelock-detector
 
 Release APK: `app/build/outputs/apk/release/app-release-unsigned.apk` (unsigned) or signed if keystore configured locally.
 
+Release builds enable **R8 minification** (`isMinifyEnabled = true`) and **resource shrinking** (`isShrinkResources = true`). ProGuard mapping is written to `app/build/outputs/mapping/release/mapping.txt` — retain this artifact for crash deobfuscation. CI runs `scripts/release/verify-release-apk.sh` after `assembleRelease` (requires mapping file; rejects debug-only artifacts; 25 MB size ceiling).
+
 Signing: release keystore **not** in repo. F-Droid may use dev key or reproducible co-signing per [F-Droid reproducible builds](https://f-droid.org/docs/Reproducible_Builds/).
 
 ---
@@ -107,6 +109,7 @@ flowchart LR
 | `scripts/fdroid/lint-metadata.sh` | Required fields, Apache-2.0, Builds section |
 | `scripts/fdroid/bump-metadata.py` | Sync `CurrentVersion` / `Builds` from Gradle |
 | `scripts/fdroid/verify-reproducible.sh` | Hash-compare upstream vs F-Droid APK |
+| `scripts/release/verify-release-apk.sh` | Release APK + mapping + size ceiling after assembleRelease |
 | `scripts/fdroid/prepare-fdroiddata-mr.sh` | Lint → bump → verify gate → open MR |
 | `scripts/fdroid/open-fdroiddata-mr.sh` | Push metadata branch to fdroiddata fork |
 

@@ -104,6 +104,7 @@ class WakeAttributor @Inject constructor(
             rootEnhanced = rootSnapshot != null,
             wakelockTag = rootSnapshot?.wakelockTag,
             wakelockName = rootSnapshot?.wakelockName,
+            rootParserId = rootSnapshot?.parserId,
         ).also { result ->
             Log.i(
                 TAG,

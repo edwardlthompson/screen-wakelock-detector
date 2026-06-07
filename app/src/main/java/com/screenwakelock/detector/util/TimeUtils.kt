@@ -64,4 +64,10 @@ object TimeUtils {
         }
         return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.time)
     }
+
+    fun isInHourWindow(
+        timestampMillis: Long,
+        startHour: Int,
+        endHour: Int,
+    ): Boolean = isNighttime(timestampMillis, startHour, endHour)
 }

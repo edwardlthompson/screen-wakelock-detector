@@ -1,5 +1,7 @@
 package com.screenwakelock.detector.util
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -8,6 +10,7 @@ import android.provider.Settings
 import com.screenwakelock.detector.MainActivity
 
 object IntentUtils {
+    private const val VENMO_PACKAGE = "com.venmo"
     const val DEEP_LINK_SCHEME = "screenwakelock"
     const val DEEP_LINK_HOST = "app"
 
@@ -103,4 +106,37 @@ object IntentUtils {
     }
 
     fun canOpenChannelSettings(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+
+    fun viewUri(context: Context, uri: String): Boolean =
+        startViewIntent(context, buildViewIntent(uri))
+
+    /** Prefer Venmo app for venmo.com links; fall back to browser or system chooser. */
+    fun viewDonateUri(context: Context, uri: String): Boolean {
+        if (uri.contains("venmo.com", ignoreCase = true)) {
+            val venmoIntent = buildViewIntent(uri, VENMO_PACKAGE)
+            if (startViewIntent(context, venmoIntent)) {
+                return true
+            }
+        }
+        return viewUri(context, uri)
+    }
+
+    internal fun buildViewIntent(uri: String, targetPackage: String? = null): Intent =
+        Intent(Intent.ACTION_VIEW, Uri.parse(uri)).apply {
+            targetPackage?.let { setPackage(it) }
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+    internal fun startViewIntent(context: Context, intent: Intent): Boolean {
+        val launchIntent = Intent(intent)
+        if (context is Activity) {
+            launchIntent.flags = launchIntent.flags and Intent.FLAG_ACTIVITY_NEW_TASK.inv()
+        }
+        return try {
+            context.startActivity(launchIntent)
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        }
+    }
 }

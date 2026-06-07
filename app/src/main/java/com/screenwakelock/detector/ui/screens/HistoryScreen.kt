@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.screenwakelock.detector.domain.model.ReasonFilterGroup
 import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.ui.components.QuickFixBottomSheet
 import com.screenwakelock.detector.ui.components.WakeEventCard
@@ -65,6 +67,7 @@ fun HistoryScreen(
     val query by viewModel.query.collectAsState()
     val nightOnly by viewModel.nightOnly.collectAsState()
     val hourFilter by viewModel.hourFilter.collectAsState()
+    val reasonFilter by viewModel.reasonFilterGroup.collectAsState()
     val startDate by viewModel.startDateMillis.collectAsState()
     val endDate by viewModel.endDateMillis.collectAsState()
     var searchActive by remember { mutableStateOf(false) }
@@ -194,6 +197,18 @@ fun HistoryScreen(
                         .fillMaxWidth()
                         .padding(bottom = 8.dp),
                 ) {}
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(bottom = 8.dp),
+                ) {
+                    items(ReasonFilterGroup.entries.toList()) { group ->
+                        FilterChip(
+                            selected = reasonFilter == group,
+                            onClick = { viewModel.toggleReasonFilterGroup(group) },
+                            label = { Text(group.label) },
+                        )
+                    }
+                }
                 FilterChip(
                     selected = nightOnly,
                     onClick = { viewModel.setNightOnly(!nightOnly) },

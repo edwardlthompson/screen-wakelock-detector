@@ -43,4 +43,42 @@ interface WakeEventDao {
 
     @Query("SELECT COUNT(*) FROM wake_events")
     suspend fun count(): Int
+
+    @Query("DELETE FROM wake_events WHERE timestampMillis < :cutoffMillis")
+    suspend fun deleteBefore(cutoffMillis: Long): Int
+
+    @Query(
+        """
+        SELECT * FROM wake_events
+        WHERE attributedPackage = :packageName
+          AND (channelId IS :channelId OR (channelId IS NULL AND :channelId IS NULL))
+          AND timestampMillis >= :sinceMillis
+          AND id != :excludeId
+        ORDER BY timestampMillis DESC
+        LIMIT :limit
+        """,
+    )
+    suspend fun findSimilar(
+        packageName: String,
+        channelId: String?,
+        sinceMillis: Long,
+        excludeId: Long,
+        limit: Int,
+    ): List<WakeEventEntity>
+
+    @Query(
+        """
+        SELECT * FROM wake_events
+        WHERE attributedPackage = :packageName
+          AND rootEnhanced = 1
+          AND timestampMillis >= :sinceMillis
+        ORDER BY timestampMillis DESC
+        LIMIT :limit
+        """,
+    )
+    suspend fun getRootEnhancedForPackageSince(
+        packageName: String,
+        sinceMillis: Long,
+        limit: Int,
+    ): List<WakeEventEntity>
 }

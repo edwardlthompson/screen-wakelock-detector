@@ -48,6 +48,22 @@ class InsightsCalculatorTest {
     }
 
     @Test
+    fun compute_excludesIgnoredPackages() {
+        val events = listOf(
+            event(1, "com.app.a"),
+            event(2, "com.app.b"),
+            event(3, "com.app.a"),
+        )
+        val insights = InsightsCalculator.compute(
+            events,
+            ignoredPackages = setOf("com.app.a"),
+        )
+        assertEquals(1, insights.totalWakes)
+        assertEquals(1, insights.topOffenders.size)
+        assertEquals("com.app.b", insights.topOffenders.first().packageName)
+    }
+
+    @Test
     fun compute_topOffenders_sortedByCount() {
         val events = listOf(
             event(1, "com.app.a"),
@@ -116,5 +132,21 @@ class InsightsCalculatorTest {
         assertEquals(1, patterns.size)
         assertEquals("com.night.app", patterns.first().packageName)
         assertEquals(3, patterns.first().consecutiveNights)
+    }
+
+    @Test
+    fun computeWeekOverWeek_comparesSevenDayWindows() {
+        val now = 1_700_500_000_000L
+        val weekMs = 7L * 24 * 60 * 60 * 1000
+        val events = listOf(
+            event(1, "com.app.a").copy(timestampMillis = now - 1_000),
+            event(2, "com.app.a").copy(timestampMillis = now - weekMs + 1_000),
+            event(3, "com.app.a").copy(timestampMillis = now - weekMs - 1_000),
+            event(4, "com.app.a").copy(timestampMillis = now - weekMs * 2 + 1_000),
+        )
+        val wow = InsightsCalculator.computeWeekOverWeek(events, nowMillis = now)
+        assertEquals(2, wow.current)
+        assertEquals(2, wow.previous)
+        assertEquals(0f, wow.deltaPercent)
     }
 }

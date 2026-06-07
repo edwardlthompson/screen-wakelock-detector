@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
                         deepLinkRoute = deepLinkParams.route,
                         deepLinkQuickFixWakeId = deepLinkParams.quickFixWakeId,
                         deepLinkRootAutomation = deepLinkParams.rootAutomation,
+                        deepLinkDonateAutomation = deepLinkParams.donateAutomation,
                         onDeepLinkConsumed = { deepLinkParams = DeepLinkParams() },
                     )
                 }

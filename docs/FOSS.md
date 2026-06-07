@@ -26,6 +26,7 @@ Free and open source software requirements for **Screen Wakelock Detector**.
 |------------|---------|---------|
 | Kotlin stdlib | Apache-2.0 | Language |
 | AndroidX / Compose / Room | Apache-2.0 | UI, persistence |
+| AndroidX WorkManager | Apache-2.0 | Retention prune worker |
 | Hilt | Apache-2.0 | DI |
 | libsu | Apache-2.0 | In-app root shell |
 | JUnit / MockK | OSS test libs | Testing |

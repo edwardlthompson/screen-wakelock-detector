@@ -26,6 +26,11 @@ jobs:
       - name: Assemble release
         run: ./gradlew assembleRelease
 
+      - name: Verify release APK
+        run: |
+          chmod +x scripts/release/verify-release-apk.sh
+          bash scripts/release/verify-release-apk.sh
+
       - name: Extract changelog
         run: |
           VERSION="${GITHUB_REF_NAME#v}"

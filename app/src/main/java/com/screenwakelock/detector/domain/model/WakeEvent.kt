@@ -13,6 +13,7 @@ data class WakeEvent(
     val rootEnhanced: Boolean = false,
     val wakelockTag: String? = null,
     val wakelockName: String? = null,
+    val rootParserId: String? = null,
     val screenOffDurationMs: Long? = null,
 ) {
     val isLowConfidence: Boolean get() = confidence < 0.6f || reasonCode == ReasonCode.UNKNOWN

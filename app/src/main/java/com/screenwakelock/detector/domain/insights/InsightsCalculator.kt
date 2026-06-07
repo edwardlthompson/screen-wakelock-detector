@@ -12,12 +12,16 @@ object InsightsCalculator {
         events: List<WakeEvent>,
         nighttimeStartHour: Int = 23,
         nighttimeEndHour: Int = 6,
+        ignoredPackages: Set<String> = emptySet(),
     ): InsightsData {
-        val nighttime = events.filter {
+        val filtered = events.filter { event ->
+            event.attributedPackage == null || event.attributedPackage !in ignoredPackages
+        }
+        val nighttime = filtered.filter {
             TimeUtils.isNighttime(it.timestampMillis, nighttimeStartHour, nighttimeEndHour)
         }
 
-        val offenders = events
+        val offenders = filtered
             .filter { it.attributedPackage != null }
             .groupBy { "${it.attributedPackage}:${it.channelId ?: ""}" }
             .map { (_, group) ->
@@ -37,17 +41,46 @@ object InsightsCalculator {
             .sortedByDescending { it.count }
             .take(10)
 
-        val patterns = detectRecurringPatterns(events, nighttimeStartHour, nighttimeEndHour)
+        val patterns = detectRecurringPatterns(filtered, nighttimeStartHour, nighttimeEndHour)
 
-        val heatmap = buildHeatmap(events)
+        val heatmap = buildHeatmap(filtered)
+        val wow = computeWeekOverWeek(filtered)
 
         return InsightsData(
-            totalWakes = events.size,
+            totalWakes = filtered.size,
             nighttimeWakes = nighttime.size,
+            weekOverWeekCurrent = wow.current,
+            weekOverWeekPrevious = wow.previous,
+            weekOverWeekDeltaPercent = wow.deltaPercent,
             topOffenders = offenders,
             recurringPatterns = patterns,
             heatmap = heatmap,
         )
+    }
+
+    data class WeekOverWeek(
+        val current: Int,
+        val previous: Int,
+        val deltaPercent: Float?,
+    )
+
+    fun computeWeekOverWeek(
+        events: List<WakeEvent>,
+        nowMillis: Long = System.currentTimeMillis(),
+    ): WeekOverWeek {
+        val weekMs = 7L * 24 * 60 * 60 * 1000
+        val currentStart = nowMillis - weekMs
+        val previousStart = nowMillis - weekMs * 2
+        val current = events.count { it.timestampMillis >= currentStart && it.timestampMillis <= nowMillis }
+        val previous = events.count {
+            it.timestampMillis >= previousStart && it.timestampMillis < currentStart
+        }
+        val deltaPercent = when {
+            previous == 0 && current == 0 -> 0f
+            previous == 0 -> null
+            else -> ((current - previous).toFloat() / previous) * 100f
+        }
+        return WeekOverWeek(current = current, previous = previous, deltaPercent = deltaPercent)
     }
 
     fun detectRecurringPatterns(

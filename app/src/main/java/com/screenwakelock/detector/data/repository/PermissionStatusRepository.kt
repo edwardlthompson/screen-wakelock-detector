@@ -79,4 +79,12 @@ class PermissionStatusRepository @Inject constructor(
     )
 
     fun missingCount(): Int = getAllStatuses().count { !it.granted }
+
+    /** Four permissions, 25% each — 100 when all granted. */
+    fun healthScore(): Int {
+        val statuses = getAllStatuses()
+        if (statuses.isEmpty()) return 100
+        val granted = statuses.count { it.granted }
+        return (granted * 100) / statuses.size
+    }
 }

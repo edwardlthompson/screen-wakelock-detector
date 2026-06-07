@@ -35,6 +35,7 @@ class WakeAlertNotifier @Inject constructor(
 
     suspend fun notifySingleWake(event: WakeEvent) {
         if (!permissionRepo.isPostNotificationsGranted() || isQuietHoursActive()) return
+        if (isIgnored(event)) return
         val appName = event.displayAppName
         val channel = event.displayChannel ?: "Unknown channel"
         val body = "$channel · ${event.reasonCode.friendlyLabel()}"
@@ -52,6 +53,7 @@ class WakeAlertNotifier @Inject constructor(
         threshold: Int,
     ) {
         if (!permissionRepo.isPostNotificationsGranted() || isQuietHoursActive()) return
+        if (isIgnored(event)) return
         val pkg = event.attributedPackage ?: return
         val channelId = event.channelId
         val since = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(1)
@@ -107,11 +109,47 @@ class WakeAlertNotifier @Inject constructor(
         )
     }
 
+    suspend fun maybeNotifyNightlyBudget(
+        event: WakeEvent,
+        preferencesRepository: PreferencesRepository,
+        wakeEventRepository: WakeEventRepository,
+    ) {
+        if (!permissionRepo.isPostNotificationsGranted() || isQuietHoursActive()) return
+        if (isIgnored(event)) return
+        val pkg = event.attributedPackage ?: return
+        val budget = preferencesRepository.nightlyBudgetFor(pkg) ?: return
+        val startHour = preferencesRepository.nighttimeStartHour.first()
+        val endHour = preferencesRepository.nighttimeEndHour.first()
+        if (!TimeUtils.isNighttime(event.timestampMillis, startHour, endHour)) return
+
+        val tonightKey = TimeUtils.nightKey(event.timestampMillis)
+        val tonightCount = wakeEventRepository.getSince(
+            event.timestampMillis - TimeUnit.DAYS.toMillis(1),
+        ).count {
+            it.attributedPackage == pkg &&
+                TimeUtils.nightKey(it.timestampMillis) == tonightKey
+        }
+        if (tonightCount < budget) return
+
+        val appName = event.displayAppName
+        showNotification(
+            id = NIGHTLY_BUDGET_ALERT_ID + pkg.hashCode(),
+            title = "$appName exceeded nightly budget",
+            text = "$tonightCount wakes tonight (budget: $budget)",
+            wakeEventId = event.id,
+        )
+    }
+
     private suspend fun isQuietHoursActive(): Boolean {
         if (!preferencesRepository.quietHoursEnabled.first()) return false
         val start = preferencesRepository.nighttimeStartHour.first()
         val end = preferencesRepository.nighttimeEndHour.first()
         return TimeUtils.isNighttime(System.currentTimeMillis(), start, end)
+    }
+
+    private suspend fun isIgnored(event: WakeEvent): Boolean {
+        val pkg = event.attributedPackage ?: return false
+        return pkg in preferencesRepository.ignoredPackages.first()
     }
 
     private fun showNotification(
@@ -163,5 +201,6 @@ class WakeAlertNotifier @Inject constructor(
         const val ALERT_CHANNEL_ID = "wake_alerts"
         const val GROUP_KEY = "wake_alerts_group"
         const val UNKNOWN_ALERT_ID = 2001
+        const val NIGHTLY_BUDGET_ALERT_ID = 3000
     }
 }

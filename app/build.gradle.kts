@@ -14,8 +14,8 @@ android {
         applicationId = "com.screenwakelock.detector"
         minSdk = 29
         targetSdk = 35
-        versionCode = 1001000
-        versionName = "1.1.0"
+        versionCode = 1002000
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -24,6 +24,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -67,9 +68,10 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
 
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
@@ -98,3 +100,12 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.generateKotlin", "true")
 }
+
+val copyReleaseNotes by tasks.registering(Copy::class) {
+    val versionCode = android.defaultConfig.versionCode!!
+    from(rootProject.file("fastlane/metadata/android/en-US/changelogs/$versionCode.txt"))
+    into(layout.projectDirectory.dir("src/main/res/raw"))
+    rename { "changelog_$versionCode.txt" }
+}
+
+tasks.named("preBuild") { dependsOn(copyReleaseNotes) }

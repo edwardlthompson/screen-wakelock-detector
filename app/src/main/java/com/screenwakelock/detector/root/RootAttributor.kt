@@ -12,6 +12,7 @@ data class RootSnapshot(
     val uid: Int?,
     val reasonCode: ReasonCode?,
     val packageName: String?,
+    val parserId: String? = null,
 )
 
 class RootAttributor(
@@ -39,6 +40,7 @@ class RootAttributor(
                     uid = active.uid,
                     reasonCode = ReasonCode.ROOT_WAKELOCK,
                     packageName = pkg,
+                    parserId = PARSER_DUMPSYS_POWER,
                 )
             }
         } else {
@@ -57,6 +59,7 @@ class RootAttributor(
                     uid = top.uid,
                     reasonCode = ReasonCode.ROOT_WAKEUP_SOURCE,
                     packageName = uidToPackage(top.uid),
+                    parserId = PARSER_DUMPSYS_BATTERYSTATS,
                 )
             }
         } else {
@@ -75,6 +78,7 @@ class RootAttributor(
                     uid = null,
                     reasonCode = ReasonCode.ROOT_WAKEUP_SOURCE,
                     packageName = null,
+                    parserId = PARSER_WAKEUP_SOURCES,
                 )
             }
         } else {
@@ -86,5 +90,15 @@ class RootAttributor(
 
     companion object {
         private const val TAG = "RootAttributor"
+        const val PARSER_DUMPSYS_POWER = "dumpsys_power_v2"
+        const val PARSER_DUMPSYS_BATTERYSTATS = "dumpsys_batterystats_v1"
+        const val PARSER_WAKEUP_SOURCES = "wakeup_sources_v1"
+
+        fun parserDisplayName(parserId: String?): String? = when (parserId) {
+            PARSER_DUMPSYS_POWER -> "dumpsys power v2"
+            PARSER_DUMPSYS_BATTERYSTATS -> "dumpsys batterystats v1"
+            PARSER_WAKEUP_SOURCES -> "wakeup sources v1"
+            else -> parserId
+        }
     }
 }

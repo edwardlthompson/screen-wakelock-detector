@@ -1,5 +1,6 @@
 package com.screenwakelock.detector.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -46,6 +48,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val latest by viewModel.latestWake.collectAsState()
+    val healthScore = viewModel.permissionHealthScore
     var showQuickFix by remember { mutableStateOf(false) }
     var quickFixEvent by remember { mutableStateOf<WakeEvent?>(null) }
     val context = LocalContext.current
@@ -110,6 +113,25 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             MissingPermissionsBanner(onNavigatePermissions = onNavigatePermissions)
+            if (healthScore < 100) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigatePermissions(null) },
+                ) {
+                    Text(
+                        text = "Permission health: $healthScore%",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    LinearProgressIndicator(
+                        progress = { healthScore / 100f },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                    )
+                }
+            }
             Text(
                 text = "Last screen wake",
                 style = MaterialTheme.typography.headlineSmall,

@@ -28,6 +28,9 @@ data class HeatmapCell(
 data class InsightsData(
     val totalWakes: Int,
     val nighttimeWakes: Int,
+    val weekOverWeekCurrent: Int,
+    val weekOverWeekPrevious: Int,
+    val weekOverWeekDeltaPercent: Float?,
     val topOffenders: List<OffenderSummary>,
     val recurringPatterns: List<RecurringPattern>,
     val heatmap: List<HeatmapCell>,

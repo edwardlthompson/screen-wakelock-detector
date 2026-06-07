@@ -11,4 +11,5 @@ data class AttributionData(
     val rootEnhanced: Boolean = false,
     val wakelockTag: String? = null,
     val wakelockName: String? = null,
+    val rootParserId: String? = null,
 )

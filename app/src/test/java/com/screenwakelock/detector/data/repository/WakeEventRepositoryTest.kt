@@ -59,6 +59,41 @@ class WakeEventRepositoryTest {
         assertEquals(1, events.size)
         assertEquals("a", events.first().attributedPackage)
     }
+
+    @Test
+    fun deleteBefore_removesOldEvents() = runBlocking {
+        val dao = FakeWakeEventDao()
+        val repository = WakeEventRepository(dao)
+        repository.insert(
+            WakeEvent(
+                timestampMillis = 100L,
+                attributedPackage = "old",
+                attributedAppLabel = null,
+                channelId = null,
+                channelName = null,
+                reasonCode = ReasonCode.UNKNOWN,
+                confidence = 0.1f,
+            ),
+        )
+        repository.insert(
+            WakeEvent(
+                timestampMillis = 500L,
+                attributedPackage = "new",
+                attributedAppLabel = null,
+                channelId = null,
+                channelName = null,
+                reasonCode = ReasonCode.UNKNOWN,
+                confidence = 0.1f,
+            ),
+        )
+
+        val deleted = repository.deleteBefore(300L)
+        val remaining = repository.getAll()
+
+        assertEquals(1, deleted)
+        assertEquals(1, remaining.size)
+        assertEquals("new", remaining.first().attributedPackage)
+    }
 }
 
 private class FakeWakeEventDao : WakeEventDao {
@@ -101,4 +136,40 @@ private class FakeWakeEventDao : WakeEventDao {
     }
 
     override suspend fun count(): Int = store.size
+
+    override suspend fun deleteBefore(cutoffMillis: Long): Int {
+        val before = store.size
+        store.removeAll { it.timestampMillis < cutoffMillis }
+        flow.value = store.sortedByDescending { it.timestampMillis }
+        return before - store.size
+    }
+
+    override suspend fun findSimilar(
+        packageName: String,
+        channelId: String?,
+        sinceMillis: Long,
+        excludeId: Long,
+        limit: Int,
+    ): List<WakeEventEntity> =
+        store.filter {
+            it.attributedPackage == packageName &&
+                it.channelId == channelId &&
+                it.timestampMillis >= sinceMillis &&
+                it.id != excludeId
+        }
+            .sortedByDescending { it.timestampMillis }
+            .take(limit)
+
+    override suspend fun getRootEnhancedForPackageSince(
+        packageName: String,
+        sinceMillis: Long,
+        limit: Int,
+    ): List<WakeEventEntity> =
+        store.filter {
+            it.attributedPackage == packageName &&
+                it.rootEnhanced &&
+                it.timestampMillis >= sinceMillis
+        }
+            .sortedByDescending { it.timestampMillis }
+            .take(limit)
 }

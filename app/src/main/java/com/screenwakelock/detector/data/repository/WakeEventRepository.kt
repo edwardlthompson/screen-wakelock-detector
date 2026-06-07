@@ -37,4 +37,24 @@ class WakeEventRepository @Inject constructor(
     suspend fun deleteById(id: Long) = wakeEventDao.deleteById(id)
 
     suspend fun count(): Int = wakeEventDao.count()
+
+    suspend fun deleteBefore(cutoffMillis: Long): Int = wakeEventDao.deleteBefore(cutoffMillis)
+
+    suspend fun findSimilar(
+        packageName: String,
+        channelId: String?,
+        sinceMillis: Long,
+        excludeId: Long,
+        limit: Int = 10,
+    ): List<WakeEvent> =
+        wakeEventDao.findSimilar(packageName, channelId, sinceMillis, excludeId, limit)
+            .map { it.toDomain() }
+
+    suspend fun getRootTimelineForPackage(
+        packageName: String,
+        sinceMillis: Long,
+        limit: Int = 20,
+    ): List<WakeEvent> =
+        wakeEventDao.getRootEnhancedForPackageSince(packageName, sinceMillis, limit)
+            .map { it.toDomain() }
 }

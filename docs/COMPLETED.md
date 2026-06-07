@@ -96,3 +96,52 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] dependabot.yml; GitLab create-labels.sh; adb_gates_verify.sh
 - [x] [ADB] adb_gates_verify PASS on b5214fc6 (grants, mute, insights, threshold, widget, patterns, permissions, backup, M3 theme)
 - [x] [ADB] Rooted wakelock path — OP12 b5214fc6 Magisk, rootEnhanced=true (2026-06-08)
+
+## 2026-06-07 — M8 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] Enable `isShrinkResources = true` on release buildType in `app/build.gradle.kts`
+- [x] [AGENT] [PARALLEL-OK] Replace `material-icons-extended` with `material-icons-core` in `app/build.gradle.kts`
+- [x] [AGENT] [PARALLEL-OK] Add `scripts/release/verify-release-apk.sh` — require release APK, `mapping.txt`, size ceiling, reject debug-only artifact
+- [x] [AGENT] [PARALLEL-OK] Wire verify script into `.github/workflows/release.yml`, `fdroid-publish.yml`, and `.gitlab-ci.yml` `assemble-release`
+- [x] [AGENT] [PARALLEL-OK] Remove GitLab `assembleRelease || assembleDebug` fallback; drop debug APK from release job artifacts
+- [x] [AGENT] [PARALLEL-OK] Add `assembleRelease` + verify step to `.github/workflows/android-ci.yml` on main/PR
+- [x] [AGENT] [PARALLEL-OK] Document minify + shrinkResources in `docs/F-DROID.md`; note in `docs/AGENT_MEMORY.md`
+- [x] [AGENT] Run `./gradlew assembleRelease`; extend `app/proguard-rules.pro` if Glance/Hilt/Room break at runtime
+- [x] [AGENT] [PARALLEL-OK] Generate 512×512 reference PNG via image generation
+- [x] [AGENT] [PARALLEL-OK] Save reference to `docs/design/icon-reference-512.png`
+- [x] [AGENT] [PARALLEL-OK] Rewrite `app/src/main/res/drawable/ic_launcher_foreground.xml`
+- [x] [AGENT] [PARALLEL-OK] Update `app/src/main/res/values/colors.xml` — `ic_launcher_background` → `#004D57`
+- [x] [AGENT] [PARALLEL-OK] Add `app/src/main/res/drawable/ic_launcher_monochrome.xml`
+- [x] [AGENT] [PARALLEL-OK] Reference monochrome layer from adaptive icon XML
+- [x] [AGENT] [PARALLEL-OK] Copy 512 PNG to `fastlane/metadata/android/en-US/images/icon.png`
+- [x] [AGENT] [PARALLEL-OK] Update `docs/DESIGN_SYSTEM.md` → Store assets: icon spec + color tokens
+- [x] [AGENT] [PARALLEL-OK] App ignore list: DataStore + filter in InsightsCalculator, WakeAlertNotifier, WakeMonitorService
+- [x] [AGENT] [PARALLEL-OK] Settings → Data & privacy → Ignored apps; Detail “Ignore this app”
+- [x] [AGENT] [PARALLEL-OK] Custom quiet hours UI + WakeAlertNotifier wired to nighttime hour keys
+- [x] [AGENT] [PARALLEL-OK] History reason-code filter chips
+- [x] [AGENT] [PARALLEL-OK] Permission health score on Home
+- [x] [AGENT] Update `docs/NOTIFICATIONS.md` quiet-hours copy for configurable window
+- [x] [AGENT] [PARALLEL-OK] Retention policy + RetentionWorker + WakeEventDao DELETE
+- [x] [AGENT] [PARALLEL-OK] Settings → Auto-delete old events UI
+- [x] [AGENT] [PARALLEL-OK] Export sheet: date range + CSV/JSON via ExportUtils
+- [x] [AGENT] [PARALLEL-OK] Short-wake filter + screenOffDurationMs in WakeMonitorService
+- [x] [AGENT] [PARALLEL-OK] Detail similar wakes section
+- [x] [AGENT] [PARALLEL-OK] Full-screen intent banner on Detail
+- [x] [AGENT] Unit tests: retention DAO delete, ExportUtils JSON, short-wake filter logic
+- [x] [AGENT] [PARALLEL-OK] Week-over-week comparison in InsightsCalculator + InsightsScreen
+- [x] [AGENT] [PARALLEL-OK] Per-app nightly budget + WakeAlertNotifier + Insights UI
+- [x] [AGENT] [PARALLEL-OK] Pattern card Mute / Open settings actions
+- [x] [AGENT] [PARALLEL-OK] Batch mute from Insights top-offender menu
+- [x] [AGENT] [PARALLEL-OK] WakeCountWidget Glance widget + manifest
+- [x] [AGENT] Unit test: InsightsCalculator week-over-week
+- [x] [AGENT] [PARALLEL-OK] Root timeline on Detail when rootEnhanced
+- [x] [AGENT] [PARALLEL-OK] RootDiagnosticExporter + RootScreen share
+- [x] [AGENT] [PARALLEL-OK] Parser version footnote on Detail
+- [x] [AGENT] [PARALLEL-OK] Monitoring pause schedule + QS tile state
+- [x] [AGENT] [PARALLEL-OK] SAF backup/restore via BackupUtils + SECURITY.md
+- [x] [AGENT] [PARALLEL-OK] Tablet Insights two-column layout
+- [x] [AGENT] [PARALLEL-OK] Add `scripts/smoke/m8_smoke.sh`
+- [x] [AGENT] [PARALLEL-OK] Document m8 smoke in `docs/ADB_TESTING.md`
+- [x] [AGENT] [PARALLEL-OK] Bump version; fastlane changelog + fdroid metadata
+- [x] [AGENT] [PARALLEL-OK] CHANGELOG `[1.2.0]`; update `docs/AGENT_MEMORY.md`
+- [x] [AGENT] `./gradlew lint test assembleRelease` + verify script (subagent PASS; local JAVA_HOME unset)

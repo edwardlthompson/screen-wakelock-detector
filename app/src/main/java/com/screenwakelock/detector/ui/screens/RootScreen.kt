@@ -26,7 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.screenwakelock.detector.root.RootDiagnosticExporter
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.BuildConfig
 import com.screenwakelock.detector.root.RootAvailabilityState
@@ -44,6 +46,7 @@ fun RootScreen(
     var probeState by remember { mutableStateOf<RootAvailabilityState?>(null) }
     var diagnostics by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val isRootAvailable = probeState?.isRooted == true
     val mutedColor = MaterialTheme.colorScheme.onSurfaceVariant
 
@@ -152,6 +155,17 @@ fun RootScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Run diagnostics")
+            }
+            Button(
+                onClick = {
+                    scope.launch {
+                        val report = viewModel.buildDiagnosticReport(probeState, diagnostics)
+                        RootDiagnosticExporter.shareReport(context, report)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Share diagnostic report")
             }
             diagnostics?.let {
                 Text(it, style = MaterialTheme.typography.labelMedium)

@@ -22,7 +22,7 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
+import com.screenwakelock.detector.R
 import com.screenwakelock.detector.MainActivity
 import com.screenwakelock.detector.data.db.AppDatabase
 import com.screenwakelock.detector.data.db.toDomain
@@ -71,7 +71,7 @@ private fun WakeWidgetContent(
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(ColorProvider(android.graphics.Color.parseColor("#E8F4F6")))
+            .background(R.color.widget_background)
             .padding(12.dp)
             .clickable(actionStartActivity(homeIntent)),
         verticalAlignment = Alignment.Vertical.CenterVertically,

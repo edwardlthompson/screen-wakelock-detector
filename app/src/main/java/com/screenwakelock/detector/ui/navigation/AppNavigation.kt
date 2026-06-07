@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -66,6 +66,7 @@ fun AppNavigation(
     deepLinkRoute: String? = null,
     deepLinkQuickFixWakeId: Long? = null,
     deepLinkRootAutomation: String? = null,
+    deepLinkDonateAutomation: String? = null,
     onDeepLinkConsumed: () -> Unit = {},
 ) {
     val navController = rememberNavController()
@@ -74,8 +75,8 @@ fun AppNavigation(
 
     val bottomItems = listOf(
         Triple(Routes.HOME, "Home", Icons.Default.Home),
-        Triple(Routes.HISTORY, "History", Icons.Default.History),
-        Triple(Routes.INSIGHTS, "Insights", Icons.Default.Insights),
+        Triple(Routes.HISTORY, "History", Icons.Default.List),
+        Triple(Routes.INSIGHTS, "Insights", Icons.Default.Info),
         Triple(Routes.SETTINGS, "Settings", Icons.Default.Settings),
     )
 
@@ -84,6 +85,7 @@ fun AppNavigation(
     val showNavChrome = currentRoute?.substringBefore('?') in bottomItems.map { it.first.substringBefore('?') }
 
     var pendingRootAutomation by remember { mutableStateOf<String?>(null) }
+    var pendingDonateAutomation by remember { mutableStateOf<String?>(null) }
 
     androidx.compose.runtime.LaunchedEffect(
         hasCompletedIntro,
@@ -92,11 +94,20 @@ fun AppNavigation(
         deepLinkRoute,
         deepLinkQuickFixWakeId,
         deepLinkRootAutomation,
+        deepLinkDonateAutomation,
     ) {
         if (BuildConfig.DEBUG && deepLinkRootAutomation == "enable" && deepLinkRoute == "root") {
             onboardingViewModel.completeIntro()
             pendingRootAutomation = deepLinkRootAutomation
             navController.navigate(Routes.ROOT) {
+                popUpTo(navController.graph.id) { inclusive = true }
+            }
+            return@LaunchedEffect
+        }
+        if (BuildConfig.DEBUG && deepLinkDonateAutomation == "open" && deepLinkRoute == "settings") {
+            onboardingViewModel.completeIntro()
+            pendingDonateAutomation = deepLinkDonateAutomation
+            navController.navigate(Routes.SETTINGS) {
                 popUpTo(navController.graph.id) { inclusive = true }
             }
             return@LaunchedEffect
@@ -110,6 +121,10 @@ fun AppNavigation(
                 "root" -> {
                     pendingRootAutomation = deepLinkRootAutomation
                     navController.navigate(Routes.ROOT)
+                }
+                "settings" -> {
+                    pendingDonateAutomation = deepLinkDonateAutomation
+                    navController.navigate(Routes.SETTINGS)
                 }
                 "permissions" -> navController.navigate(Routes.permissions(deepLinkHighlight))
                 "insights" -> navController.navigate(Routes.INSIGHTS)
@@ -195,6 +210,7 @@ fun AppNavigation(
                     onNavigatePermissions = { navController.navigate(Routes.permissions()) },
                     onNavigateRoot = { navController.navigate(Routes.ROOT) },
                     onReplayOnboarding = { navController.navigate(Routes.ONBOARDING) },
+                    donateAutomation = pendingDonateAutomation == "open",
                 )
             }
             composable(

@@ -1,5 +1,7 @@
 package com.screenwakelock.detector.ui.screens
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,14 +25,19 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.screenwakelock.detector.domain.model.ReasonCode
+import com.screenwakelock.detector.root.RootAttributor
 import com.screenwakelock.detector.ui.components.ConfidenceIndicator
 import com.screenwakelock.detector.ui.components.MissingPermissionsBanner
 import com.screenwakelock.detector.ui.viewmodel.DetailViewModel
@@ -51,9 +58,20 @@ fun DetailScreen(
         viewModel.observeEvent(wakeEventId)
     }
     val event by eventFlow.collectAsState()
+    val ignoredPackages by viewModel.ignoredPackages.collectAsState()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var similarWakes by remember { mutableStateOf<List<com.screenwakelock.detector.domain.model.WakeEvent>>(emptyList()) }
+    var similarExpanded by remember { mutableStateOf(false) }
+    var rootTimeline by remember { mutableStateOf<List<com.screenwakelock.detector.domain.model.WakeEvent>>(emptyList()) }
+    var rootTimelineExpanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(event?.id) {
+        val current = event ?: return@LaunchedEffect
+        similarWakes = viewModel.loadSimilarWakes(current)
+        rootTimeline = viewModel.loadRootTimeline(current)
+    }
 
     Scaffold(
         topBar = {
@@ -86,6 +104,25 @@ fun DetailScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (e.reasonCode == ReasonCode.NOTIFICATION_FULL_SCREEN) {
+                    item {
+                        FullScreenIntentBanner(
+                            onOpenSettings = {
+                                val pkg = e.attributedPackage
+                                val intent = if (pkg != null && e.channelId != null &&
+                                    IntentUtils.canOpenChannelSettings()
+                                ) {
+                                    IntentUtils.channelNotificationSettings(pkg, e.channelId)
+                                } else if (pkg != null) {
+                                    IntentUtils.appNotificationSettings(pkg)
+                                } else {
+                                    Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+                                }
+                                context.startActivity(intent)
+                            },
+                        )
+                    }
+                }
                 if (e.isLowConfidence || e.attributedPackage == null) {
                     item {
                         MissingPermissionsBanner(onNavigatePermissions = onNavigatePermissions)
@@ -101,6 +138,14 @@ fun DetailScreen(
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    e.screenOffDurationMs?.let { duration ->
+                        Text(
+                            "Screen was off for ${duration / 1000}s",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
                 }
                 item {
                     ConfidenceIndicator(confidence = e.confidence)
@@ -116,6 +161,76 @@ fun DetailScreen(
                             "Wakelock: ${e.wakelockTag}",
                             style = MaterialTheme.typography.bodyMedium,
                         )
+                    }
+                }
+                if (e.rootEnhanced) {
+                    item {
+                        val parserLabel = RootAttributor.parserDisplayName(e.rootParserId)
+                        Text(
+                            parserLabel?.let { "Matched via $it" }
+                                ?: "Root-enhanced attribution",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                if (rootTimeline.isNotEmpty()) {
+                    item {
+                        OutlinedButton(
+                            onClick = { rootTimelineExpanded = !rootTimelineExpanded },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                if (rootTimelineExpanded) {
+                                    "Hide root timeline (${rootTimeline.size})"
+                                } else {
+                                    "Root timeline (${rootTimeline.size} recent)"
+                                },
+                            )
+                        }
+                    }
+                    if (rootTimelineExpanded) {
+                        items(rootTimeline, key = { it.id }) { rootEvent ->
+                            ListItem(
+                                headlineContent = {
+                                    Text(TimeUtils.formatDateTime(rootEvent.timestampMillis))
+                                },
+                                supportingContent = {
+                                    Text(
+                                        listOfNotNull(
+                                            rootEvent.wakelockTag,
+                                            RootAttributor.parserDisplayName(rootEvent.rootParserId),
+                                        ).joinToString(" · "),
+                                    )
+                                },
+                            )
+                        }
+                    }
+                }
+                if (similarWakes.isNotEmpty()) {
+                    item {
+                        OutlinedButton(
+                            onClick = { similarExpanded = !similarExpanded },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                if (similarExpanded) {
+                                    "Hide similar wakes (${similarWakes.size})"
+                                } else {
+                                    "Similar wakes (${similarWakes.size} in last 7 days)"
+                                },
+                            )
+                        }
+                    }
+                    if (similarExpanded) {
+                        items(similarWakes, key = { it.id }) { similar ->
+                            ListItem(
+                                headlineContent = { Text(TimeUtils.formatDateTime(similar.timestampMillis)) },
+                                supportingContent = {
+                                    Text(similar.reasonCode.friendlyLabel())
+                                },
+                            )
+                        }
                     }
                 }
                 if (e.attributedPackage != null) {
@@ -161,6 +276,20 @@ fun DetailScreen(
                         ) {
                             Text("App info")
                         }
+                        val pkg = e.attributedPackage!!
+                        if (pkg !in ignoredPackages) {
+                            OutlinedButton(
+                                onClick = {
+                                    scope.launch {
+                                        viewModel.ignoreApp(pkg)
+                                        snackbar.showSnackbar("Ignored ${e.displayAppName} — alerts and insights will skip this app")
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text("Ignore this app")
+                            }
+                        }
                     }
                 }
                 if (e.isLowConfidence || e.candidates.size > 1) {
@@ -191,6 +320,30 @@ fun DetailScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun FullScreenIntentBanner(onOpenSettings: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+    ) {
+        Text(
+            "Full-screen intent",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.error,
+        )
+        Text(
+            "This wake used a full-screen intent notification, which can turn on the display " +
+                "even when the phone is locked. Review notification settings for this app.",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(vertical = 8.dp),
+        )
+        OutlinedButton(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth()) {
+            Text("Open notification settings")
         }
     }
 }

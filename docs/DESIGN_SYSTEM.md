@@ -161,4 +161,16 @@ Screenshot placeholders: `fastlane/metadata/android/en-US/images/`
 
 Capture light, dark, and dynamic color variants per [`ONBOARDING.md`](ONBOARDING.md) order.
 
+### Launcher icon (M8)
+
+| Token | Value | Role |
+|-------|-------|------|
+| Background | `#004D57` | Deep teal adaptive-icon background |
+| Phone body | `#FFFFFF` | Rounded rectangle silhouette |
+| Screen glow | `#FFB300` | Amber fill — “screen lit up” |
+| Notification dot | `#FFFFFF` | Small circle on phone corner |
+| Monochrome | White silhouette | Themed icons (API 33+) |
+
+Reference PNG: `docs/design/icon-reference-512.png` · Store: `fastlane/metadata/android/en-US/images/icon.png`
+
 Record BOM and material3 version pins in [`AGENT_MEMORY.md`](AGENT_MEMORY.md) when scaffold lands.

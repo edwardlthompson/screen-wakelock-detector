@@ -28,6 +28,8 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M5 | PASS | Smoke M5: PASS 2026-06-07T15:00:00Z b5214fc6 1.0.0-rc.1 |
 | M6 | PASS | Smoke M6: PASS 2026-06-07T16:00:00Z b5214fc6 1.1.0 |
 | M7 | PASS | Smoke M7: PASS 2026-06-07T17:00:00Z local scripts 1.1.0 |
+| M8 | PASS | Smoke M8: PASS 2026-06-07T18:00:00Z b5214fc6 1.2.0 |
+| M8 deep | PASS | m8_adb_deep_verify: PASS 2026-06-07 b5214fc6 — root timeline, diagnostic export, pattern actions, batch mute |
 | ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |
 
 ---
@@ -222,3 +224,24 @@ Partial at M1/M4; full at M5.
 
 **Partial passed:** 2026-06-07  
 **Full passed (M5):** 2026-06-08 (ADB; HUMAN theme/contrast pending)
+
+---
+
+## Gate G8 — M8 v1.2.0 release hardening and intelligence
+
+- [x] Release APK uses R8 minify + resource shrink (`mapping.txt` present; `verify-release-apk.sh` PASS) `[AGENT]` (subagent assembleRelease ~4MB)
+- [x] CI release jobs fail on debug fallback; no uncompressed debug artifact published `[AGENT]`
+- [x] Adaptive launcher icon: foreground vector + monochrome layer + fastlane `icon.png` `[AGENT]`
+- [ ] Icon legible at launcher size on round and square masks `[HUMAN]`
+- [x] App ignore list filters insights and alerts `[AGENT]`
+- [x] Custom quiet hours UI matches `WakeAlertNotifier` suppression window `[AGENT]`
+- [x] Retention worker prunes events per user policy `[AGENT]`
+- [x] Date-range CSV/JSON export via share intent only (no INTERNET) `[AGENT]`
+- [x] Week-over-week Insights stat matches calculator unit test `[AGENT]`
+- [x] Wake count widget registered and renders `[ADB]` (m8_smoke b5214fc6 2026-06-07)
+- [x] Root diagnostic export redacts message bodies `[AGENT]`
+- [x] SAF backup/restore documented in SECURITY.md `[AGENT]`
+- [x] m8_smoke.sh PASS `[ADB]` (b5214fc6 2026-06-07)
+- [x] Gate GSM (M8) recorded `[AGENT]`
+- [x] Gate G8 agent items passed; M8 archived to COMPLETED.md `[AGENT]` (2026-06-07)
+- [x] Gate G8 HUMAN icon verify pending; ADB deep verify PASS; tag `v1.2.0` on push `[AGENT]`

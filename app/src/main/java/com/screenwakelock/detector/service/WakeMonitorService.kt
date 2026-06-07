@@ -25,7 +25,9 @@ import com.screenwakelock.detector.data.repository.WakeEventRepository
 import com.screenwakelock.detector.domain.attributor.WakeAttributor
 import com.screenwakelock.detector.domain.model.ReasonCode
 import com.screenwakelock.detector.domain.model.WakeEvent
+import com.screenwakelock.detector.widget.WakeCountWidgetReceiver
 import com.screenwakelock.detector.widget.WakeWidgetReceiver
+import com.screenwakelock.detector.util.TimeUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -101,6 +103,12 @@ class WakeMonitorService : LifecycleService() {
             return
         }
         lastScreenOnHandledAt = now
+
+        if (isMonitoringPausedBySchedule(now)) {
+            Log.d(TAG, "Wake skipped — monitoring pause schedule active")
+            return
+        }
+
         val captureStartedAt = now
         val rootEnabled = preferencesRepository.rootEnabled.first()
         val attribution = wakeAttributor.attribute(
@@ -120,20 +128,25 @@ class WakeMonitorService : LifecycleService() {
             rootEnhanced = attribution.rootEnhanced,
             wakelockTag = attribution.wakelockTag,
             wakelockName = attribution.wakelockName,
+            rootParserId = attribution.rootParserId,
             screenOffDurationMs = screenOffMillis?.let { now - it },
         )
         val id = wakeEventRepository.insert(event)
         val latencyMs = System.currentTimeMillis() - captureStartedAt
         Log.i(TAG, "WakeEvent inserted id=$id source=$source latencyMs=$latencyMs " +
             "pkg=${event.attributedPackage} channel=${event.channelId} confidence=${event.confidence}" +
-            if (event.rootEnhanced) " rootEnhanced=true tag=${event.wakelockTag}" else "")
+            if (event.rootEnhanced) " rootEnhanced=true tag=${event.wakelockTag} parser=${event.rootParserId}" else "")
         WakeWidgetReceiver.requestUpdate(this)
+        WakeCountWidgetReceiver.requestUpdate(this)
 
         val stored = event.copy(id = id)
+        val ignored = preferencesRepository.ignoredPackages.first()
+        val isIgnored = stored.attributedPackage != null && stored.attributedPackage in ignored
         val alertEvery = preferencesRepository.alertOnEveryWake.first()
         val thresholdEnabled = preferencesRepository.thresholdAlertsEnabled.first()
         val isUnknown = stored.attributedPackage == null || stored.reasonCode == ReasonCode.UNKNOWN
         when {
+            isIgnored -> Unit
             alertEvery && isUnknown -> wakeAlertNotifier.notifyUnknownWake(stored)
             alertEvery -> wakeAlertNotifier.notifySingleWake(stored)
             thresholdEnabled && !isUnknown -> wakeAlertNotifier.maybeNotifyThreshold(
@@ -142,6 +155,20 @@ class WakeMonitorService : LifecycleService() {
                 preferencesRepository.thresholdCount.first(),
             )
         }
+        if (!isIgnored && !isUnknown) {
+            wakeAlertNotifier.maybeNotifyNightlyBudget(
+                stored,
+                preferencesRepository,
+                wakeEventRepository,
+            )
+        }
+    }
+
+    private suspend fun isMonitoringPausedBySchedule(nowMillis: Long): Boolean {
+        if (!preferencesRepository.monitorScheduleEnabled.first()) return false
+        val start = preferencesRepository.monitorPauseStartHour.first()
+        val end = preferencesRepository.monitorPauseEndHour.first()
+        return TimeUtils.isInHourWindow(nowMillis, start, end)
     }
 
     private fun startForegroundWithNotification() {

@@ -14,17 +14,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-06-07
+
+M8 release hardening and intelligence.
+
 ### Added
 
-- Settings About section: version, bundled release notes, GitHub changelog link, Venmo donate link
-- `scripts/smoke/grant-magisk-su.py` — Magisk su grant for smoke automation
-- Debug smoke deep link `screenwakelock://settings/root?automation=enable` (debug builds only)
+- High-contrast adaptive launcher icon (phone + amber screen glow + notification dot).
+- App ignore list; custom quiet hours UI; reason-code History filter chips; permission health score on Home.
+- Retention policy with daily WorkManager prune; date-range CSV/JSON export sheet; short-wake filter.
+- Detail similar wakes section; full-screen intent banner on Detail.
+- Week-over-week comparison stat on Insights.
+- Per-app nightly wake budgets with alert when exceeded.
+- Recurring pattern cards: Mute channel and Open settings actions.
+- Batch mute from Insights top-offender menu with OEM fallback messaging.
+- Wake count Glance widget: tonight's count + top offender.
+- Root parser footnote on Detail when root-enhanced; root timeline for same package.
+- Root diagnostic text export via share intent — no message bodies.
+- Monitoring pause schedule respected by WakeMonitorService; QS tile shows schedule pause.
+- Local JSON backup/restore via SAF (export + import with confirmation).
+- Tablet Insights two-column layout at width ≥840dp.
+- `scripts/release/verify-release-apk.sh` and `scripts/smoke/m8_smoke.sh`.
 
 ### Changed
 
-- M3 root smoke on OP12: libsu attribution, `rootEnhanced=true` in WakeMonitor logs
-- `docs/GATES.md` — rooted wakelock gate closed (b5214fc6, 2026-06-08)
-- `docs/BUILD_PLAN.md` — HUMAN-only items remain
+- Release builds: R8 resource shrinking (`isShrinkResources`); CI verifies minified APK before publish.
+- Replaced `material-icons-extended` with `material-icons-core`.
+- `RootAttributor` exposes `parserId` on snapshots; stored on wake events as `rootParserId`.
+- Version 1.2.0 / versionCode 1002000.
 
 ## [1.1.0] — 2026-06-07
 

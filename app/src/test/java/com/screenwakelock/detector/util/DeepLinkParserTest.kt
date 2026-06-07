@@ -34,6 +34,19 @@ class DeepLinkParserTest {
     }
 
     @Test
+    fun parseSettingsDonateAutomation() {
+        val params = parseDeepLinkString("screenwakelock://settings/donate?automation=open")
+        assertEquals("settings", params.route)
+        assertEquals("open", params.donateAutomation)
+    }
+
+    @Test
+    fun parseSettingsRoute() {
+        val params = parseDeepLinkString("screenwakelock://settings")
+        assertEquals("settings", params.route)
+    }
+
+    @Test
     fun parseSettingsRoot() {
         val params = parseDeepLinkString("screenwakelock://settings/root")
         assertEquals("root", params.route)

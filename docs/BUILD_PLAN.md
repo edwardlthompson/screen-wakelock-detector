@@ -12,7 +12,8 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 - [ ] [HUMAN] M2/M4/M5 copy and design walkthroughs (ONBOARDING.md, DESIGN_SYSTEM.md)
 - [ ] [HUMAN] 1.0.0-rc.1 soak; F-Droid first inclusion + `FDROIDDATA_FORK_URL` secret
 - [ ] [HUMAN] Tag triggers live fdroiddata MR; app on F-Droid after merge
+- [ ] [HUMAN] M8 icon legibility on device launcher — round/square masks, light/dark wallpapers
 
-**ADB / agent gates:** All closed. Root path verified on OP12 (`b5214fc6`) via `FORCE_ROOT_SMOKE=1 bash scripts/smoke/m3_smoke.sh` (2026-06-08).
+**M8:** Agent + ADB gates closed (smoke + deep verify on b5214fc6, 2026-06-07). Tag `v1.2.0` pending push.
 
 See [`GATES.md`](GATES.md) for full checklists.

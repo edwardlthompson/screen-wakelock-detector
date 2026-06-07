@@ -38,6 +38,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 | **fdroid-build status** | _(not run)_ |
 | **reproducible-verify result** | Stamp file `.fdroid-repro-verified` written on PASS when F-Droid APK available; blocked MR when `REQUIRE_REPRO_VERIFY=1` |
 | **Release signing** | Keystore in CI variables only — never in repo |
+| **Release compression (M8)** | `isMinifyEnabled` + `isShrinkResources`; `material-icons-core` (not extended); verify via `scripts/release/verify-release-apk.sh` |
 
 ---
 
@@ -72,6 +73,8 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 - **2026-06-06:** Self-contained root stack via libsu; explicitly exclude Shizuku and Magisk modules.
 - **2026-06-06:** GitLab CI replaces GitHub Actions; fdroiddata MR automation on `v*` tags (M7).
 - **2026-06-08:** Settings About section: `BuildConfig.VERSION_NAME`, release notes copied from `fastlane/.../changelogs/{versionCode}.txt` at build time, changelog/donate via `ACTION_VIEW` (no `INTERNET` permission). F-Droid `Donate` field set to Venmo URL.
+- **2026-06-07:** M8 release compression: shrinkResources, material-icons-core, `verify-release-apk.sh` wired into GitHub/GitLab CI.
+- **2026-06-07:** M8 v1.2.0: intelligence features (ignore list, retention, WoW insights, WakeCountWidget, SAF backup). Launcher icon updated. Local `./gradlew` blocked (JAVA_HOME unset on dev machine); CI/subagent verify PASS.
 
 ---
 
@@ -103,7 +106,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 
 | Date | Event |
 |------|-------|
-| 2026-06-08 | M3 root PASS on OP12 (Magisk grant + libsu); debug automation deep link for smoke. |
+| 2026-06-07 | M8 v1.2.0 implemented: compression, icon, phases A–D; smoke PASS b5214fc6; 46 tasks archived. |
 
 ## 2026-06-08 — ADB + agent gate closure
 

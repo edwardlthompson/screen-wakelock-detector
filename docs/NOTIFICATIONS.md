@@ -105,9 +105,9 @@ Must remain visible while monitoring service runs (Android requirement).
 
 ## Quiet hours
 
-Settings → Alerts → Quiet hours: suppress threshold alerts but continue logging.
+Settings → Alerts → **Quiet hours**: suppress threshold and single-wake alerts during a **configurable window** (default 11:00 PM – 6:00 AM local). Adjust start and end hours with sliders when quiet hours is enabled.
 
-In-app history and Insights still update.
+In-app history and Insights still update during quiet hours; only notification alerts are suppressed.
 
 ---
 

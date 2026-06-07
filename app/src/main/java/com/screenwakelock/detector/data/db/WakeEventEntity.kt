@@ -17,5 +17,6 @@ data class WakeEventEntity(
     val rootEnhanced: Boolean = false,
     val wakelockTag: String? = null,
     val wakelockName: String? = null,
+    val rootParserId: String? = null,
     val screenOffDurationMs: Long? = null,
 )

@@ -3,7 +3,19 @@
     <string name="app_name">Screen Wakelock Detector</string>
     <string name="tile_label">Wake Monitor</string>
     <string name="widget_description">Last screen wake summary</string>
+    <string name="wake_count_widget_description">Tonight\'s wake count and top offender</string>
+    <string name="monitoring_paused_schedule">Paused by schedule</string>
     <string name="monitoring_notification_title">Monitoring screen wakes</string>
     <string name="monitoring_notification_text">Tap to open history</string>
     <string name="monitoring_paused">Monitoring paused</string>
+    <string name="about_section_title">About</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_release_notes_fallback">See changelog for what\'s new in this release.</string>
+    <string name="about_view_changelog">View changelog</string>
+    <string name="about_view_changelog_summary">Full release history on GitHub</string>
+    <string name="about_support_development">Support development</string>
+    <string name="about_support_development_summary">If this app has been helpful, consider a tip via Venmo</string>
+    <string name="about_no_handler">No app found to open this link</string>
+    <string name="changelog_url" translatable="false">https://github.com/edwardlthompson/screen-wakelock-detector/blob/main/docs/CHANGELOG.md</string>
+    <string name="donate_venmo_url" translatable="false">https://venmo.com/code?user_id=1857304970395648420</string>
 </resources>
