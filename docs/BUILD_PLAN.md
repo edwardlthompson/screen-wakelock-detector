@@ -6,6 +6,35 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 
 ---
 
+## M12 — v1.2.9 app identification + QuickFix ignore
+
+**Target:** `versionName` `1.2.9`, `versionCode` `1002009` in `app/build.gradle.kts`  
+**Gate:** G12 in `docs/GATES.md` · Smoke: `scripts/smoke/m12_smoke.sh`  
+**Plan:** ignore on QuickFix popup; hide ignored apps from History/Home/widgets; stronger unknown-app attribution (tag parse, UsageStats merge, display-time labels)
+
+<!-- PARALLEL -->
+- [x] [AGENT] [PARALLEL-OK] `PackageFromWakelockTag` + unit tests; wire into `WakeAttributor` / `RootAttributor` for tag-only root attribution
+- [x] [AGENT] [PARALLEL-OK] Always merge UsageStats candidates in `WakeAttributor` (lower confidence when notifications exist)
+- [x] [AGENT] [PARALLEL-OK] `AppDisplayResolver` — fresh PM labels + wakelock-tag fallbacks; use in UI, alerts, widgets
+- [x] [AGENT] [PARALLEL-OK] `QuickFixBottomSheet`: **Ignore this app** button + undo snackbar; wire `HomeScreen` + `HistoryScreen` + `HomeViewModel` / `HistoryViewModel`
+<!-- END PARALLEL -->
+
+- [x] [AGENT] Filter ignored packages from `HistoryViewModel`, `HomeViewModel.latestWake`, `WakeCountWidget`, `WakeWidget`
+- [x] [AGENT] Secondary ignore entry points: Detail undo snackbar, Insights offender menu, Detail candidate rows
+- [x] [AGENT] Settings **Ignored apps** supporting copy — note ignored apps hidden from History; reversible via Remove
+- [x] [AGENT] Low-confidence cards: show wakelock tag / root parser hint when name still unknown
+- [x] [AGENT] Unit tests: `PackageFromWakelockTag`, `WakeAttributor`, `AppDisplayResolver`, History ignore filter
+- [x] [AGENT] `scripts/smoke/m12_smoke.sh` — QuickFix ignore visible; ignored app absent from History
+- [x] [AGENT] `./gradlew lint test assembleDebug`; CHANGELOG `[Unreleased]` + AGENT_MEMORY
+- [ ] [AGENT] Gate G12; archive M12; commit; push; tag `v1.2.9`; publish signed APK
+
+### M12 — ADB
+
+- [ ] [ADB] Home **Fix it** popup shows **Ignore this app** for attributed wake; undo restores visibility
+- [ ] [ADB] After ignore, app wake no longer listed in History/Home; still removable in Settings → Ignored apps
+
+---
+
 ## M11 — v1.2.3 condensed onboarding + version-aware settings
 
 **Target:** `versionName` `1.2.3`, `versionCode` `1002003` in `app/build.gradle.kts`  

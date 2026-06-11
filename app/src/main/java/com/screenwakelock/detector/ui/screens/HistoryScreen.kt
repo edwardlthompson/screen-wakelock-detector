@@ -45,6 +45,7 @@ import com.screenwakelock.detector.domain.model.ReasonFilterGroup
 import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.ui.components.QuickFixBottomSheet
 import com.screenwakelock.detector.ui.components.WakeEventCard
+import com.screenwakelock.detector.ui.components.rememberAppDisplayResolver
 import com.screenwakelock.detector.ui.viewmodel.HistoryViewModel
 import com.screenwakelock.detector.util.ChannelMuter
 import com.screenwakelock.detector.util.IntentUtils
@@ -64,6 +65,8 @@ fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel(),
 ) {
     val events by viewModel.events.collectAsState()
+    val ignoredPackages by viewModel.ignoredPackages.collectAsState()
+    val appDisplayResolver = rememberAppDisplayResolver()
     val query by viewModel.query.collectAsState()
     val nightOnly by viewModel.nightOnly.collectAsState()
     val hourFilter by viewModel.hourFilter.collectAsState()
@@ -151,15 +154,32 @@ fun HistoryScreen(
         )
     }
 
+    fun onIgnored(event: WakeEvent, packageName: String) {
+        scope.launch {
+            viewModel.ignoreApp(packageName)
+            val appName = appDisplayResolver.resolveAppName(event)
+            val snackResult = snackbar.showSnackbar(
+                message = "Ignored $appName — hidden from History; remove in Settings",
+                actionLabel = "Undo",
+            )
+            if (snackResult == SnackbarResult.ActionPerformed) {
+                viewModel.unignoreApp(packageName)
+            }
+        }
+    }
+
     QuickFixBottomSheet(
         event = quickFixEvent,
         visible = quickFixEvent != null,
+        ignoredPackages = ignoredPackages,
+        appDisplayResolver = appDisplayResolver,
         onDismiss = { quickFixEvent = null },
         onWhyThisApp = onNavigateDetail,
         onMuteChannel = { event, result ->
             quickFixEvent = null
             onMuted(event, result)
         },
+        onIgnoreApp = { event, pkg -> onIgnored(event, pkg) },
     )
 
     Scaffold(
@@ -296,6 +316,7 @@ fun HistoryScreen(
                         ) {
                             WakeEventCard(
                                 event = event,
+                                appDisplayResolver = appDisplayResolver,
                                 onClick = { onNavigateDetail(event.id) },
                                 trailingContent = {
                                     IconButton(onClick = { quickFixEvent = event }) {

@@ -12,7 +12,7 @@ import com.screenwakelock.detector.R
 import com.screenwakelock.detector.data.repository.PermissionStatusRepository
 import com.screenwakelock.detector.data.repository.PreferencesRepository
 import com.screenwakelock.detector.data.repository.WakeEventRepository
-import com.screenwakelock.detector.domain.model.ReasonCode
+import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
 import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.TimeUtils
@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.first
 class WakeAlertNotifier @Inject constructor(
     @ApplicationContext private val context: Context,
     private val preferencesRepository: PreferencesRepository,
+    private val appDisplayResolver: AppDisplayResolver,
 ) {
     private val permissionRepo = PermissionStatusRepository(context)
 
@@ -36,7 +37,7 @@ class WakeAlertNotifier @Inject constructor(
     suspend fun notifySingleWake(event: WakeEvent) {
         if (!permissionRepo.isPostNotificationsGranted() || isQuietHoursActive()) return
         if (isIgnored(event)) return
-        val appName = event.displayAppName
+        val appName = appDisplayResolver.resolveAppName(event)
         val channel = event.displayChannel ?: "Unknown channel"
         val body = "$channel · ${event.reasonCode.friendlyLabel()}"
         showNotification(
@@ -63,7 +64,7 @@ class WakeAlertNotifier @Inject constructor(
         }
         if (count < threshold) return
 
-        val appName = event.displayAppName
+        val appName = appDisplayResolver.resolveAppName(event)
         val channelName = event.displayChannel ?: "Unknown"
         val body = "$channelName · $count times in the last hour — last at " +
             TimeUtils.formatTime(event.timestampMillis)
@@ -131,7 +132,7 @@ class WakeAlertNotifier @Inject constructor(
         }
         if (tonightCount < budget) return
 
-        val appName = event.displayAppName
+        val appName = appDisplayResolver.resolveAppName(event)
         showNotification(
             id = NIGHTLY_BUDGET_ALERT_ID + pkg.hashCode(),
             title = "$appName exceeded nightly budget",

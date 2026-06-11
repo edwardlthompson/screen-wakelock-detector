@@ -23,6 +23,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +41,7 @@ import com.screenwakelock.detector.domain.model.ReasonCode
 import com.screenwakelock.detector.root.RootAttributor
 import com.screenwakelock.detector.ui.components.ConfidenceIndicator
 import com.screenwakelock.detector.ui.components.MissingPermissionsBanner
+import com.screenwakelock.detector.ui.components.rememberAppDisplayResolver
 import com.screenwakelock.detector.ui.viewmodel.DetailViewModel
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.SilenceWake
@@ -59,6 +61,7 @@ fun DetailScreen(
     }
     val event by eventFlow.collectAsState()
     val ignoredPackages by viewModel.ignoredPackages.collectAsState()
+    val appDisplayResolver = rememberAppDisplayResolver()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -129,7 +132,15 @@ fun DetailScreen(
                     }
                 }
                 item {
-                    Text(e.displayAppName, style = MaterialTheme.typography.headlineSmall)
+                    val appName = appDisplayResolver.resolveAppName(e)
+                    Text(appName, style = MaterialTheme.typography.headlineSmall)
+                    appDisplayResolver.resolveSubtitle(e)?.let { subtitle ->
+                        Text(
+                            subtitle,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                     e.displayChannel?.let {
                         Text(it, style = MaterialTheme.typography.titleMedium)
                     }
@@ -282,13 +293,26 @@ fun DetailScreen(
                                 onClick = {
                                     scope.launch {
                                         viewModel.ignoreApp(pkg)
-                                        snackbar.showSnackbar("Ignored ${e.displayAppName} — alerts and insights will skip this app")
+                                        val appName = appDisplayResolver.resolveAppName(e)
+                                        val snackResult = snackbar.showSnackbar(
+                                            message = "Ignored $appName — hidden from History; remove in Settings",
+                                            actionLabel = "Undo",
+                                        )
+                                        if (snackResult == SnackbarResult.ActionPerformed) {
+                                            viewModel.unignoreApp(pkg)
+                                        }
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
                                 Text("Ignore this app")
                             }
+                        } else {
+                            Text(
+                                text = "This app is ignored — alerts and insights skip it",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
                 }
@@ -306,6 +330,7 @@ fun DetailScreen(
                         )
                     }
                     items(e.candidates) { candidate ->
+                        val candidateIgnored = candidate.packageName in ignoredPackages
                         ListItem(
                             headlineContent = {
                                 Text(candidate.appLabel ?: candidate.packageName)
@@ -315,6 +340,27 @@ fun DetailScreen(
                                     "${candidate.reasonCode.friendlyLabel()} · " +
                                         "${(candidate.confidence * 100).toInt()}%",
                                 )
+                            },
+                            trailingContent = {
+                                if (!candidateIgnored && e.attributedPackage != candidate.packageName) {
+                                    TextButton(
+                                        onClick = {
+                                            scope.launch {
+                                                viewModel.ignoreApp(candidate.packageName)
+                                                val label = candidate.appLabel ?: candidate.packageName
+                                                val snackResult = snackbar.showSnackbar(
+                                                    message = "Ignored $label",
+                                                    actionLabel = "Undo",
+                                                )
+                                                if (snackResult == SnackbarResult.ActionPerformed) {
+                                                    viewModel.unignoreApp(candidate.packageName)
+                                                }
+                                            }
+                                        },
+                                    ) {
+                                        Text("Ignore")
+                                    }
+                                }
                             },
                         )
                     }

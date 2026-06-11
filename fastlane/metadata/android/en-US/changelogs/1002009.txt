@@ -1,0 +1,1 @@
+Ignore apps from the Fix it popup; better unknown-app names; ignored apps hidden from History.

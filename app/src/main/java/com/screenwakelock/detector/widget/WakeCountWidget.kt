@@ -23,15 +23,20 @@ import com.screenwakelock.detector.R
 import com.screenwakelock.detector.MainActivity
 import com.screenwakelock.detector.data.db.AppDatabase
 import com.screenwakelock.detector.data.db.toDomain
+import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
+import com.screenwakelock.detector.util.IgnoredPackagesReader
 import com.screenwakelock.detector.util.TimeUtils
+import com.screenwakelock.detector.util.WakeEventFilters
 
 class WakeCountWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val db = AppDatabase.getInstance(context)
+        val ignored = IgnoredPackagesReader.read(context)
         val allEvents = db.wakeEventDao().getAll().map { it.toDomain() }
+        val visibleEvents = WakeEventFilters.filterVisible(allEvents, ignored)
         val tonightKey = TimeUtils.nightKey(System.currentTimeMillis())
-        val tonightEvents = allEvents.filter {
+        val tonightEvents = visibleEvents.filter {
             TimeUtils.nightKey(it.timestampMillis) == tonightKey
         }
         val count = tonightEvents.size
@@ -41,7 +46,8 @@ class WakeCountWidget : GlanceAppWidget() {
             .maxByOrNull { it.value.size }
             ?.value
             ?.firstOrNull()
-        val offenderLabel = topOffender?.displayAppName ?: "None yet"
+        val resolver = AppDisplayResolver(context)
+        val offenderLabel = topOffender?.let { resolver.resolveAppName(it) } ?: "None yet"
         val homeIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             data = android.net.Uri.parse("screenwakelock://insights")

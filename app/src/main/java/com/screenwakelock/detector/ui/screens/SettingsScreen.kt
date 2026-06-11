@@ -446,7 +446,7 @@ fun SettingsScreen(
                             if (ignoredPackages.isEmpty()) {
                                 "No apps ignored — alerts and insights include all apps"
                             } else {
-                                "${ignoredPackages.size} app(s) excluded from alerts and insights"
+                                "${ignoredPackages.size} app(s) ignored — hidden from History; remove below to restore"
                             },
                         )
                     },

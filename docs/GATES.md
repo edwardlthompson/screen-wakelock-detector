@@ -33,6 +33,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M9 | PASS | Smoke M9: PASS 2026-06-07T19:50:00Z b5214fc6 1.2.1 |
 | M10 | PASS | Smoke M10: PASS 2026-06-07T20:15:00Z b5214fc6 1.2.2 |
 | M11 | PASS | Smoke M11: PASS 2026-06-07T20:45:00Z b5214fc6 1.2.3 (OP12 restricted chip) |
+| M12 | — | *(pending)* |
 | ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |
 
 ---
@@ -291,3 +292,19 @@ Partial at M1/M4; full at M5.
 - [x] Gate GSM (M11) recorded `[AGENT]`
 - [x] Gate G11 passed → archive → commit → push → tag v1.2.3 `[AGENT]`
 - [x] Gate G11 passed; [v1.2.3](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.3) published 2026-06-07 `[AGENT]`
+
+---
+
+## Gate G12 — M12 v1.2.9 app identification + QuickFix ignore
+
+- [x] `PackageFromWakelockTag` derives package from wakelock tags when UID lookup fails `[AGENT]`
+- [x] UsageStats candidates always merged in `WakeAttributor` (capped confidence when notifications present) `[AGENT]`
+- [x] `AppDisplayResolver` resolves display names at read time (PM label + tag fallbacks) `[AGENT]`
+- [x] `QuickFixBottomSheet` shows **Ignore this app** on Home and History; undo snackbar `[AGENT]`
+- [x] Ignored apps hidden from History, Home latest wake, and widgets; still in export/backup `[AGENT]`
+- [x] Secondary ignore on Detail (candidates), Insights offender menu `[AGENT]`
+- [x] Unit tests for tag parse, attributor merge, display resolver, History filter `[AGENT]`
+- [x] `./gradlew lint test assembleDebug` PASS `[AGENT]`
+- [ ] `m12_smoke.sh` PASS `[ADB]`
+- [ ] Gate GSM (M12) recorded `[AGENT]`
+- [ ] Gate G12 passed → archive → commit → push → tag v1.2.9 `[AGENT]`

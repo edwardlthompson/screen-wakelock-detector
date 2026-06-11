@@ -26,19 +26,24 @@ import com.screenwakelock.detector.R
 import com.screenwakelock.detector.MainActivity
 import com.screenwakelock.detector.data.db.AppDatabase
 import com.screenwakelock.detector.data.db.toDomain
+import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
+import com.screenwakelock.detector.util.IgnoredPackagesReader
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.TimeUtils
+import com.screenwakelock.detector.util.WakeEventFilters
 
 class WakeWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val db = AppDatabase.getInstance(context)
-        val entity = db.wakeEventDao().getLatestOnce()
-        val event = entity?.toDomain()
-        val label = event?.let {
-            "${it.displayAppName} · ${TimeUtils.formatRelative(it.timestampMillis)}"
+        val ignored = IgnoredPackagesReader.read(context)
+        val allEvents = db.wakeEventDao().getAll().map { it.toDomain() }
+        val visibleEvents = WakeEventFilters.filterVisible(allEvents, ignored)
+        val entity = visibleEvents.firstOrNull()
+        val resolver = AppDisplayResolver(context)
+        val label = entity?.let {
+            "${resolver.resolveAppName(it)} · ${TimeUtils.formatRelative(it.timestampMillis)}"
         } ?: "No wakes yet"
-        val activityComponent = ComponentName(context, MainActivity::class.java)
         val homeIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }

@@ -17,16 +17,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
 import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.util.TimeUtils
 
 @Composable
 fun WakeEventCard(
     event: WakeEvent,
+    appDisplayResolver: AppDisplayResolver,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     trailingContent: @Composable (() -> Unit)? = null,
 ) {
+    val appName = appDisplayResolver.resolveAppName(event)
+    val subtitle = appDisplayResolver.resolveSubtitle(event)
     Card(
         modifier = modifier.fillMaxWidth(),
         onClick = onClick,
@@ -41,9 +45,16 @@ fun WakeEventCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = event.displayAppName,
+                        text = appName,
                         style = MaterialTheme.typography.titleMedium,
                     )
+                    subtitle?.let { hint ->
+                        Text(
+                            text = hint,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                     event.displayChannel?.let { channel ->
                         Text(
                             text = channel,

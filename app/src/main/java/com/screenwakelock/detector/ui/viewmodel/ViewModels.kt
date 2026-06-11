@@ -19,19 +19,33 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val wakeEventRepository: WakeEventRepository,
     private val permissionStatusRepository: PermissionStatusRepository,
+    private val preferencesRepository: PreferencesRepository,
 ) : ViewModel() {
-    val latestWake: StateFlow<WakeEvent?> = wakeEventRepository.observeLatest()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    val latestWake: StateFlow<WakeEvent?> = kotlinx.coroutines.flow.combine(
+        wakeEventRepository.observeAll(),
+        preferencesRepository.ignoredPackages,
+    ) { events, ignored ->
+        events.firstOrNull { com.screenwakelock.detector.util.WakeEventFilters.isVisibleInLists(it, ignored) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val ignoredPackages = preferencesRepository.ignoredPackages
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     val permissionHealthScore: Int = permissionStatusRepository.healthScore()
 
     suspend fun loadEvent(id: Long): WakeEvent? = wakeEventRepository.getById(id)
+
+    suspend fun ignoreApp(packageName: String) =
+        preferencesRepository.addIgnoredPackage(packageName)
+
+    suspend fun unignoreApp(packageName: String) =
+        preferencesRepository.removeIgnoredPackage(packageName)
 }
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     wakeEventRepository: WakeEventRepository,
-    preferencesRepository: PreferencesRepository,
+    private val preferencesRepository: PreferencesRepository,
 ) : ViewModel() {
     private val allEvents = wakeEventRepository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -59,13 +73,17 @@ class HistoryViewModel @Inject constructor(
     private val _reasonFilterGroup = kotlinx.coroutines.flow.MutableStateFlow<ReasonFilterGroup?>(null)
     val reasonFilterGroup: StateFlow<ReasonFilterGroup?> = _reasonFilterGroup
 
+    val ignoredPackages = preferencesRepository.ignoredPackages
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
     val events: StateFlow<List<WakeEvent>> = kotlinx.coroutines.flow.combine(
         kotlinx.coroutines.flow.combine(
             allEvents,
+            ignoredPackages,
             _query,
             _nightOnly,
-        ) { events, query, nightOnly ->
-            Triple(events, query, nightOnly)
+        ) { events, ignored, query, nightOnly ->
+            Quadruple(events, ignored, query, nightOnly)
         },
         kotlinx.coroutines.flow.combine(
             _startDateMillis,
@@ -81,10 +99,12 @@ class HistoryViewModel @Inject constructor(
             reasonGroup to minDuration
         },
     ) { filters, dateFilters, extraFilters ->
-        val (events, query, nightOnly) = filters
+        val (events, ignored, query, nightOnly) = filters
         val (startDate, endDate, hourFilter) = dateFilters
         val (reasonGroup, minDuration) = extraFilters
         events.filter { event ->
+            val isVisible = com.screenwakelock.detector.util.WakeEventFilters
+                .isVisibleInLists(event, ignored)
             val matchesQuery = query.isBlank() ||
                 event.displayAppName.contains(query, ignoreCase = true) ||
                 event.attributedPackage?.contains(query, ignoreCase = true) == true ||
@@ -100,10 +120,16 @@ class HistoryViewModel @Inject constructor(
                 event.reasonCode.filterGroup() == reasonGroup
             val matchesDuration = minDuration <= 0 ||
                 (event.screenOffDurationMs ?: Long.MAX_VALUE) >= minDuration
-            matchesQuery && matchesNight && matchesHour && matchesDate &&
+            isVisible && matchesQuery && matchesNight && matchesHour && matchesDate &&
                 matchesReason && matchesDuration
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    suspend fun ignoreApp(packageName: String) =
+        preferencesRepository.addIgnoredPackage(packageName)
+
+    suspend fun unignoreApp(packageName: String) =
+        preferencesRepository.removeIgnoredPackage(packageName)
 
     fun setQuery(value: String) {
         _query.value = value
@@ -198,9 +224,19 @@ class DetailViewModel @Inject constructor(
     suspend fun ignoreApp(packageName: String) =
         preferencesRepository.addIgnoredPackage(packageName)
 
+    suspend fun unignoreApp(packageName: String) =
+        preferencesRepository.removeIgnoredPackage(packageName)
+
     val ignoredPackages = preferencesRepository.ignoredPackages
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 }
+
+private data class Quadruple<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D,
+)
 
 @HiltViewModel
 class InsightsViewModel @Inject constructor(
@@ -227,6 +263,9 @@ class InsightsViewModel @Inject constructor(
 
     suspend fun removeNightlyBudget(packageName: String) =
         preferencesRepository.removeNightlyBudget(packageName)
+
+    suspend fun ignoreApp(packageName: String) =
+        preferencesRepository.addIgnoredPackage(packageName)
 }
 
 @HiltViewModel

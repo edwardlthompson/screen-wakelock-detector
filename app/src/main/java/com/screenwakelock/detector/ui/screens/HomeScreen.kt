@@ -32,6 +32,7 @@ import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.ui.components.MissingPermissionsBanner
 import com.screenwakelock.detector.ui.components.QuickFixBottomSheet
 import com.screenwakelock.detector.ui.components.WakeEventCard
+import com.screenwakelock.detector.ui.components.rememberAppDisplayResolver
 import com.screenwakelock.detector.ui.viewmodel.HomeViewModel
 import com.screenwakelock.detector.util.ChannelMuter
 import com.screenwakelock.detector.util.SilenceWake
@@ -48,6 +49,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val latest by viewModel.latestWake.collectAsState()
+    val ignoredPackages by viewModel.ignoredPackages.collectAsState()
+    val appDisplayResolver = rememberAppDisplayResolver()
     val healthScore = viewModel.permissionHealthScore
     var showQuickFix by remember { mutableStateOf(false) }
     var quickFixEvent by remember { mutableStateOf<WakeEvent?>(null) }
@@ -86,9 +89,25 @@ fun HomeScreen(
         }
     }
 
+    fun onIgnored(event: WakeEvent, packageName: String) {
+        scope.launch {
+            viewModel.ignoreApp(packageName)
+            val appName = appDisplayResolver.resolveAppName(event)
+            val snackResult = snackbar.showSnackbar(
+                message = "Ignored $appName — alerts and insights will skip this app",
+                actionLabel = "Undo",
+            )
+            if (snackResult == SnackbarResult.ActionPerformed) {
+                viewModel.unignoreApp(packageName)
+            }
+        }
+    }
+
     QuickFixBottomSheet(
         event = quickFixEvent ?: latest.takeIf { showQuickFix },
         visible = showQuickFix && (quickFixEvent ?: latest) != null,
+        ignoredPackages = ignoredPackages,
+        appDisplayResolver = appDisplayResolver,
         onDismiss = {
             showQuickFix = false
             quickFixEvent = null
@@ -99,6 +118,7 @@ fun HomeScreen(
             quickFixEvent = null
             onMuted(event, result)
         },
+        onIgnoreApp = { event, pkg -> onIgnored(event, pkg) },
     )
 
     Scaffold(
@@ -145,6 +165,7 @@ fun HomeScreen(
             } else {
                 WakeEventCard(
                     event = latest!!,
+                    appDisplayResolver = appDisplayResolver,
                     onClick = { onNavigateDetail(latest!!.id) },
                 )
                 Button(

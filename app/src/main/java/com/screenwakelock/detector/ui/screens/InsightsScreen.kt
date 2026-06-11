@@ -79,6 +79,14 @@ fun InsightsScreen(
     var budgetTarget by remember { mutableStateOf<OffenderSummary?>(null) }
     var budgetInput by remember { mutableStateOf("") }
 
+    fun onIgnoreOffender(offender: OffenderSummary) {
+        scope.launch {
+            viewModel.ignoreApp(offender.packageName)
+            val label = offender.appLabel ?: offender.packageName
+            snackbar.showSnackbar("Ignored $label — hidden from History; remove in Settings")
+        }
+    }
+
     budgetTarget?.let { offender ->
         AlertDialog(
             onDismissRequest = { budgetTarget = null },
@@ -202,6 +210,7 @@ fun InsightsScreen(
                             budgetInput = nightlyBudgets[offender.packageName]?.toString() ?: ""
                             budgetTarget = offender
                         },
+                        onIgnoreApp = ::onIgnoreOffender,
                     )
                 }
                 Column(
@@ -262,6 +271,7 @@ fun InsightsScreen(
                                 budgetInput = nightlyBudgets[offender.packageName]?.toString() ?: ""
                                 budgetTarget = offender
                             },
+                            onIgnoreApp = { onIgnoreOffender(offender) },
                         )
                     }
                 }
@@ -328,6 +338,7 @@ private fun TopOffendersSection(
     nightlyBudgets: Map<String, Int>,
     onBatchMute: (OffenderSummary) -> Unit,
     onSetBudget: (OffenderSummary) -> Unit,
+    onIgnoreApp: (OffenderSummary) -> Unit,
 ) {
     Text("Top offenders", style = MaterialTheme.typography.titleMedium)
     if (offenders.isEmpty()) {
@@ -339,6 +350,7 @@ private fun TopOffendersSection(
                 nightlyBudget = nightlyBudgets[offender.packageName],
                 onBatchMute = onBatchMute,
                 onSetBudget = onSetBudget,
+                onIgnoreApp = { onIgnoreApp(offender) },
             )
         }
     }
@@ -351,6 +363,7 @@ private fun TopOffenderRow(
     nightlyBudget: Int?,
     onBatchMute: (OffenderSummary) -> Unit,
     onSetBudget: (OffenderSummary) -> Unit,
+    onIgnoreApp: () -> Unit,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     ListItem(
@@ -384,6 +397,13 @@ private fun TopOffenderRow(
                         onClick = {
                             menuExpanded = false
                             onBatchMute(offender)
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Ignore this app") },
+                        onClick = {
+                            menuExpanded = false
+                            onIgnoreApp()
                         },
                     )
                 }

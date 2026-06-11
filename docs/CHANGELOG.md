@@ -14,6 +14,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.9] — 2026-06-10
+
+QuickFix ignore, stronger unknown-app identification, hide ignored apps from History.
+
+### Added
+
+- **Ignore this app** on the Home/History **Fix it** popup (`QuickFixBottomSheet`) with undo snackbar.
+- **Ignore this app** on Insights top-offender menu and Detail candidate rows.
+- `PackageFromWakelockTag` — derive package from root wakelock tags when UID lookup fails.
+- `AppDisplayResolver` — display-time app labels with wakelock-tag fallbacks.
+- Low-confidence wake cards show wakelock tag hints when the name is still unknown.
+
+### Changed
+
+- UsageStats candidates always merged into attribution (lower confidence when notifications exist).
+- Ignored apps hidden from History, Home latest wake, and home-screen widgets (still in export/backup).
+- Settings **Ignored apps** copy notes History hiding; **Remove** restores visibility.
+
 ## [1.2.8] — 2026-06-07
 
 Fix misleading restricted-settings menu guidance after OP13 smoke.
