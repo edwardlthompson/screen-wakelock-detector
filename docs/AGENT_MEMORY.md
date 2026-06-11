@@ -111,6 +111,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 
 | Date | Event |
 |------|-------|
+| 2026-06-11 | v1.2.9 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.9 |
 | 2026-06-10 | M12 v1.2.9 implemented: QuickFix ignore, AppDisplayResolver, hide ignored from History/Home/widgets |
 | 2026-06-07 | v1.2.8 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.8 |
 | 2026-06-07 | M8 v1.2.0 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.0 |

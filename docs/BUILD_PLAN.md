@@ -26,7 +26,7 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 - [x] [AGENT] Unit tests: `PackageFromWakelockTag`, `WakeAttributor`, `AppDisplayResolver`, History ignore filter
 - [x] [AGENT] `scripts/smoke/m12_smoke.sh` — QuickFix ignore visible; ignored app absent from History
 - [x] [AGENT] `./gradlew lint test assembleDebug`; CHANGELOG `[Unreleased]` + AGENT_MEMORY
-- [ ] [AGENT] Gate G12; archive M12; commit; push; tag `v1.2.9`; publish signed APK
+- [x] [AGENT] Gate G12; archive M12; commit; push; tag `v1.2.9`; publish signed APK
 
 ### M12 — ADB
 
