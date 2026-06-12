@@ -35,7 +35,8 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M11 | PASS | Smoke M11: PASS 2026-06-07T20:45:00Z b5214fc6 1.2.3 (OP12 restricted chip) |
 | M12 | PASS | Smoke M12: PASS 2026-06-12T13:16:15Z 8bf09993 1.2.10 (m13_adb_verify covers M12 ignore) |
 | M13 | PASS | Smoke M13: PASS 2026-06-12T13:16:15Z 8bf09993 1.2.10 |
-| M14 | PASS | Smoke M14: PASS 2026-06-12T20:00:00Z source-only 1.2.11 (m14_smoke; full regression needs device) |
+| M14 | PASS | Smoke M14: PASS 2026-06-12T20:29:03Z 8bf09993 1.2.11 (m14_regression + memory baseline + m13_adb_verify) |
+| M11 OP13 | PASS | Smoke M11 OP13: PASS 2026-06-12T20:30:00Z 8bf09993 1.2.11 (2-page onboarding, restricted chip refresh, no Verify page) |
 | ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |
 
 ---
@@ -291,6 +292,7 @@ Partial at M1/M4; full at M5.
 - [x] `./gradlew lint test assembleDebug` PASS `[AGENT]`
 - [x] Intent/settings navigation covered by `SettingsGuideProvider` + existing unit tests `[AGENT]`
 - [x] m11_smoke.sh PASS (manual OP12 `b5214fc6` 1.2.3 — restricted chip green after OnePlus Allow dialog) `[ADB]`
+- [x] OP13 OxygenOS `8bf09993` CPH2655 API 36: 2-page onboarding, restricted chip refresh on resume, no Verify page `[ADB]` (2026-06-12)
 - [x] Gate GSM (M11) recorded `[AGENT]`
 - [x] Gate G11 passed → archive → commit → push → tag v1.2.3 `[AGENT]`
 - [x] Gate G11 passed; [v1.2.3](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.3) published 2026-06-07 `[AGENT]`
@@ -333,12 +335,12 @@ Partial at M1/M4; full at M5.
 
 Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md) § Pre-release.
 
-- [ ] `./gradlew lint test assembleDebug` PASS `[AGENT]`
-- [ ] All unit tests PASS; no new lint errors `[AGENT]`
-- [ ] Applicable `m{N}_smoke.sh` + ADB verify scripts PASS — record serial in smoke log `[ADB]`
-- [ ] `CHANGELOG [Unreleased]` finalized; `AGENT_MEMORY` updated `[AGENT]`
-- [ ] FOSS audit + no `INTERNET` permission (CI checks) `[AGENT]`
-- [ ] `scripts/benchmark/memory_baseline.sh` PASS when device connected `[ADB]`
+- [x] `./gradlew lint test assembleDebug` PASS `[AGENT]`
+- [x] All unit tests PASS; no new lint errors `[AGENT]`
+- [x] Applicable `m{N}_smoke.sh` + ADB verify scripts PASS — record serial in smoke log `[ADB]` (8bf09993 2026-06-12)
+- [x] `CHANGELOG [Unreleased]` finalized; `AGENT_MEMORY` updated `[AGENT]`
+- [x] FOSS audit + no `INTERNET` permission (CI checks) `[AGENT]`
+- [x] `scripts/benchmark/memory_baseline.sh` PASS when device connected `[ADB]` (8bf09993 PSS=127837kB)
 - [ ] Manual: `scripts/release/verify-signed-apk.sh` on release APK `[HUMAN]`
 - [ ] Optional debug: LeakCanary manual session before major releases (no release dep) `[HUMAN]`
 
@@ -354,7 +356,7 @@ Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md
 - [x] `scripts/smoke/m14_regression.sh` (smoke + benchmark) `[AGENT]`
 - [x] Unit test: History search with `AppDisplayResolver` via `WakeEventFilters.matchesHistoryQuery` `[AGENT]`
 - [x] `./gradlew lint test assembleDebug` PASS `[AGENT]`
-- [x] `m14_smoke.sh` PASS `[AGENT]` (full `m14_regression.sh` + memory baseline when device connected)
+- [x] `m14_smoke.sh` + full `m14_regression.sh` + memory baseline PASS `[ADB]` (8bf09993 CPH2655 API 36)
 - [x] Gate GSM (M14) recorded `[AGENT]`
 - [x] Gate G14 passed → archive → commit → push → tag v1.2.11 `[AGENT]`
 - [ ] GitHub branch protection + secret scanning; GitLab project + labels `[HUMAN]`

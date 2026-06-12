@@ -218,3 +218,29 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 ## 2026-06-12 — M14 (smoke passed)
 
 - [x] [AGENT] `./gradlew lint test assembleDebug`; CHANGELOG + AGENT_MEMORY; archive M14; commit; push
+
+## 2026-06-12 — M12 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] `PackageFromWakelockTag` + unit tests; wire into `WakeAttributor` / `RootAttributor` for tag-only root attribution
+- [x] [AGENT] [PARALLEL-OK] Always merge UsageStats candidates in `WakeAttributor` (lower confidence when notifications exist)
+- [x] [AGENT] [PARALLEL-OK] `AppDisplayResolver` — fresh PM labels + wakelock-tag fallbacks; use in UI, alerts, widgets
+- [x] [AGENT] [PARALLEL-OK] `QuickFixBottomSheet`: **Ignore this app** button + undo snackbar; wire `HomeScreen` + `HistoryScreen` + `HomeViewModel` / `HistoryViewModel`
+- [x] [AGENT] Filter ignored packages from `HistoryViewModel`, `HomeViewModel.latestWake`, `WakeCountWidget`, `WakeWidget`
+- [x] [AGENT] Secondary ignore entry points: Detail undo snackbar, Insights offender menu, Detail candidate rows
+- [x] [AGENT] Settings **Ignored apps** supporting copy — note ignored apps hidden from History; reversible via Remove
+- [x] [AGENT] Low-confidence cards: show wakelock tag / root parser hint when name still unknown
+- [x] [AGENT] Unit tests: `PackageFromWakelockTag`, `WakeAttributor`, `AppDisplayResolver`, History ignore filter
+- [x] [AGENT] `scripts/smoke/m12_smoke.sh` — QuickFix ignore visible; ignored app absent from History
+- [x] [AGENT] `./gradlew lint test assembleDebug`; CHANGELOG `[Unreleased]` + AGENT_MEMORY
+- [x] [AGENT] Gate G12; archive M12; commit; push; tag `v1.2.9`; publish signed APK
+- [x] [ADB] Home **Fix it** popup shows **Ignore this app** for attributed wake; undo restores visibility
+- [x] [ADB] After ignore, app wake no longer listed in History/Home; still removable in Settings → Ignored apps
+
+## 2026-06-12 — M11 (smoke passed)
+
+- [x] [AGENT] Archive M11; commit; push; tag `v1.2.3`; publish signed APK
+- [x] [ADB] OP13 Lineage: restricted chip live refresh; 2-page onboarding; no Verify page
+
+## 2026-06-12 — M10 (smoke passed)
+
+- [x] [AGENT] Gate G10; archive M10; commit; push; tag `v1.2.2`

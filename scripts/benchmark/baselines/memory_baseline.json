@@ -1,10 +1,10 @@
 {
   "version": "1.0",
   "description": "Reference memory baseline for com.screenwakelock.detector. Update after intentional memory changes.",
-  "pss_kb": 85000,
-  "java_heap_kb": 12000,
+  "pss_kb": 129862,
+  "java_heap_kb": 14744,
   "delta_percent_max": 8,
   "delta_mb_max": 15,
   "monotonic_window": 3,
-  "notes": "Captured from debug build with monitoring active; values vary by device — re-baseline on new hardware."
+  "notes": "Captured from OP13 CPH2655 (8bf09993) debug build with monitoring active; re-baseline on new hardware."
 }
