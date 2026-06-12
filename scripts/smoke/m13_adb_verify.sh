@@ -184,8 +184,7 @@ clear_test_ignores() {
       -d "screenwakelock://settings" -p "${PACKAGE}" >/dev/null 2>&1 || true
   }
   sleep 2
-  "${ADB_S[@]}" shell input swipe 720 2000 720 800 300 2>/dev/null || true
-  sleep 1
+  scroll_settings_down
   local i
   for i in 1 2 3 4 5; do
     if tap_text "Remove" 2>/dev/null; then
@@ -195,6 +194,46 @@ clear_test_ignores() {
     fi
   done
   launch_home
+}
+
+ignored_pkg_in_prefs() {
+  local pkg="$1"
+  "${ADB_S[@]}" shell "run-as ${PACKAGE} cat files/datastore/settings.preferences_pb 2>/dev/null" \
+    | grep -a -q "${pkg}" 2>/dev/null
+}
+
+scroll_settings_down() {
+  "${ADB_S[@]}" shell input swipe 720 2000 720 600 350 2>/dev/null || true
+  sleep 1
+}
+
+open_settings() {
+  launch_home
+  tap_text "Settings" 2>/dev/null || {
+    "${ADB_S[@]}" shell am start -a android.intent.action.VIEW \
+      -d "screenwakelock://settings" -p "${PACKAGE}" >/dev/null 2>&1 || true
+  }
+  sleep 2
+}
+
+verify_ignored_removable_in_settings() {
+  local pkg="$1"
+  ignored_pkg_in_prefs "${pkg}" || fail "Ignored package ${pkg} not in DataStore"
+  pass "Ignored package ${pkg} present in DataStore"
+  open_settings
+  scroll_settings_down
+  local ui
+  ui="$(ui_dump)"
+  echo "${ui}" | grep -qiE "Ignored apps|ignored" \
+    || fail "Settings Ignored apps section not visible after scroll"
+  pass "Settings Ignored apps section visible"
+  echo "${ui}" | grep -q "${pkg}" \
+    || fail "Ignored package ${pkg} not shown in Settings UI"
+  pass "Ignored package ${pkg} listed in Settings"
+  tap_text "Remove" || fail "Could not tap Remove for ignored app"
+  sleep 2
+  ignored_pkg_in_prefs "${pkg}" && fail "Ignored package ${pkg} still in DataStore after Remove" \
+    || pass "Ignored app ${pkg} removable in Settings"
 }
 
 # --- M12: attributed wake ignore + undo ---
@@ -252,6 +291,8 @@ echo "${UI}" | grep -q "${TAG_PKG}" \
   && fail "M13 tag-only wake still on Home after ignore" \
   || pass "M13 tag-only wake absent from Home after ignore"
 
+verify_ignored_removable_in_settings "${TAG_PKG}"
+
 # --- M13: History search by tag-derived name ---
 clear_test_rows
 TS="$(now_ms)"
@@ -278,23 +319,6 @@ echo "${UI}" | grep -q "Other Visible" \
   && fail "M13 History search still shows non-matching filler app" \
   || pass "M13 History search filters non-matching events"
 
-# --- Settings: ignored app removable (M12 carry-over) ---
-tap_text "Home" 2>/dev/null || launch_home
-tap_text "Settings" 2>/dev/null || {
-  "${ADB_S[@]}" shell am start -a android.intent.action.VIEW \
-    -d "screenwakelock://settings" -p "${PACKAGE}" >/dev/null 2>&1 || true
-}
-sleep 2
-UI="$(ui_dump)"
-echo "${UI}" | grep -qiE "Ignored|ignored" \
-  && pass "Settings Ignored apps section reachable" \
-  || warn "Settings ignored section not verified"
-if echo "${UI}" | grep -q "${TAG_PKG}"; then
-  tap_text "Remove" && sleep 1 && pass "M12/M13 ignored app removable in Settings"
-else
-  warn "Tag-only package not listed in Settings ignored apps (may use label)"
-fi
-
 clear_test_rows
 log "DONE: M13 ADB verification complete on ${DEVICE}"
-log "Record: Smoke M13: PASS $(date -u +%Y-%m-%dT%H:%M:%SZ) ${DEVICE} 1.2.10"
+log "Record: Smoke M13: PASS $(date -u +%Y-%m-%dT%H:%M:%SZ) ${DEVICE} ${VERSION}"

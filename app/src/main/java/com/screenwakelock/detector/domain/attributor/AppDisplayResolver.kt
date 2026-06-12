@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import com.screenwakelock.detector.domain.model.WakeEvent
+import com.screenwakelock.detector.domain.model.WakeEventDisplayNames
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,16 +33,12 @@ class AppDisplayResolver @Inject constructor(
     private fun resolveAppNameInternal(event: WakeEvent): String {
         event.attributedAppLabel?.let { return it }
         event.attributedPackage?.let { pkg ->
-            resolvePmLabel(pkg)?.let { return it }
-            return pkg
+            return resolvePmLabel(pkg) ?: pkg
         }
         PackageFromWakelockTag.extractPackage(event.wakelockTag)?.let { pkg ->
-            resolvePmLabel(pkg)?.let { return it }
-            return pkg
+            return resolvePmLabel(pkg) ?: pkg
         }
-        event.wakelockTag?.let { return it }
-        event.wakelockName?.let { return it }
-        return UNKNOWN_APP_LABEL
+        return WakeEventDisplayNames.offlineAppName(event)
     }
 
     private fun resolvePmLabel(packageName: String): String? = runCatching {

@@ -162,3 +162,23 @@ Optional future job: connected Android emulator on tagged runners.
 | Script exits 127 | Run with `bash scripts/smoke/...` not `sh` on Windows |
 
 Log failures to [`AGENT_MEMORY.md`](AGENT_MEMORY.md) with device model and Android version.
+
+---
+
+## Memory baseline benchmark
+
+[`scripts/benchmark/memory_baseline.sh`](../scripts/benchmark/memory_baseline.sh) captures `dumpsys meminfo` PSS and Java heap for regression checks before release (Gate G_RELEASE).
+
+| Path | Purpose |
+|------|---------|
+| `scripts/benchmark/baselines/devices/{MODEL}.json` | Device-specific baseline (e.g. `CPH2655.json` for OP13) |
+| `scripts/benchmark/baselines/memory_baseline.json` | Fallback template when no device file exists |
+| `artifacts/benchmark-history/` | Local run history (gitignored); monotonic checks are scoped per device |
+
+**First run on new hardware:** seeds `baselines/devices/{MODEL}.json` from the capture and PASSes. Re-calibrate with:
+
+```bash
+bash scripts/benchmark/memory_baseline.sh --update-baseline
+```
+
+Wired into [`scripts/smoke/m14_regression.sh`](../scripts/smoke/m14_regression.sh).

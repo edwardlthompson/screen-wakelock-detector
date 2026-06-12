@@ -244,3 +244,12 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 ## 2026-06-12 — M10 (smoke passed)
 
 - [x] [AGENT] Gate G10; archive M10; commit; push; tag `v1.2.2`
+
+## 2026-06-12 — M15 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] Device-keyed memory baselines + `memory_baseline.sh` update
+- [x] [AGENT] [PARALLEL-OK] `WakeEventDisplayNames` + ARCHITECTURE display-name docs
+- [x] [AGENT] [PARALLEL-OK] G_RELEASE gate hygiene + GitHub HUMAN checklist
+- [x] [AGENT] Harden `m13_adb_verify` Settings ignored-apps check
+- [x] [AGENT] Unit tests; `./gradlew lint test assembleDebug`; CHANGELOG; version bump 1002012
+- [x] [ADB] `m14_regression` PASS on OP13; archive M15; tag `v1.2.12`; publish signed APK

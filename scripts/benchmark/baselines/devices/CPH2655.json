@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "device_model": "CPH2655",
+  "description": "OP13 OnePlus CPH2655 baseline — debug build with monitoring active.",
+  "pss_kb": 129862,
+  "java_heap_kb": 14744,
+  "delta_percent_max": 8,
+  "delta_mb_max": 15,
+  "monotonic_window": 3,
+  "notes": "Captured from 8bf09993 API 36; update with --update-baseline after intentional memory changes."
+}

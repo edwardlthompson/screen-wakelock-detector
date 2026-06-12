@@ -35,7 +35,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M11 | PASS | Smoke M11: PASS 2026-06-07T20:45:00Z b5214fc6 1.2.3 (OP12 restricted chip) |
 | M12 | PASS | Smoke M12: PASS 2026-06-12T13:16:15Z 8bf09993 1.2.10 (m13_adb_verify covers M12 ignore) |
 | M13 | PASS | Smoke M13: PASS 2026-06-12T13:16:15Z 8bf09993 1.2.10 |
-| M14 | PASS | Smoke M14: PASS 2026-06-12T20:29:03Z 8bf09993 1.2.11 (m14_regression + memory baseline + m13_adb_verify) |
+| M15 | PASS | Smoke M15: PASS 2026-06-12T21:33:15Z 8bf09993 1.2.12 (m14_regression + device baseline CPH2655) |
 | M11 OP13 | PASS | Smoke M11 OP13: PASS 2026-06-12T20:30:00Z 8bf09993 1.2.11 (2-page onboarding, restricted chip refresh, no Verify page) |
 | ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |
 
@@ -340,8 +340,8 @@ Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md
 - [x] Applicable `m{N}_smoke.sh` + ADB verify scripts PASS — record serial in smoke log `[ADB]` (8bf09993 2026-06-12)
 - [x] `CHANGELOG [Unreleased]` finalized; `AGENT_MEMORY` updated `[AGENT]`
 - [x] FOSS audit + no `INTERNET` permission (CI checks) `[AGENT]`
-- [x] `scripts/benchmark/memory_baseline.sh` PASS when device connected `[ADB]` (8bf09993 PSS=127837kB)
-- [ ] Manual: `scripts/release/verify-signed-apk.sh` on release APK `[HUMAN]`
+- [x] `scripts/benchmark/memory_baseline.sh` PASS when device connected `[ADB]` (device-keyed `baselines/devices/{MODEL}.json`)
+- [x] Signed APK verify via `scripts/release/build-signed-apk.sh` / `publish-signed-release.sh` (calls `verify-signed-apk.sh`) `[AGENT]`
 - [ ] Optional debug: LeakCanary manual session before major releases (no release dep) `[HUMAN]`
 
 ---
@@ -359,4 +359,17 @@ Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md
 - [x] `m14_smoke.sh` + full `m14_regression.sh` + memory baseline PASS `[ADB]` (8bf09993 CPH2655 API 36)
 - [x] Gate GSM (M14) recorded `[AGENT]`
 - [x] Gate G14 passed → archive → commit → push → tag v1.2.11 `[AGENT]`
-- [ ] GitHub branch protection + secret scanning; GitLab project + labels `[HUMAN]`
+- [ ] GitHub branch protection + secret scanning; GitLab project + labels `[HUMAN]` — GitHub: **Settings → Branches → main** — require Android CI status check, no force push; **Settings → Security** — enable secret scanning and Dependabot alerts
+
+---
+
+## Gate G15 — M15 v1.2.12 code review follow-ups
+
+- [x] Device-keyed memory baselines (`baselines/devices/{MODEL}.json`) + first-run seeding `[AGENT]`
+- [x] `WakeEventDisplayNames` + ARCHITECTURE display-name policy; `AppDisplayResolver` tail delegation `[AGENT]`
+- [x] G_RELEASE signed APK verify documented as automated via release scripts `[AGENT]`
+- [x] `m13_adb_verify.sh` Settings ignored-apps: DataStore assert + scroll (no WARN) `[AGENT]`
+- [x] `./gradlew lint test assembleDebug` PASS `[AGENT]`
+- [x] `m14_regression.sh` + memory baseline PASS `[ADB]` (8bf09993 CPH2655 API 36)
+- [x] Gate GSM (M15) recorded `[AGENT]`
+- [x] Gate G15 passed → archive → commit → push → tag v1.2.12 `[AGENT]`

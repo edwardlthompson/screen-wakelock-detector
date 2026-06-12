@@ -14,6 +14,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.12] — 2026-06-12
+
+Code review follow-ups — device baselines, display-name clarity, smoke hardening.
+
+### Added
+
+- Device-keyed memory baselines (`scripts/benchmark/baselines/devices/{MODEL}.json`) with first-run seeding
+- `WakeEventDisplayNames.offlineAppName` — shared offline display-name helper + unit tests
+- ARCHITECTURE display-name policy table; memory benchmark section in `ADB_TESTING.md`
+
+### Changed
+
+- `memory_baseline.sh` compares per-device baselines; monotonic history scoped by device
+- `m13_adb_verify.sh` — Settings ignored-apps verified via DataStore + scroll (no WARN)
+- `AppDisplayResolver` tail delegates to `WakeEventDisplayNames`; `WakeEvent.displayAppName` documented as offline-only
+- Gate G_RELEASE: signed APK verify automated via release scripts
+
 ## [1.2.11] — 2026-06-12
 
 Project standards alignment — docs, CI parity, memory benchmark, regression smoke.

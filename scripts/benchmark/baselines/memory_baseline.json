@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "description": "Reference memory baseline for com.screenwakelock.detector. Update after intentional memory changes.",
-  "pss_kb": 129862,
-  "java_heap_kb": 14744,
+  "description": "Fallback template when no device-specific baseline exists. First run on new hardware seeds baselines/devices/{MODEL}.json.",
+  "pss_kb": 85000,
+  "java_heap_kb": 12000,
   "delta_percent_max": 8,
   "delta_mb_max": 15,
   "monotonic_window": 3,
-  "notes": "Captured from OP13 CPH2655 (8bf09993) debug build with monitoring active; re-baseline on new hardware."
+  "notes": "Template only — compare against baselines/devices/{ro.product.model}.json when present."
 }

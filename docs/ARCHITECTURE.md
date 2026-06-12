@@ -66,8 +66,16 @@ flowchart LR
 ## UI and filtering
 
 - **History / Home / widgets** filter ignored packages through `WakeEventFilters` and `WakeEventIdentity.effectivePackage()`.
-- **Display names** resolve at read time via `AppDisplayResolver` (PM labels + wakelock-tag fallbacks).
 - **Deep links** (`screenwakelock://…`) route through `DeepLinkParser` → `AppNavigation`.
+
+### Display names
+
+| Context | Source |
+|---------|--------|
+| Compose UI, widgets, alerts, History search | `AppDisplayResolver` (PackageManager labels + offline fallbacks) |
+| CSV/JSON export | Raw `attributedAppLabel` / `attributedPackage` in `ExportUtils` |
+| Offline helpers / tests | `WakeEventDisplayNames.offlineAppName` |
+| `WakeEvent.displayAppName` | Delegates to `WakeEventDisplayNames` — **not** used for user-visible UI |
 
 ---
 

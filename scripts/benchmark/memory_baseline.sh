@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Memory baseline benchmark — parses adb dumpsys meminfo and compares to baseline JSON.
+# Memory baseline benchmark — parses adb dumpsys meminfo and compares to device baseline JSON.
 # Usage: scripts/benchmark/memory_baseline.sh [--update-baseline]
 set -euo pipefail
 
@@ -9,7 +9,7 @@ cd "${ROOT}"
 
 PACKAGE="${PACKAGE:-com.screenwakelock.detector}"
 ADB="${ADB:-adb}"
-BASELINE_FILE="${BASELINE_FILE:-${SCRIPT_DIR}/baselines/memory_baseline.json}"
+FALLBACK_BASELINE="${SCRIPT_DIR}/baselines/memory_baseline.json"
 HISTORY_DIR="${HISTORY_DIR:-${ROOT}/artifacts/benchmark-history}"
 ITERATIONS="${ITERATIONS:-5}"
 UPDATE_BASELINE="${UPDATE_BASELINE:-0}"
@@ -26,12 +26,25 @@ source "${ROOT}/scripts/smoke/_device.sh"
 DEVICE="$(pick_smoke_device "${ADB}")" || fail "no authorized device — set SMOKE_DEVICE"
 ADB_S=( "${ADB}" -s "${DEVICE}" )
 
-[[ -f "${BASELINE_FILE}" ]] || fail "baseline missing: ${BASELINE_FILE}"
+[[ -f "${FALLBACK_BASELINE}" ]] || fail "fallback baseline missing: ${FALLBACK_BASELINE}"
 
-MODEL="$("${ADB_S[@]}" shell getprop ro.product.model | tr -d '\r')"
+MODEL="$("${ADB_S[@]}" shell getprop ro.product.model | tr -d '\r' | tr -cd '[:alnum:]._-' )"
 SDK="$("${ADB_S[@]}" shell getprop ro.build.version.sdk | tr -d '\r')"
 VERSION="$("${ADB_S[@]}" shell dumpsys package "${PACKAGE}" 2>/dev/null | grep versionName | head -1 | sed 's/.*=//' | tr -d '\r' || echo unknown)"
+
+DEVICE_BASELINE_DIR="${SCRIPT_DIR}/baselines/devices"
+mkdir -p "${DEVICE_BASELINE_DIR}"
+DEVICE_BASELINE="${DEVICE_BASELINE_DIR}/${MODEL}.json"
+BASELINE_FILE="${DEVICE_BASELINE}"
+SEED_BASELINE=0
+
+if [[ ! -f "${DEVICE_BASELINE}" ]]; then
+  BASELINE_FILE="${FALLBACK_BASELINE}"
+  SEED_BASELINE=1
+fi
+
 log "Device ${DEVICE} (${MODEL}, API ${SDK}) app ${VERSION}"
+log "Baseline file: ${BASELINE_FILE}"
 
 if ! "${ADB_S[@]}" shell pm path "${PACKAGE}" >/dev/null 2>&1; then
   fail "app not installed — run ./gradlew assembleDebug && adb install"
@@ -91,26 +104,50 @@ PY
 
 log "Wrote ${RUN_FILE}"
 
-if [[ "${UPDATE_BASELINE}" == "1" ]]; then
-  python3 - "${BASELINE_FILE}" "${last_pss}" "${last_java}" <<'PY'
+write_baseline() {
+  local target="$1"
+  python3 - "${target}" "${MODEL}" "${last_pss}" "${last_java}" <<'PY'
 import json, sys
-path, pss, java_heap = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
-with open(path, encoding="utf-8") as f:
-    base = json.load(f)
+path, model, pss, java_heap = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
+try:
+    with open(path, encoding="utf-8") as f:
+        base = json.load(f)
+except FileNotFoundError:
+    base = {
+        "version": "1.0",
+        "device_model": model,
+        "description": f"Device baseline for {model}",
+        "delta_percent_max": 8,
+        "delta_mb_max": 15,
+        "monotonic_window": 3,
+    }
+base["device_model"] = model
 base["pss_kb"] = pss
 base["java_heap_kb"] = java_heap
 with open(path, "w", encoding="utf-8") as f:
     json.dump(base, f, indent=2)
 print(f"Updated baseline: PSS={pss}kB JavaHeap={java_heap}kB")
 PY
-  log "Baseline updated at ${BASELINE_FILE}"
+}
+
+if [[ "${UPDATE_BASELINE}" == "1" ]]; then
+  write_baseline "${DEVICE_BASELINE}"
+  log "Device baseline updated at ${DEVICE_BASELINE}"
   exit 0
 fi
 
-python3 - "${BASELINE_FILE}" "${RUN_FILE}" "${HISTORY_DIR}" <<'PY'
+if [[ "${SEED_BASELINE}" == "1" ]]; then
+  write_baseline "${DEVICE_BASELINE}"
+  log "Seeded new device baseline at ${DEVICE_BASELINE}"
+  log "hint: re-run with --update-baseline after intentional memory changes"
+  log "PASS: first capture on ${MODEL} — baseline seeded"
+  exit 0
+fi
+
+python3 - "${BASELINE_FILE}" "${RUN_FILE}" "${HISTORY_DIR}" "${DEVICE}" "${MODEL}" <<'PY'
 import json, sys, glob, os
 
-baseline_path, run_path, history_dir = sys.argv[1:4]
+baseline_path, run_path, history_dir, device_serial, device_model = sys.argv[1:6]
 with open(baseline_path, encoding="utf-8") as f:
     base = json.load(f)
 with open(run_path, encoding="utf-8") as f:
@@ -132,13 +169,15 @@ runs = []
 for p in sorted(glob.glob(os.path.join(history_dir, "memory_*.json"))):
     try:
         with open(p, encoding="utf-8") as f:
-            runs.append(json.load(f))
+            row = json.load(f)
     except (json.JSONDecodeError, OSError):
-        pass
+        continue
+    if row.get("device") == device_serial or row.get("device_model") == device_model:
+        runs.append(row)
 runs.sort(key=lambda r: r.get("timestamp", ""))
 recent = [r["pss_kb"] for r in runs[-window:] if "pss_kb" in r]
 if len(recent) >= window and all(recent[i] < recent[i + 1] for i in range(len(recent) - 1)):
-    errors.append(f"PSS increased monotonically over last {window} runs: {recent}")
+    errors.append(f"PSS increased monotonically over last {window} runs on {device_model}: {recent}")
 
 if errors:
     for e in errors:

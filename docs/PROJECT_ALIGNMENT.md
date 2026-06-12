@@ -64,10 +64,10 @@ Protocol (maps template “Debugging Agent”):
 
 1. Full `./gradlew lint test assembleDebug`
 2. Applicable `m{N}_smoke.sh` + ADB verify scripts — record serial in GATES
-3. `scripts/benchmark/memory_baseline.sh` when `[ADB]` device connected
+3. `scripts/benchmark/memory_baseline.sh` when `[ADB]` device connected — compares against `scripts/benchmark/baselines/devices/{MODEL}.json`; first run on new hardware seeds that file and PASSes
 4. FOSS audit + no `INTERNET` in manifest (CI also checks)
 5. Finalize `CHANGELOG [Unreleased]`; update `AGENT_MEMORY`
-6. Manual: signed APK verify (`scripts/release/verify-signed-apk.sh`)
+6. Signed APK verify — automated via `scripts/release/build-signed-apk.sh` / `publish-signed-release.sh` (calls `verify-signed-apk.sh`)
 7. Optional debug: LeakCanary manual session before major releases (no release dependency)
 
 Only after all applicable items pass: version bump, archive, commit, push, tag, publish.

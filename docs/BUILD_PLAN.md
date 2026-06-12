@@ -23,7 +23,7 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 
 ## Remaining work (HUMAN only)
 
-- [ ] [HUMAN] GitHub branch protection + secret scanning (M14)
+- [ ] [HUMAN] GitHub branch protection + secret scanning (M14/M15) — **Settings → Branches → main**: require Android CI, no force push; **Settings → Security**: secret scanning + Dependabot alerts
 - [ ] [HUMAN] GitLab project, MCP, README About, labels (`scripts/gitlab/create-labels.sh` ready)
 - [ ] [HUMAN] M2/M4/M5 copy and design walkthroughs (ONBOARDING.md, DESIGN_SYSTEM.md)
 - [ ] [HUMAN] 1.0.0-rc.1 soak; F-Droid first inclusion + `FDROIDDATA_FORK_URL` secret
@@ -41,5 +41,7 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 **M12:** Complete — tag [v1.2.9](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.9) published 2026-06-11.
 
 **M14:** Complete — tag [v1.2.11](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.11) published 2026-06-12.
+
+**M15:** Complete — tag [v1.2.12](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.12) (pending push).
 
 See [`GATES.md`](GATES.md) for full checklists.
