@@ -5,6 +5,7 @@ import com.screenwakelock.detector.domain.model.InsightsData
 import com.screenwakelock.detector.domain.model.OffenderSummary
 import com.screenwakelock.detector.domain.model.RecurringPattern
 import com.screenwakelock.detector.domain.model.WakeEvent
+import com.screenwakelock.detector.util.WakeEventFilters
 import com.screenwakelock.detector.util.TimeUtils
 
 object InsightsCalculator {
@@ -15,7 +16,7 @@ object InsightsCalculator {
         ignoredPackages: Set<String> = emptySet(),
     ): InsightsData {
         val filtered = events.filter { event ->
-            event.attributedPackage == null || event.attributedPackage !in ignoredPackages
+            WakeEventFilters.isVisibleInLists(event, ignoredPackages)
         }
         val nighttime = filtered.filter {
             TimeUtils.isNighttime(it.timestampMillis, nighttimeStartHour, nighttimeEndHour)

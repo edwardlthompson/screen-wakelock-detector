@@ -59,33 +59,16 @@ class WakeAttributor @Inject constructor(
             null
         }
 
-        val usageCandidates = findUsageCandidates(screenOnMillis).map { candidate ->
-            if (notificationCandidates.isNotEmpty()) {
-                candidate.copy(confidence = candidate.confidence.coerceAtMost(0.45f))
-            } else {
-                candidate
-            }
-        }
+        val usageCandidates = capUsageCandidateConfidence(
+            findUsageCandidates(screenOnMillis),
+            notificationCandidates.isNotEmpty(),
+        )
 
         val allCandidates = buildList {
             addAll(notificationCandidates)
             addAll(usageCandidates)
             rootSnapshot?.let { snap ->
-                val rootPackage = snap.packageName
-                    ?: PackageFromWakelockTag.extractPackage(snap.wakelockTag)
-                if (rootPackage != null) {
-                    add(
-                        WakeCandidate(
-                            packageName = rootPackage,
-                            appLabel = resolveAppLabel(rootPackage),
-                            channelId = null,
-                            channelName = null,
-                            reasonCode = snap.reasonCode ?: ReasonCode.ROOT_WAKELOCK,
-                            confidence = if (snap.packageName != null) 0.85f else 0.55f,
-                            detail = snap.wakelockTag,
-                        ),
-                    )
-                }
+                rootWakeCandidate(snap) { pkg -> resolveAppLabel(pkg) }?.let { add(it) }
             }
         }.sortedByDescending { it.confidence }
 

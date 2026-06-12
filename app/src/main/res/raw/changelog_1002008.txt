@@ -1,0 +1,1 @@
+Fix restricted-settings steps: More options menu is on App info (beside Open), not on Notification access. Step 1 reflects when App info is already open after Grant.

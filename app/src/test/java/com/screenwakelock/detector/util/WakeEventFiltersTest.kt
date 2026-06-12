@@ -43,6 +43,23 @@ class WakeEventFiltersTest {
     }
 
     @Test
+    fun isVisibleInLists_hidesTagOnlyIgnoredPackage() {
+        val event = WakeEvent(
+            timestampMillis = 1L,
+            attributedPackage = null,
+            attributedAppLabel = null,
+            channelId = null,
+            channelName = null,
+            reasonCode = ReasonCode.ROOT_WAKELOCK,
+            confidence = 0.55f,
+            wakelockTag = "com.ignored.app:notification",
+        )
+        assertFalse(
+            WakeEventFilters.isVisibleInLists(event, setOf("com.ignored.app")),
+        )
+    }
+
+    @Test
     fun filterVisible_excludesIgnoredOnly() {
         val visible = WakeEvent(
             timestampMillis = 1L,

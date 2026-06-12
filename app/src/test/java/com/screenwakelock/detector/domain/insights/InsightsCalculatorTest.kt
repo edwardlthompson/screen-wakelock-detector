@@ -64,6 +64,25 @@ class InsightsCalculatorTest {
     }
 
     @Test
+    fun compute_excludesTagOnlyIgnoredPackages() {
+        val events = listOf(
+            event(1, "com.app.a"),
+            event(2, null).copy(
+                wakelockTag = "com.app.a:alarm",
+                reasonCode = ReasonCode.ROOT_WAKELOCK,
+                confidence = 0.55f,
+            ),
+            event(3, "com.app.b"),
+        )
+        val insights = InsightsCalculator.compute(
+            events,
+            ignoredPackages = setOf("com.app.a"),
+        )
+        assertEquals(1, insights.totalWakes)
+        assertEquals("com.app.b", insights.topOffenders.first().packageName)
+    }
+
+    @Test
     fun compute_topOffenders_sortedByCount() {
         val events = listOf(
             event(1, "com.app.a"),

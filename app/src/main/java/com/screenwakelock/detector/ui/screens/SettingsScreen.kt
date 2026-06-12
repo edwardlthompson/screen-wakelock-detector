@@ -49,10 +49,12 @@ import com.screenwakelock.detector.R
 import com.screenwakelock.detector.data.repository.PermissionStatusRepository
 import com.screenwakelock.detector.data.repository.PreferencesRepository
 import com.screenwakelock.detector.service.WakeMonitorService
+import com.screenwakelock.detector.ui.components.rememberAppDisplayResolver
 import com.screenwakelock.detector.ui.viewmodel.HistoryViewModel
 import com.screenwakelock.detector.ui.viewmodel.SettingsViewModel
 import com.screenwakelock.detector.util.BackupUtils
 import com.screenwakelock.detector.util.ExportUtils
+import com.screenwakelock.detector.domain.model.WakeEventIdentity
 import com.screenwakelock.detector.worker.RetentionWorker
 import kotlinx.coroutines.launch
 
@@ -80,6 +82,7 @@ fun SettingsScreen(
     val pauseStartHour by viewModel.monitorPauseStartHour.collectAsState()
     val pauseEndHour by viewModel.monitorPauseEndHour.collectAsState()
     val allEvents by historyViewModel.allEventsForExport.collectAsState()
+    val appDisplayResolver = rememberAppDisplayResolver()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val permissionRepo = remember { PermissionStatusRepository(context) }
@@ -174,7 +177,9 @@ fun SettingsScreen(
 
     val packageLabels = remember(allEvents, ignoredPackages) {
         ignoredPackages.associateWith { pkg ->
-            allEvents.firstOrNull { it.attributedPackage == pkg }?.displayAppName ?: pkg
+            allEvents.firstOrNull { WakeEventIdentity.effectivePackage(it) == pkg }
+                ?.let { appDisplayResolver.resolveAppName(it) }
+                ?: pkg
         }
     }
 
@@ -490,7 +495,9 @@ fun SettingsScreen(
                             onDismissRequest = { showAddIgnoredMenu = false },
                         ) {
                             recentPackages.forEach { pkg ->
-                                val label = allEvents.firstOrNull { it.attributedPackage == pkg }?.displayAppName ?: pkg
+                                val label = allEvents.firstOrNull { WakeEventIdentity.effectivePackage(it) == pkg }
+                                    ?.let { appDisplayResolver.resolveAppName(it) }
+                                    ?: pkg
                                 DropdownMenuItem(
                                     text = { Text(label) },
                                     onClick = {

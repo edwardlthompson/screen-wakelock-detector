@@ -61,6 +61,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HistoryScreen(
     initialFilterHour: Int? = null,
+    initialSearchQuery: String? = null,
     onNavigateDetail: (Long) -> Unit,
     viewModel: HistoryViewModel = hiltViewModel(),
 ) {
@@ -84,6 +85,12 @@ fun HistoryScreen(
     LaunchedEffect(initialFilterHour) {
         if (initialFilterHour != null) {
             viewModel.setHourFilter(initialFilterHour)
+        }
+    }
+
+    LaunchedEffect(initialSearchQuery) {
+        if (!initialSearchQuery.isNullOrBlank()) {
+            viewModel.setQuery(initialSearchQuery)
         }
     }
 
@@ -116,7 +123,7 @@ fun HistoryScreen(
 
     fun onMuted(event: WakeEvent, result: ChannelMuter.MuteResult) {
         scope.launch {
-            val message = SilenceWake.snackbarMessage(result, event.displayAppName)
+            val message = SilenceWake.snackbarMessage(result, appDisplayResolver.resolveAppName(event))
             val snackResult = snackbar.showSnackbar(message = message, actionLabel = "Undo")
             if (snackResult == SnackbarResult.ActionPerformed) {
                 SilenceWake.openSettings(context, event)
@@ -127,7 +134,7 @@ fun HistoryScreen(
     pendingMuteEvent?.let { event ->
         AlertDialog(
             onDismissRequest = { pendingMuteEvent = null },
-            title = { Text("Silence ${event.displayAppName}?") },
+            title = { Text("Silence ${appDisplayResolver.resolveAppName(event)}?") },
             text = {
                 Text(
                     "Dismiss active notifications from this app and open channel settings " +

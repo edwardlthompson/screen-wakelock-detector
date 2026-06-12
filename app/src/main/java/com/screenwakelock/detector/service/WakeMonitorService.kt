@@ -141,7 +141,8 @@ class WakeMonitorService : LifecycleService() {
 
         val stored = event.copy(id = id)
         val ignored = preferencesRepository.ignoredPackages.first()
-        val isIgnored = stored.attributedPackage != null && stored.attributedPackage in ignored
+        val isIgnored = com.screenwakelock.detector.domain.model.WakeEventIdentity
+            .isIgnored(stored, ignored)
         val alertEvery = preferencesRepository.alertOnEveryWake.first()
         val thresholdEnabled = preferencesRepository.thresholdAlertsEnabled.first()
         val isUnknown = stored.attributedPackage == null || stored.reasonCode == ReasonCode.UNKNOWN

@@ -14,6 +14,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.10] — 2026-06-12
+
+M12 review fixes — tag-only ignore, display-name consistency, test coverage.
+
+### Fixed
+
+- **Ignore this app** and list filtering now use wakelock-tag-derived package when `attributedPackage` is null (tag-only root wakes).
+- History search, mute snackbars, and Settings ignored-app labels use `AppDisplayResolver` (matches cards).
+- `WakeEvent.displayAppName` extended with wakelock-tag fallbacks aligned to display resolver.
+- `InsightsCalculator` delegates ignore filtering to `WakeEventFilters` (single predicate).
+- Shared `PreferenceKeys.IGNORED_PACKAGES` for repository and widget reader.
+
+### Added
+
+- `WakeEventIdentity` — effective package + ignore check for events.
+- `WakeAttributorLogic` pure helpers with unit tests.
+- Unit tests: `WakeEventIdentity`, `AppDisplayResolver`, `WakeAttributorLogic`; extended filter/insights tests.
+
 ## [1.2.9] — 2026-06-10
 
 QuickFix ignore, stronger unknown-app identification, hide ignored apps from History.

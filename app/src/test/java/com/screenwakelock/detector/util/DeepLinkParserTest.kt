@@ -59,8 +59,9 @@ class DeepLinkParserTest {
     }
 
     @Test
-    fun parseInsightsHeatmap() {
-        val params = parseDeepLinkString("screenwakelock://insights/heatmap")
-        assertEquals("insights", params.route)
+    fun parseHistorySearchQuery() {
+        val params = parseDeepLinkString("screenwakelock://history?q=search.test")
+        assertEquals("history", params.route)
+        assertEquals("search.test", params.historyQuery)
     }
 }

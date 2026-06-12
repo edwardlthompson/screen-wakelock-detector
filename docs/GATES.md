@@ -33,7 +33,8 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M9 | PASS | Smoke M9: PASS 2026-06-07T19:50:00Z b5214fc6 1.2.1 |
 | M10 | PASS | Smoke M10: PASS 2026-06-07T20:15:00Z b5214fc6 1.2.2 |
 | M11 | PASS | Smoke M11: PASS 2026-06-07T20:45:00Z b5214fc6 1.2.3 (OP12 restricted chip) |
-| M12 | — | *(pending ADB smoke)* |
+| M12 | PASS | Smoke M12: PASS 2026-06-12T13:16:15Z 8bf09993 1.2.10 (m13_adb_verify covers M12 ignore) |
+| M13 | PASS | Smoke M13: PASS 2026-06-12T13:16:15Z 8bf09993 1.2.10 |
 | ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |
 
 ---
@@ -305,7 +306,21 @@ Partial at M1/M4; full at M5.
 - [x] Secondary ignore on Detail (candidates), Insights offender menu `[AGENT]`
 - [x] Unit tests for tag parse, attributor merge, display resolver, History filter `[AGENT]`
 - [x] `./gradlew lint test assembleDebug` PASS `[AGENT]`
-- [ ] `m12_smoke.sh` PASS `[ADB]`
-- [ ] Gate GSM (M12) recorded `[AGENT]` *(ADB smoke pending)*
+- [x] `m12_smoke.sh` PASS `[ADB]` (via m13_adb_verify on 8bf09993)
+- [x] Gate GSM (M12) recorded `[AGENT]`
 - [x] Gate G12 passed → archive → commit → push → tag v1.2.9 `[AGENT]`
 - [x] Gate G12 passed; [v1.2.9](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.9) published 2026-06-11 `[AGENT]`
+
+---
+
+## Gate G13 — M13 v1.2.10 M12 review fixes
+
+- [x] `WakeEventIdentity.effectivePackage` used for ignore/filter across UI, service, alerts, widgets `[AGENT]`
+- [x] `WakeEvent.displayAppName` + `AppDisplayResolver` aligned for search, snackbars, Settings labels `[AGENT]`
+- [x] `PreferenceKeys.IGNORED_PACKAGES` shared by `PreferencesRepository` and `IgnoredPackagesReader` `[AGENT]`
+- [x] `InsightsCalculator` delegates ignore filtering to `WakeEventFilters` `[AGENT]`
+- [x] `WakeAttributorLogic` extracted with unit tests; `AppDisplayResolver` + `WakeEventIdentity` tests `[AGENT]`
+- [x] `./gradlew lint test assembleDebug` PASS `[AGENT]`
+- [x] `m13_smoke.sh` + `m13_adb_verify.sh` PASS `[ADB]` (8bf09993 CPH2655 API 36)
+- [x] Gate GSM (M13) recorded `[AGENT]`
+- [x] Gate G13 passed → archive → commit → push → tag v1.2.10 `[AGENT]`

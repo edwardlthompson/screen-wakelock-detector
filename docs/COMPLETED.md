@@ -193,3 +193,14 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] [PARALLEL-OK] Lineage/AOSP copy; OEM battery manual steps; unit tests
 - [x] [AGENT] Update `docs/ONBOARDING.md`, `docs/PERMISSIONS.md`, `docs/AGENT_MEMORY.md`, CHANGELOG
 - [x] [AGENT] Gate G11; `./gradlew lint test assembleDebug`; m11_smoke PASS (OP12 manual)
+
+## 2026-06-12 — M13 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] `WakeEventIdentity` + update `WakeEventFilters`, `QuickFixBottomSheet`, `WakeMonitorService`, `WakeAlertNotifier`, `SilenceWake`, `DetailScreen`
+- [x] [AGENT] [PARALLEL-OK] Align `WakeEvent.displayAppName`; inject `AppDisplayResolver` into History search; resolver at mute snackbar call sites + Settings labels
+- [x] [AGENT] [PARALLEL-OK] `PreferenceKeys.IGNORED_PACKAGES` shared by `PreferencesRepository` + `IgnoredPackagesReader`
+- [x] [AGENT] [PARALLEL-OK] `InsightsCalculator` delegates to `WakeEventFilters`; extract + test `WakeAttributorLogic`
+- [x] [AGENT] Unit tests: `WakeEventIdentity`, extended `WakeEventFilters`, `AppDisplayResolver`, `WakeAttributorLogic`
+- [x] [AGENT] `scripts/smoke/m13_smoke.sh`; `./gradlew lint test assembleDebug`; CHANGELOG + AGENT_MEMORY
+- [x] [ADB] Tag-only root wake: QuickFix shows **Ignore this app**; ignored wake absent from History/Home/widget
+- [x] [ADB] History search matches wakelock-tag-derived app name shown on card

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.screenwakelock.detector.data.repository.PermissionStatusRepository
 import com.screenwakelock.detector.data.repository.PreferencesRepository
 import com.screenwakelock.detector.data.repository.WakeEventRepository
+import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
 import com.screenwakelock.detector.domain.model.ReasonFilterGroup
 import com.screenwakelock.detector.domain.model.WakeEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,6 +47,7 @@ class HomeViewModel @Inject constructor(
 class HistoryViewModel @Inject constructor(
     wakeEventRepository: WakeEventRepository,
     private val preferencesRepository: PreferencesRepository,
+    private val appDisplayResolver: AppDisplayResolver,
 ) : ViewModel() {
     private val allEvents = wakeEventRepository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -106,8 +108,10 @@ class HistoryViewModel @Inject constructor(
             val isVisible = com.screenwakelock.detector.util.WakeEventFilters
                 .isVisibleInLists(event, ignored)
             val matchesQuery = query.isBlank() ||
-                event.displayAppName.contains(query, ignoreCase = true) ||
+                appDisplayResolver.resolveAppName(event).contains(query, ignoreCase = true) ||
                 event.attributedPackage?.contains(query, ignoreCase = true) == true ||
+                com.screenwakelock.detector.domain.model.WakeEventIdentity
+                    .effectivePackage(event)?.contains(query, ignoreCase = true) == true ||
                 event.displayChannel?.contains(query, ignoreCase = true) == true
             val hour = java.util.Calendar.getInstance().apply {
                 timeInMillis = event.timestampMillis

@@ -81,7 +81,7 @@ fun HomeScreen(
 
     fun onMuted(event: WakeEvent, result: ChannelMuter.MuteResult) {
         scope.launch {
-            val message = SilenceWake.snackbarMessage(result, event.displayAppName)
+            val message = SilenceWake.snackbarMessage(result, appDisplayResolver.resolveAppName(event))
             val snackResult = snackbar.showSnackbar(message = message, actionLabel = "Undo")
             if (snackResult == SnackbarResult.ActionPerformed) {
                 SilenceWake.openSettings(context, event)

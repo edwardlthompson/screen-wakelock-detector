@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
 import com.screenwakelock.detector.domain.model.WakeEvent
+import com.screenwakelock.detector.domain.model.WakeEventIdentity
 import com.screenwakelock.detector.util.ChannelMuter
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.SilenceWake
@@ -37,7 +38,7 @@ fun QuickFixBottomSheet(
     if (!visible || event == null) return
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val pkg = event.attributedPackage
+    val pkg = WakeEventIdentity.effectivePackage(event)
     val appName = appDisplayResolver.resolveAppName(event)
 
     ModalBottomSheet(

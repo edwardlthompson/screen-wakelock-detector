@@ -6,6 +6,8 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 
 ---
 
+---
+
 ## M12 — v1.2.9 app identification + QuickFix ignore
 
 **Target:** `versionName` `1.2.9`, `versionCode` `1002009` in `app/build.gradle.kts`  
@@ -30,8 +32,8 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 
 ### M12 — ADB
 
-- [ ] [ADB] Home **Fix it** popup shows **Ignore this app** for attributed wake; undo restores visibility
-- [ ] [ADB] After ignore, app wake no longer listed in History/Home; still removable in Settings → Ignored apps
+- [x] [ADB] Home **Fix it** popup shows **Ignore this app** for attributed wake; undo restores visibility
+- [x] [ADB] After ignore, app wake no longer listed in History/Home; still removable in Settings → Ignored apps
 
 ---
 

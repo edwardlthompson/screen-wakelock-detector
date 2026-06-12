@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.domain.model.ReasonCode
+import com.screenwakelock.detector.domain.model.WakeEventIdentity
 import com.screenwakelock.detector.root.RootAttributor
 import com.screenwakelock.detector.ui.components.ConfidenceIndicator
 import com.screenwakelock.detector.ui.components.MissingPermissionsBanner
@@ -244,14 +245,17 @@ fun DetailScreen(
                         }
                     }
                 }
-                if (e.attributedPackage != null) {
+                WakeEventIdentity.effectivePackage(e)?.let { pkg ->
                     item {
                         Button(
                             onClick = {
                                 val result = SilenceWake.silence(e)
                                 SilenceWake.openSettings(context, e)
                                 scope.launch {
-                                    val message = SilenceWake.snackbarMessage(result, e.displayAppName)
+                                    val message = SilenceWake.snackbarMessage(
+                                        result,
+                                        appDisplayResolver.resolveAppName(e),
+                                    )
                                     val snackResult = snackbar.showSnackbar(
                                         message = message,
                                         actionLabel = "Undo",
@@ -267,7 +271,6 @@ fun DetailScreen(
                         }
                         OutlinedButton(
                             onClick = {
-                                val pkg = e.attributedPackage!!
                                 val intent = if (e.channelId != null && IntentUtils.canOpenChannelSettings()) {
                                     IntentUtils.channelNotificationSettings(pkg, e.channelId)
                                 } else {
@@ -281,13 +284,12 @@ fun DetailScreen(
                         }
                         OutlinedButton(
                             onClick = {
-                                context.startActivity(IntentUtils.appDetailsSettings(e.attributedPackage!!))
+                                context.startActivity(IntentUtils.appDetailsSettings(pkg))
                             },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text("App info")
                         }
-                        val pkg = e.attributedPackage!!
                         if (pkg !in ignoredPackages) {
                             OutlinedButton(
                                 onClick = {

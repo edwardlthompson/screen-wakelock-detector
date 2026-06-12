@@ -2,16 +2,18 @@ package com.screenwakelock.detector.util
 
 import android.content.Context
 import com.screenwakelock.detector.domain.model.WakeEvent
+import com.screenwakelock.detector.domain.model.WakeEventIdentity
 
 object SilenceWake {
 
     fun silence(event: WakeEvent): ChannelMuter.MuteResult {
-        val pkg = event.attributedPackage ?: return ChannelMuter.MuteResult(0, event.channelId)
+        val pkg = WakeEventIdentity.effectivePackage(event)
+            ?: return ChannelMuter.MuteResult(0, event.channelId)
         return ChannelMuter.silenceNotifications(pkg, event.channelId)
     }
 
     fun openSettings(context: Context, event: WakeEvent) {
-        val pkg = event.attributedPackage ?: return
+        val pkg = WakeEventIdentity.effectivePackage(event) ?: return
         ChannelMuter.openBestSettings(context, pkg, event.channelId)
     }
 

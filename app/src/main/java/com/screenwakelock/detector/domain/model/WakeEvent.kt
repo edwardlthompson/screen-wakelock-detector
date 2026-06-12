@@ -1,5 +1,7 @@
 package com.screenwakelock.detector.domain.model
 
+import com.screenwakelock.detector.domain.attributor.PackageFromWakelockTag
+
 data class WakeEvent(
     val id: Long = 0,
     val timestampMillis: Long,
@@ -19,7 +21,12 @@ data class WakeEvent(
     val isLowConfidence: Boolean get() = confidence < 0.6f || reasonCode == ReasonCode.UNKNOWN
 
     val displayAppName: String
-        get() = attributedAppLabel ?: attributedPackage ?: "Unknown app"
+        get() = attributedAppLabel
+            ?: attributedPackage
+            ?: PackageFromWakelockTag.extractPackage(wakelockTag)
+            ?: wakelockTag
+            ?: wakelockName
+            ?: "Unknown app"
 
     val displayChannel: String?
         get() = channelName ?: channelId

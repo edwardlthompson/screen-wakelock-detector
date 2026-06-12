@@ -12,6 +12,8 @@ data class DeepLinkParams(
     val rootAutomation: String? = null,
     /** Debug smoke only: "open" opens the Venmo donate link from Settings About */
     val donateAutomation: String? = null,
+    /** Debug smoke: pre-fill History search query */
+    val historyQuery: String? = null,
 )
 
 fun parseDeepLinkString(raw: String?): DeepLinkParams {
@@ -69,6 +71,13 @@ fun parseDeepLinkString(raw: String?): DeepLinkParams {
         }
         raw.startsWith("screenwakelock://insights") ->
             DeepLinkParams(route = "insights")
+        raw.startsWith("screenwakelock://history") -> {
+            val query = raw.substringAfter('?', missingDelimiterValue = "")
+                .substringAfter("q=", missingDelimiterValue = "")
+                .substringBefore('&')
+                .takeIf { it.isNotEmpty() }
+            DeepLinkParams(route = "history", historyQuery = query)
+        }
         else -> DeepLinkParams()
     }
 }

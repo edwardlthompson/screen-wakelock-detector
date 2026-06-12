@@ -46,7 +46,7 @@ import com.screenwakelock.detector.ui.viewmodel.OnboardingViewModel
 object Routes {
     const val ONBOARDING = "onboarding"
     const val HOME = "home"
-    const val HISTORY = "history?filterHour={filterHour}"
+    const val HISTORY = "history?filterHour={filterHour}&q={q}"
     const val INSIGHTS = "insights"
     const val SETTINGS = "settings"
     const val DETAIL = "detail/{wakeEventId}"
@@ -54,7 +54,8 @@ object Routes {
     const val ROOT = "root"
 
     fun detail(id: Long) = "detail/$id"
-    fun history(filterHour: Int = -1) = "history?filterHour=$filterHour"
+    fun history(filterHour: Int = -1, query: String = "") =
+        "history?filterHour=$filterHour&q=${android.net.Uri.encode(query)}"
     fun permissions(highlight: String? = null) =
         if (highlight != null) "permissions?highlight=$highlight" else "permissions?highlight="
 }
@@ -67,6 +68,7 @@ fun AppNavigation(
     deepLinkQuickFixWakeId: Long? = null,
     deepLinkRootAutomation: String? = null,
     deepLinkDonateAutomation: String? = null,
+    deepLinkHistoryQuery: String? = null,
     onDeepLinkConsumed: () -> Unit = {},
 ) {
     val navController = rememberNavController()
@@ -95,6 +97,7 @@ fun AppNavigation(
         deepLinkQuickFixWakeId,
         deepLinkRootAutomation,
         deepLinkDonateAutomation,
+        deepLinkHistoryQuery,
     ) {
         if (BuildConfig.DEBUG && deepLinkRootAutomation == "enable" && deepLinkRoute == "root") {
             onboardingViewModel.completeIntro()
@@ -128,6 +131,10 @@ fun AppNavigation(
                 }
                 "permissions" -> navController.navigate(Routes.permissions(deepLinkHighlight))
                 "insights" -> navController.navigate(Routes.INSIGHTS)
+                "history" -> {
+                    navController.navigate(Routes.history(query = deepLinkHistoryQuery.orEmpty()))
+                    onDeepLinkConsumed()
+                }
                 else -> {
                     deepLinkQuickFixWakeId?.let {
                         navController.navigate(Routes.HOME) {
@@ -192,11 +199,17 @@ fun AppNavigation(
                         type = NavType.IntType
                         defaultValue = -1
                     },
+                    navArgument("q") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    },
                 ),
             ) { entry ->
                 val filterHour = entry.arguments?.getInt("filterHour") ?: -1
+                val searchQuery = entry.arguments?.getString("q").orEmpty()
                 HistoryScreen(
                     initialFilterHour = filterHour.takeIf { it >= 0 },
+                    initialSearchQuery = searchQuery.takeIf { it.isNotEmpty() },
                     onNavigateDetail = { navController.navigate(Routes.detail(it)) },
                 )
             }

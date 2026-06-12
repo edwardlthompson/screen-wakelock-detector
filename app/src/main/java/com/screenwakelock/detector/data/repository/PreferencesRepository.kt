@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.screenwakelock.detector.data.PreferenceKeys
 import com.screenwakelock.detector.data.settingsDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +28,6 @@ class PreferencesRepository @Inject constructor(
         val NIGHTTIME_START_HOUR = intPreferencesKey("nighttime_start_hour")
         val NIGHTTIME_END_HOUR = intPreferencesKey("nighttime_end_hour")
         val QUIET_HOURS_ENABLED = booleanPreferencesKey("quiet_hours_enabled")
-        val IGNORED_PACKAGES = stringSetPreferencesKey("ignored_packages")
         val RETENTION_DAYS = intPreferencesKey("retention_days")
         val MIN_WAKE_DURATION_MS = intPreferencesKey("min_wake_duration_ms")
         val MONITOR_SCHEDULE_ENABLED = booleanPreferencesKey("monitor_schedule_enabled")
@@ -65,7 +64,7 @@ class PreferencesRepository @Inject constructor(
         context.settingsDataStore.data.map { it[Keys.QUIET_HOURS_ENABLED] ?: false }
 
     val ignoredPackages: Flow<Set<String>> =
-        context.settingsDataStore.data.map { it[Keys.IGNORED_PACKAGES] ?: emptySet() }
+        context.settingsDataStore.data.map { it[PreferenceKeys.IGNORED_PACKAGES] ?: emptySet() }
 
     val retentionDays: Flow<Int> =
         context.settingsDataStore.data.map { it[Keys.RETENTION_DAYS] ?: 0 }
@@ -124,15 +123,15 @@ class PreferencesRepository @Inject constructor(
 
     suspend fun addIgnoredPackage(packageName: String) {
         context.settingsDataStore.edit { prefs ->
-            val current = prefs[Keys.IGNORED_PACKAGES] ?: emptySet()
-            prefs[Keys.IGNORED_PACKAGES] = current + packageName
+            val current = prefs[PreferenceKeys.IGNORED_PACKAGES] ?: emptySet()
+            prefs[PreferenceKeys.IGNORED_PACKAGES] = current + packageName
         }
     }
 
     suspend fun removeIgnoredPackage(packageName: String) {
         context.settingsDataStore.edit { prefs ->
-            val current = prefs[Keys.IGNORED_PACKAGES] ?: emptySet()
-            prefs[Keys.IGNORED_PACKAGES] = current - packageName
+            val current = prefs[PreferenceKeys.IGNORED_PACKAGES] ?: emptySet()
+            prefs[PreferenceKeys.IGNORED_PACKAGES] = current - packageName
         }
     }
 

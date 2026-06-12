@@ -14,6 +14,7 @@ import com.screenwakelock.detector.data.repository.PreferencesRepository
 import com.screenwakelock.detector.data.repository.WakeEventRepository
 import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
 import com.screenwakelock.detector.domain.model.WakeEvent
+import com.screenwakelock.detector.domain.model.WakeEventIdentity
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.TimeUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -149,8 +150,8 @@ class WakeAlertNotifier @Inject constructor(
     }
 
     private suspend fun isIgnored(event: WakeEvent): Boolean {
-        val pkg = event.attributedPackage ?: return false
-        return pkg in preferencesRepository.ignoredPackages.first()
+        val ignored = preferencesRepository.ignoredPackages.first()
+        return WakeEventIdentity.isIgnored(event, ignored)
     }
 
     private fun showNotification(

@@ -113,6 +113,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 |------|-------|
 | 2026-06-11 | v1.2.9 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.9 |
 | 2026-06-10 | M12 v1.2.9 implemented: QuickFix ignore, AppDisplayResolver, hide ignored from History/Home/widgets |
+| 2026-06-12 | M13 v1.2.10: WakeEventIdentity tag-only ignore, display-name alignment, PreferenceKeys dedup, WakeAttributorLogic tests |
 | 2026-06-07 | v1.2.8 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.8 |
 | 2026-06-07 | M8 v1.2.0 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.0 |
 | 2026-06-07 | M8 ADB deep verify PASS b5214fc6 (root timeline, diagnostic export, pattern actions, batch mute) |
@@ -126,6 +127,14 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 - [x] [ADB] Skip path via `--fresh` (re-grant listener after pm clear)
 | 2026-06-07 | M4 quick actions shipped; M3 root stack; M2 attribution; M1 wake capture. |
 | 2026-06-06 | M0 documentation and automation scaffold created (docs, scripts, CI templates). |
+
+---
+
+## Design decisions (M13)
+
+- **`WakeEventIdentity`** — single source for effective package (`attributedPackage` ?? tag parse) and ignore checks; used by filters, QuickFix, alerts, service, SilenceWake.
+- **`PreferenceKeys.IGNORED_PACKAGES`** — shared DataStore key for `PreferencesRepository` and widget `IgnoredPackagesReader` (no duplicate string key).
+- **`WakeAttributorLogic`** — pure helpers (`capUsageCandidateConfidence`, `rootWakeCandidate`) unit-tested without Android mocks.
 
 ---
 
