@@ -30,6 +30,7 @@ Free and open source software requirements for **Screen Wakelock Detector**.
 | Hilt | Apache-2.0 | DI |
 | libsu | Apache-2.0 | In-app root shell |
 | JUnit / MockK | OSS test libs | Testing |
+| LeakCanary (optional debug eval) | Apache-2.0 | Manual leak detection — **debug only**, not in release |
 
 Pin versions in Gradle version catalog. Document new deps in [`AGENT_MEMORY.md`](AGENT_MEMORY.md) decisions log.
 

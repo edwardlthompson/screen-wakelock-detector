@@ -3,6 +3,7 @@
 **Find what wakes your screen — see the app and channel, fix it in one tap.**
 
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+[![Android CI](https://github.com/edwardlthompson/screen-wakelock-detector/actions/workflows/android-ci.yml/badge.svg)](https://github.com/edwardlthompson/screen-wakelock-detector/actions/workflows/android-ci.yml)
 [![minSdk](https://img.shields.io/badge/minSdk-29-green.svg)](app/build.gradle.kts)
 [![Material 3](https://img.shields.io/badge/UI-Material%203-purple.svg)](docs/DESIGN_SYSTEM.md)
 
@@ -19,6 +20,16 @@ Mystery screen wakes drain battery and interrupt sleep. This app maintains a sea
 **Privacy first:** no account, no cloud, no analytics. Notification listener access reads notification metadata locally to attribute screen wakes — nothing leaves your device. See [`docs/PRIVACY.md`](docs/PRIVACY.md).
 
 **Distribution:** F-Droid only ([build from source](#getting-started) until listed).
+
+**Forges:** [GitLab](https://gitlab.com/) (primary merge requests) · [GitHub](https://github.com/edwardlthompson/screen-wakelock-detector) (CI, releases, issues)
+
+---
+
+## Architecture
+
+Wake events flow: **WakeMonitorService** → **WakeAttributor** → **Room** → Compose UI and Glance widgets. Optional root diagnostics enrich attribution via allowlisted dumpsys parsers.
+
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full diagram and layer breakdown.
 
 ---
 
@@ -120,19 +131,13 @@ Full detail: [`docs/ROOT.md`](docs/ROOT.md)
 
 ## Contributing
 
-### Humans
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for human and agent workflows, FOSS policy, and gate checklists.
 
-1. Fork on GitLab
-2. Create `feature/*` branch
-3. Ensure `./gradlew lint test assembleDebug` passes
-4. Open merge request; CI must be green
-5. Follow [`docs/FOSS.md`](docs/FOSS.md) for dependencies
+---
 
-### Agents
+## Support development
 
-Read [`.cursor/AGENTS.md`](.cursor/AGENTS.md) first. Active tasks: [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). Gates: [`docs/GATES.md`](docs/GATES.md).
-
-Milestone workflow: implement → gate + smoke → archive → commit → push.
+If this app has helped you, consider a tip via [Venmo](https://venmo.com/code?user_id=1857304970395648420) (linked from Settings → About). No tracking, no account required in the app.
 
 ---
 
@@ -158,6 +163,9 @@ Licensed under the **Apache License 2.0** — see [`LICENSE`](LICENSE).
 
 | Resource | Path |
 |----------|------|
+| Architecture | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
+| Template alignment | [`docs/PROJECT_ALIGNMENT.md`](docs/PROJECT_ALIGNMENT.md) |
+| Contributing | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Documentation index | [`docs/`](docs/) |
 | Changelog | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) |
 | Privacy policy | [`docs/PRIVACY.md`](docs/PRIVACY.md) |

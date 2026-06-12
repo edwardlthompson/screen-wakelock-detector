@@ -1,0 +1,40 @@
+name: Feature request
+description: Suggest a new feature or improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Agent-driven features are tracked in [`docs/BUILD_PLAN.md`](https://github.com/edwardlthompson/screen-wakelock-detector/blob/main/docs/BUILD_PLAN.md).
+        For large scope, describe the user problem first.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What screen-wake pain point does this address?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: checkboxes
+    id: foss
+    attributes:
+      label: FOSS constraints
+      options:
+        - label: I understand new dependencies must be OSI-approved (see docs/FOSS.md)
+          required: true
+        - label: I am not requesting analytics, cloud sync, or INTERNET permission for core features
+          required: true

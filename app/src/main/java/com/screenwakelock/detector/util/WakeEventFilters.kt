@@ -9,4 +9,17 @@ object WakeEventFilters {
 
     fun filterVisible(events: List<WakeEvent>, ignoredPackages: Set<String>): List<WakeEvent> =
         events.filter { isVisibleInLists(it, ignoredPackages) }
+
+    /** History search predicate — resolver supplies display names at read time. */
+    fun matchesHistoryQuery(
+        event: WakeEvent,
+        query: String,
+        resolveAppName: (WakeEvent) -> String,
+    ): Boolean {
+        if (query.isBlank()) return true
+        return resolveAppName(event).contains(query, ignoreCase = true) ||
+            event.attributedPackage?.contains(query, ignoreCase = true) == true ||
+            WakeEventIdentity.effectivePackage(event)?.contains(query, ignoreCase = true) == true ||
+            event.displayChannel?.contains(query, ignoreCase = true) == true
+    }
 }

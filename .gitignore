@@ -33,6 +33,8 @@ Thumbs.db
 # CI / local SDK
 android-sdk/
 .fdroid-repro-verified
+artifacts/benchmark-history/
+artifacts/benchmark-history/
 
 # Secrets
 .env

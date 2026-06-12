@@ -82,4 +82,59 @@ class WakeEventFiltersTest {
         assertEquals(1, result.size)
         assertEquals("com.visible.app", result.first().attributedPackage)
     }
+
+    @Test
+    fun matchesHistoryQuery_blankQueryMatchesAll() {
+        val event = WakeEvent(
+            timestampMillis = 1L,
+            attributedPackage = "com.example.app",
+            attributedAppLabel = "Example",
+            channelId = null,
+            channelName = null,
+            reasonCode = ReasonCode.NOTIFICATION_UNKNOWN,
+            confidence = 0.8f,
+        )
+        assertTrue(
+            WakeEventFilters.matchesHistoryQuery(event, "", { "Example" }),
+        )
+    }
+
+    @Test
+    fun matchesHistoryQuery_matchesResolvedDisplayName() {
+        val event = WakeEvent(
+            timestampMillis = 1L,
+            attributedPackage = null,
+            attributedAppLabel = null,
+            channelId = null,
+            channelName = null,
+            reasonCode = ReasonCode.ROOT_WAKELOCK,
+            confidence = 0.55f,
+            wakelockTag = "com.tagonly.app:notification",
+        )
+        assertTrue(
+            WakeEventFilters.matchesHistoryQuery(event, "tagonly", { "com.tagonly.app" }),
+        )
+        assertFalse(
+            WakeEventFilters.matchesHistoryQuery(event, "other", { "com.tagonly.app" }),
+        )
+    }
+
+    @Test
+    fun matchesHistoryQuery_matchesAttributedPackageAndChannel() {
+        val event = WakeEvent(
+            timestampMillis = 1L,
+            attributedPackage = "com.example.app",
+            attributedAppLabel = "Example",
+            channelId = "alerts",
+            channelName = "Alerts",
+            reasonCode = ReasonCode.NOTIFICATION_UNKNOWN,
+            confidence = 0.9f,
+        )
+        assertTrue(
+            WakeEventFilters.matchesHistoryQuery(event, "example.app", { "Example" }),
+        )
+        assertTrue(
+            WakeEventFilters.matchesHistoryQuery(event, "alerts", { "Example" }),
+        )
+    }
 }

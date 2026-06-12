@@ -107,12 +107,8 @@ class HistoryViewModel @Inject constructor(
         events.filter { event ->
             val isVisible = com.screenwakelock.detector.util.WakeEventFilters
                 .isVisibleInLists(event, ignored)
-            val matchesQuery = query.isBlank() ||
-                appDisplayResolver.resolveAppName(event).contains(query, ignoreCase = true) ||
-                event.attributedPackage?.contains(query, ignoreCase = true) == true ||
-                com.screenwakelock.detector.domain.model.WakeEventIdentity
-                    .effectivePackage(event)?.contains(query, ignoreCase = true) == true ||
-                event.displayChannel?.contains(query, ignoreCase = true) == true
+            val matchesQuery = com.screenwakelock.detector.util.WakeEventFilters
+                .matchesHistoryQuery(event, query, appDisplayResolver::resolveAppName)
             val hour = java.util.Calendar.getInstance().apply {
                 timeInMillis = event.timestampMillis
             }.get(java.util.Calendar.HOUR_OF_DAY)

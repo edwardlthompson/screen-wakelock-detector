@@ -204,3 +204,17 @@ Archived milestone tasks are appended here by `scripts/archive-completed-tasks.p
 - [x] [AGENT] `scripts/smoke/m13_smoke.sh`; `./gradlew lint test assembleDebug`; CHANGELOG + AGENT_MEMORY
 - [x] [ADB] Tag-only root wake: QuickFix shows **Ignore this app**; ignored wake absent from History/Home/widget
 - [x] [ADB] History search matches wakelock-tag-derived app name shown on card
+
+## 2026-06-12 — M14 (smoke passed)
+
+- [x] [AGENT] [PARALLEL-OK] `PROJECT_ALIGNMENT.md` + root `AGENTS.md`; `ARCHITECTURE.md`
+- [x] [AGENT] [PARALLEL-OK] `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, GitHub issue/PR templates
+- [x] [AGENT] [PARALLEL-OK] README: CI badge, architecture, donate, forge links
+- [x] [AGENT] [PARALLEL-OK] GitHub CI: add lint step; Gate `G_RELEASE` in `GATES.md`
+- [x] [AGENT] `scripts/benchmark/memory_baseline.sh` + baseline JSON + heap delta checks
+- [x] [AGENT] `scripts/smoke/m14_regression.sh` (smoke + benchmark)
+- [x] [AGENT] Unit test: HistoryViewModel search with `AppDisplayResolver`
+
+## 2026-06-12 — M14 (smoke passed)
+
+- [x] [AGENT] `./gradlew lint test assembleDebug`; CHANGELOG + AGENT_MEMORY; archive M14; commit; push

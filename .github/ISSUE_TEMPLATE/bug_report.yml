@@ -1,0 +1,78 @@
+name: Bug report
+description: Report a crash, incorrect attribution, or UI issue
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please avoid pasting notification content that may be sensitive.
+        Security issues: see [SECURITY.md](https://github.com/edwardlthompson/screen-wakelock-detector/blob/main/SECURITY.md).
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Settings → About → Version
+      placeholder: "1.2.10"
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device model
+      placeholder: "Pixel 8, OnePlus 13, …"
+    validations:
+      required: true
+
+  - type: input
+    id: android
+    attributes:
+      label: Android version (API level)
+      placeholder: "Android 15 (API 35)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: root
+    attributes:
+      label: Root enabled in app?
+      options:
+        - "No"
+        - "Yes"
+        - "Not applicable"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Grant notification access
+        2. Lock screen, wait for wake
+        3. Open History
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional)
+      description: `adb logcat -d -s WakeMonitor:I` excerpt — redact package names if needed
+      render: shell

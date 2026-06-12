@@ -14,6 +14,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.11] — 2026-06-12
+
+Project standards alignment — docs, CI parity, memory benchmark, regression smoke.
+
+### Added
+
+- `docs/PROJECT_ALIGNMENT.md`, `docs/ARCHITECTURE.md`, root `AGENTS.md` entrypoint
+- `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, GitHub issue/PR templates
+- Gate **G_RELEASE** pre-release checklist in `GATES.md`
+- `scripts/benchmark/memory_baseline.sh` with baseline JSON and heap delta checks
+- `scripts/smoke/m14_regression.sh` (smoke + memory benchmark + M13 ADB verify)
+- `WakeEventFilters.matchesHistoryQuery` for History search with `AppDisplayResolver`
+- GitHub CI lint step (parity with GitLab)
+
+### Changed
+
+- README: CI badge, architecture overview, donate link, GitLab/GitHub forge clarity
+
 ## [1.2.10] — 2026-06-12
 
 M12 review fixes — tag-only ignore, display-name consistency, test coverage.
