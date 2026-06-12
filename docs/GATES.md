@@ -373,3 +373,4 @@ Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md
 - [x] `m14_regression.sh` + memory baseline PASS `[ADB]` (8bf09993 CPH2655 API 36)
 - [x] Gate GSM (M15) recorded `[AGENT]`
 - [x] Gate G15 passed → archive → commit → push → tag v1.2.12 `[AGENT]`
+- [x] Gate G15 passed; [v1.2.12](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.12) published 2026-06-12 `[AGENT]`

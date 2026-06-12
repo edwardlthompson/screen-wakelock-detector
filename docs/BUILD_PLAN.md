@@ -42,6 +42,6 @@ Active tasks only. Completed items move to [`COMPLETED.md`](COMPLETED.md) via `s
 
 **M14:** Complete — tag [v1.2.11](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.11) published 2026-06-12.
 
-**M15:** Complete — tag [v1.2.12](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.12) (pending push).
+**M15:** Complete — tag [v1.2.12](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.12) published 2026-06-12.
 
 See [`GATES.md`](GATES.md) for full checklists.

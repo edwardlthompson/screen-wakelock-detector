@@ -114,6 +114,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 | 2026-06-12 | v1.2.10 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.10 |
 | 2026-06-12 | M14 full ADB regression PASS 8bf09993: m14_regression, memory baseline (PSS 127837kB), m13_adb_verify |
 | 2026-06-12 | M11 OP13 ADB PASS 8bf09993: 2-page onboarding, restricted chip refresh, no Verify page |
+| 2026-06-12 | v1.2.12 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.12 |
 | 2026-06-12 | M15 v1.2.12: device-keyed memory baselines, WakeEventDisplayNames, m13 Settings verify hardening |
 | 2026-06-11 | v1.2.9 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.9 |
 | 2026-06-10 | M12 v1.2.9 implemented: QuickFix ignore, AppDisplayResolver, hide ignored from History/Home/widgets |
