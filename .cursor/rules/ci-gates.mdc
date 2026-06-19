@@ -1,0 +1,34 @@
+---
+description: Post-push CI poll protocol and gate ordering
+globs:
+  - ".github/workflows/**"
+  - "scripts/check-github-ci.*"
+  - "BUILD_PLAN.md"
+---
+
+# CI Gates
+
+## Post-Push Poll (required)
+
+After push to `main` or before release sign-off:
+
+```bash
+bash scripts/check-github-ci.sh HEAD --wait 300
+```
+
+Primary workflow: `.github/workflows/android-ci.yml`
+
+## Gate Order (local — Android)
+
+1. `bash scripts/validate-bootstrap.sh --quick`
+2. `./gradlew lint test assembleDebug`
+3. `bash scripts/feature-gate.sh --stack android`
+4. `bash scripts/watch-agent-gates.sh --once --autofix --step <label>`
+5. Milestone: `bash scripts/smoke/m{N}_smoke.sh` → record in `docs/GATES.md`
+
+**Autonomous rule:** On gate failure, agent auto-fixes from JSON output within feature scope; re-run until pass or 3-strike. Push still requires human approval.
+
+## Do Not Mark Complete
+
+- BUILD_PLAN `[AUTO]` items while CI / Security Scan / CodeQL red
+- Sprint sign-off without `scripts/pre-release-gate.sh` on template releases

@@ -133,6 +133,22 @@ Full detail: [`docs/ROOT.md`](docs/ROOT.md)
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for human and agent workflows, FOSS policy, and gate checklists.
 
+### Agent bootstrap
+
+Aligned with [agent-project-bootstrap](https://github.com/edwardlthompson/agent-project-bootstrap) **v0.11.0**.
+
+| Resource | Path |
+|----------|------|
+| Start here | [`docs/START_HERE.md`](docs/START_HERE.md) |
+| Slash commands | [`docs/help/BATCH_COMMANDS.md`](docs/help/BATCH_COMMANDS.md) — `/verify`, `/ship`, `/gates` |
+| Template map | [`docs/BOOTSTRAP_TEMPLATE_MAP.md`](docs/BOOTSTRAP_TEMPLATE_MAP.md) |
+| Build plan | [`BUILD_PLAN.md`](BUILD_PLAN.md) |
+
+```bash
+bash scripts/validate-bootstrap.sh --quick
+bash scripts/watch-agent-gates.sh --once --autofix --step gate
+```
+
 ---
 
 ## Support development
@@ -164,7 +180,7 @@ Licensed under the **Apache License 2.0** — see [`LICENSE`](LICENSE).
 | Resource | Path |
 |----------|------|
 | Architecture | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
-| Template alignment | [`docs/PROJECT_ALIGNMENT.md`](docs/PROJECT_ALIGNMENT.md) |
+| Template alignment | [`docs/BOOTSTRAP_TEMPLATE_MAP.md`](docs/BOOTSTRAP_TEMPLATE_MAP.md) |
 | Contributing | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Documentation index | [`docs/`](docs/) |
 | Changelog | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) |

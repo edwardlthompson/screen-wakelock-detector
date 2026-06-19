@@ -1,40 +1,23 @@
 ---
-description: Screen Wakelock Detector — FOSS Android project rules
-globs:
-  - "**/*"
+description: Screen Wakelock Detector — project-specific rules (milestones, libsu, smoke)
 alwaysApply: true
 ---
 
 # Screen Wakelock Detector — project rules
 
-@AGENTS.md is **required reading** every session.
-
-## FOSS and security
-
-- Apache-2.0; F-Droid-only distribution
-- **No `INTERNET` permission** in release manifest
-- No Firebase, Play Services, proprietary analytics, or non-OSI Gradle deps
-- New dependencies: check [`docs/FOSS.md`](docs/FOSS.md); update AGENT_MEMORY
-
-## Material Design 3 only
-
-- Use `androidx.compose.material3` — **never** `androidx.compose.material` (M2)
-- Follow [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md)
-- Dynamic color API 31+; static fallback 29–30
-- Expressive APIs opt-in only; never block release on alpha
+Read [`docs/START_HERE.md`](docs/START_HERE.md) and [`AGENTS.md`](AGENTS.md) every session.
 
 ## Milestone workflow
 
-- Work from [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md) labels: AGENT / ADB / HUMAN
-- Spawn **parallel subagents** for `<!-- PARALLEL -->` blocks (see AGENTS.md)
-- **Run until milestone complete** — do not stop after one task
-- Gate checklists in [`docs/GATES.md`](docs/GATES.md) before marking milestone done
+- Work from [`BUILD_PLAN.md`](BUILD_PLAN.md) labels: AGENT / ADB / HUMAN / AUTO
+- Spawn **parallel subagents** for `<!-- PARALLEL -->` blocks (see [`docs/FOR_AGENTS.md`](docs/FOR_AGENTS.md))
+- **Run until milestone complete** — gate checklists in [`docs/GATES.md`](docs/GATES.md)
 
 ## Validate before push
 
 Never push without:
 
-1. `./gradlew lint test assembleDebug` (when app module exists)
+1. `./gradlew lint test assembleDebug`
 2. Applicable gate checklist items
 3. **`scripts/smoke/m{N}_smoke.sh` exit 0** before archive
 4. CHANGELOG `[Unreleased]` + AGENT_MEMORY updated
@@ -47,13 +30,15 @@ Never push without:
 ## Git
 
 - Lead agent only commits/pushes per milestone
-- Do not start M(N+1) until M(N) gate passed and pushed to GitLab
+- Do not start M(N+1) until M(N) gate passed and pushed
 
-## Root
+## Root (libsu)
 
-- libsu in-app only; command allowlist — no user input in shell
+- In-app only; command allowlist — no user input in shell
 - Document in [`docs/ROOT.md`](docs/ROOT.md)
 
 ## Do not edit
 
 - Plan files in uploads/ or external `.plan.md` sources — use BUILD_PLAN.md instead
+
+FOSS, M3, and security rules: see `foss-compliance.mdc`, `design-system.mdc`, `ci-gates.mdc`.

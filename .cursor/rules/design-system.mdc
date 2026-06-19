@@ -1,0 +1,27 @@
+---
+description: Design system rules — Material 3 Compose in app/ module
+globs:
+  - app/src/main/java/**/ui/**
+  - app/src/main/res/**
+  - docs/DESIGN_SYSTEM.md
+  - docs/DESIGN_GUIDE.md
+---
+
+# Design System — Screen Wakelock Detector
+
+Before editing UI in `app/`:
+
+1. Read [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md)
+2. Theme tokens: `app/src/main/java/com/screenwakelock/detector/ui/theme/`
+
+## Mandatory rules
+
+- **`androidx.compose.material3` only** — never Material 2
+- Dynamic color API 31+; static fallback 29–30
+- User-visible strings in `res/values/strings.xml` — use `stringResource`, not `Text("...")` literals in composables
+- Accessible touch targets and content descriptions per DESIGN_SYSTEM.md
+- Expressive M3 APIs opt-in only; never block release on alpha
+
+## FOSS Android
+
+- No `com.google.android.gms`, Firebase, or proprietary SDKs

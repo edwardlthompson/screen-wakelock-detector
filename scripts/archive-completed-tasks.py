@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-BUILD_PLAN = ROOT / "docs" / "BUILD_PLAN.md"
+BUILD_PLAN = ROOT / "BUILD_PLAN.md"
 COMPLETED = ROOT / "docs" / "COMPLETED.md"
 GATES = ROOT / "docs" / "GATES.md"
 

@@ -31,7 +31,12 @@ if gh release view "${TAG}" >/dev/null 2>&1; then
     gh release delete-asset "${TAG}" app-release-unsigned.apk --yes || true
   fi
 else
-  log "Release ${TAG} not found — gh release create will run after tag push"
+  log "Release ${TAG} not found — creating with changelog notes"
+  NOTES_FILE="$(mktemp)"
+  bash scripts/release/extract-changelog.sh "${VERSION}" > "${NOTES_FILE}" \
+    || echo "See CHANGELOG.md [${VERSION}]" > "${NOTES_FILE}"
+  gh release create "${TAG}" --title "Screen Wakelock Detector ${TAG}" --notes-file "${NOTES_FILE}"
+  rm -f "${NOTES_FILE}"
 fi
 
 log "Uploading ${ASSET_NAME} to ${TAG}"

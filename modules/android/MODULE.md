@@ -1,0 +1,109 @@
+# Module A: Android / F-Droid Pure Compliance
+
+> Activate when your stack includes Android or F-Droid distribution.
+
+## Requirements (Verbatim)
+
+- **Absolute FOSS Isolation:** No commercial or proprietary closed-source SDKs are permitted (e.g., no Google Play Services, Firebase, or closed telemetry trackers). Rely exclusively on open alternatives (e.g., UnifiedPush or native OS providers).
+- **Reproducible Build Environment:** Lock all compiler toolchains and build dependencies using cryptographic hashes or strict versioning. Enforce determinism by eliminating compilation timestamps (using SOURCE_DATE_EPOCH or platform-equivalent) to ensure byte-for-byte reproducible binaries matching F-Droid verification targets.
+
+## Production path (Screen Wakelock Detector)
+
+- **Module:** `app/` at repo root (not `examples/android/`)
+- **Design:** [`docs/DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md) — M3 Compose in `app/.../ui/theme/`
+- **F-Droid:** [`docs/F-DROID.md`](../../docs/F-DROID.md), `fdroid/metadata/`, `scripts/fdroid/`
+- **Smoke:** `scripts/smoke/m{N}_smoke.sh` — mandatory before archive
+
+## Activation Checklist
+
+- ✅ Confirm no proprietary SDKs in `app/build.gradle.kts`
+- ✅ Pin Gradle wrapper and dependency versions (`gradle/libs.versions.toml`)
+- ✅ F-Droid metadata — `scripts/fdroid/lint-metadata.sh`, `verify-reproducible.sh`
+- ✅ `[ADB]` smoke scripts in BUILD_PLAN for device verification
+
+## Operations Checklist
+
+- ⬜ Crash reporting via FOSS channel only (no proprietary trackers)
+- ⬜ UnifiedPush or native OS notification provider configured
+- ⬜ Reproducible build verified locally (`bash scripts/verify-reproducible-apk.sh` or CI `android-release`)
+- ⬜ Signing keys stored outside repo; CI uses protected secrets
+- ⬜ Rollback procedure documented in docs/RUNBOOK.md
+- ⬜ F-Droid submission checklist reviewed before release
+
+
+## Design system
+
+- ✅ Read [`docs/DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md) before UI work
+- ✅ Jetpack Compose Material 3 — `androidx.compose.material3` only
+- ✅ Theme: `app/src/main/java/com/screenwakelock/detector/ui/theme/`
+- ✅ FOSS only: no Play Services / Firebase
+
+## Localization
+
+Strings are separate from styles. Theme colors and spacing live in `ui/theme/`; all user-visible copy lives in resource files.
+
+| Layer | Path | API |
+|-------|------|-----|
+| Strings | `res/values/strings.xml` | `stringResource(R.string.*)` in Compose |
+| Styles | `ui/theme/` (generated `Color.kt`, `Type.kt`, `Dimens.kt`) | `MaterialTheme.colorScheme`, `Dimens.kt` |
+| Forbidden | Kotlin string literals in composables | Use `stringResource`, not `Text("...")` |
+
+Default locale: English only (`res/values/strings.xml`). Add `res/values-{lang}/strings.xml` when shipping translations. Plurals: `res/values/plurals.xml` when needed.
+
+Shared key naming with web: `app.title`, `theme.toggle.label`, `theme.mode.*` — see [`docs/DESIGN_GUIDE.md`](../../docs/DESIGN_GUIDE.md). For website folder conventions in multi-stack repos, see [`docs/WEB_PROJECT_LAYOUT.md`](../../docs/WEB_PROJECT_LAYOUT.md).
+
+- ✅ In-app AboutScreen with format-locked APK update stub and donations
+## Feature gate
+
+After each feature step, `scripts/feature-gate.sh --stack android` runs (via `watch-agent-gates.sh`):
+
+| Stage | Command |
+|-------|---------|
+| Lint + test + debug APK | `./gradlew lint test assembleDebug` |
+
+Requires `JAVA_HOME` locally; gate exits `2` when Java is missing.
+
+## Golden Path Reference
+
+Production code: **`app/`** module. CI: `.github/workflows/android-ci.yml`, `.gitlab-ci.yml`.
+
+## Owner Labels for This Module
+
+| Task type | Label |
+|-----------|-------|
+| Scaffold Gradle, Kotlin code, tests | AGENT |
+| Emulator/device testing, F-Droid submit | ADB |
+| FOSS dependency audit approval | HUMAN |
+| CI Gradle compile / structure validation | AUTO |
+
+## F-Droid Submission Dry-Run Checklist
+
+`[ADB]` dry-run before first F-Droid release. Full metadata lives under `examples/android/metadata/` when present.
+
+### Build reproducibility
+
+- ⬜ Set `SOURCE_DATE_EPOCH` (fixed Unix timestamp) in release build scripts and CI
+- ⬜ Run `bash scripts/verify-reproducible-apk.sh` locally (or rely on CI `android-release` job; CI fails on hash drift)
+- ⬜ Confirm no proprietary SDK grep failures match CI (`android-structure` job)
+- ⬜ Verify Gradle wrapper and dependency lockfiles committed
+
+### Metadata and policy
+
+- ⬜ Complete F-Droid `metadata/` (`summary`, `description`, `license`, `sourceCode`, `build` blocks)
+- ⬜ Screenshots and feature graphic paths valid (Fastlane or manual `metadata/en-US/`)
+- ⬜ Version code/name align with `CHANGELOG` and tag
+- ⬜ Anti-feature flags accurate (ads, tracking, non-free network services)
+
+### Device verification (ADB)
+
+- ⬜ Install release APK on physical device or emulator: `adb install -r app/build/outputs/apk/release/*.apk`
+- ⬜ Smoke test cold start, core flow, offline behavior, and notification path (if applicable)
+- ⬜ Capture `adb logcat` during smoke test; confirm no crash stack traces
+- ⬜ Uninstall/reinstall upgrade path from previous release version
+
+### Submission dry-run
+
+- ⬜ Open draft merge request to [fdroiddata](https://gitlab.com/fdroid/fdroiddata) or run `fdroid lint` locally if using repomaker workflow
+- ⬜ Child repos: copy `examples/android/metadata/` text blocks; add `build` recipe YAML in fdroiddata MR (template documents handoff only)
+- ⬜ Record maintainer notes and blockers in `BUILD_PLAN.md` `[ADB]` items
+- ⬜ `[HUMAN]` sign off before tagging store release

@@ -1,7 +1,31 @@
-# Agent entrypoint
+# Agent Router — Screen Wakelock Detector
 
-**Read [`.cursor/AGENTS.md`](.cursor/AGENTS.md) first every session.**
+1. **First read:** [`docs/START_HERE.md`](docs/START_HERE.md)
+2. **Cursor modes:** [`docs/CURSOR_MODES.md`](docs/CURSOR_MODES.md)
+3. **Ops guide:** [`docs/FOR_AGENTS.md`](docs/FOR_AGENTS.md) — milestone autopilot, smoke, git protocol
+4. **Task board:** [`BUILD_PLAN.md`](BUILD_PLAN.md) (Sequential before Parallel)
+5. **Living memory:** [`AGENT_MEMORY.md`](AGENT_MEMORY.md) at milestone boundaries · decisions → [`DECISION_LOG.md`](DECISION_LOG.md)
+6. **Template map:** [`docs/BOOTSTRAP_TEMPLATE_MAP.md`](docs/BOOTSTRAP_TEMPLATE_MAP.md)
 
-That file is the orchestration source of truth: parallelism, milestone autopilot, validation gates, and git protocol. Cross-reference [`.cursor/rules/project.mdc`](.cursor/rules/project.mdc), [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md), and [`docs/GATES.md`](docs/GATES.md).
+> Legacy `.cursorrules` deprecated. Use `.cursor/rules/*.mdc` and this file.
 
-For template-to-repo mapping and pre-release protocol, see [`docs/PROJECT_ALIGNMENT.md`](docs/PROJECT_ALIGNMENT.md).
+## Stack
+
+**Android** — production module `app/`. Module guide: [`modules/android/MODULE.md`](modules/android/MODULE.md).
+
+## Session protocol
+
+- Pick Cursor mode per `docs/CURSOR_MODES.md`
+- Execute BUILD_PLAN **Sequential** lane first; parallelize `<!-- PARALLEL -->` blocks
+- After each `[AGENT]` step: `bash scripts/watch-agent-gates.sh --once --autofix --step <label>`
+- Slash commands: [`docs/help/BATCH_COMMANDS.md`](docs/help/BATCH_COMMANDS.md) — `/verify`, `/ship`, `/gates`
+
+## Architecture constraints
+
+- Apache-2.0 FOSS; F-Droid only; **no `INTERNET`** in release manifest
+- Material Design 3 (`androidx.compose.material3` only)
+- libsu in-app root; command allowlist — see [`docs/ROOT.md`](docs/ROOT.md)
+
+## Module activation
+
+Android only — see `modules/android/MODULE.md`.

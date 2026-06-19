@@ -113,6 +113,7 @@ archive-build-plan:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
+        - BUILD_PLAN.md
         - docs/BUILD_PLAN.md
   script:
     - python scripts/archive-completed-tasks.py --all-completed || echo "Archive skipped (smoke not passed or no [x] tasks)"

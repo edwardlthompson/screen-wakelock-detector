@@ -28,6 +28,12 @@ if [[ "${LISTENERS}" == *"Unknown command"* ]] || [[ -z "${LISTENERS}" ]]; then
   LISTENERS="$("${ADB}" -s "${DEVICE}" shell settings get secure enabled_notification_listeners 2>/dev/null || true)"
 fi
 if ! echo "${LISTENERS}" | grep -q "${PACKAGE}"; then
+  log "Attempt adb grant: cmd notification allow_listener"
+  "${ADB}" -s "${DEVICE}" shell cmd notification allow_listener \
+    "${PACKAGE}/com.screenwakelock.detector.service.NotificationCaptureService" 2>/dev/null || true
+  LISTENERS="$("${ADB}" -s "${DEVICE}" shell settings get secure enabled_notification_listeners 2>/dev/null || true)"
+fi
+if ! echo "${LISTENERS}" | grep -q "${PACKAGE}"; then
   log "Opening notification listener settings — grant access manually then re-run"
   "${ADB}" -s "${DEVICE}" shell am start -a android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
   fail "Notification access not granted for ${PACKAGE}"

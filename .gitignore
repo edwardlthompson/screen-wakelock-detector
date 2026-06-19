@@ -30,11 +30,25 @@ Thumbs.db
 # Logs
 *.log
 
+# Node / Python (bootstrap hygiene)
+node_modules/
+__pycache__/
+coverage/
+dist/
+
 # CI / local SDK
 android-sdk/
 .fdroid-repro-verified
-artifacts/benchmark-history/
-artifacts/benchmark-history/
+CODE_REVIEW.md
+artifacts/
+
+# Local live configs (commit *.example only)
+.app-update.json
+donations.json
+.template-update.json
+
+# Cursor ephemeral
+.cursor/agent-progress.json
 
 # Secrets
 .env

@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Pre-release gate: CI green, zero Critical/High Dependabot alerts, template version present.
+# Usage: scripts/pre-release-gate.sh
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+
+ERRORS=0
+VERSION=""
+
+echo "=== Pre-release gate ==="
+
+STACK="${STACK:-android}"
+if [ -f .cursor/stack-selection.json ]; then
+  STACK="$(python3 -c "import json; print(json.load(open('.cursor/stack-selection.json')).get('stack','android'))" 2>/dev/null || echo android)"
+fi
+
+if ! bash scripts/feature-gate.sh --stack "$STACK" --strict --json; then
+  echo "FAIL: feature-gate.sh"
+  ERRORS=$((ERRORS + 1))
+else
+  echo "OK   feature-gate.sh passed"
+fi
+
+if ! bash scripts/check-security-triage.sh --wait-ci 300 --strict; then
+  echo "FAIL: security-triage.sh --strict"
+  ERRORS=$((ERRORS + 1))
+else
+  echo "OK   security-triage.sh --strict passed"
+fi
+
+if [ ! -f .template-version ]; then
+  echo "MISSING: .template-version"
+  ERRORS=$((ERRORS + 1))
+else
+  VERSION="$(tr -d '[:space:]' < .template-version)"
+  echo "OK   .template-version = ${VERSION}"
+fi
+
+if [ -f app/build.gradle.kts ]; then
+  APP_VERSION="$(grep 'versionName' app/build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')"
+  echo "OK   app versionName = ${APP_VERSION}"
+fi
+
+if bash scripts/smoke/m14_smoke.sh --help >/dev/null 2>&1 || [ -f scripts/smoke/m14_smoke.sh ]; then
+  echo "OK   milestone smoke scripts present"
+fi
+
+if ! bash scripts/check-license-compliance.sh android 2>/dev/null; then
+  if ! bash scripts/check-license-compliance.sh 2>/dev/null; then
+    echo "WARN: check-license-compliance.sh skipped (no npm/uv stacks)"
+  fi
+fi
+
+echo ""
+echo "REMINDER: Before tagging, trigger the Release workflow via workflow_dispatch:"
+echo "  GitHub -> Actions -> Release -> Run workflow"
+echo "  (.github/workflows/release.yml)"
+if [ -n "$VERSION" ]; then
+  echo "  Confirm CHANGELOG.md [${VERSION}] section and tag match .template-version"
+fi
+
+if [ "$ERRORS" -gt 0 ]; then
+  echo "${ERRORS} pre-release gate check(s) failed"
+  exit 1
+fi
+
+echo "Pre-release gate passed"

@@ -42,7 +42,10 @@ jobs:
       - name: Extract changelog
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          sed -n "/## \\[${VERSION}\\]/,/## \\[/p" docs/CHANGELOG.md | head -n -1 > release_notes.md || echo "See docs/CHANGELOG.md" > release_notes.md
+          CHANGELOG="CHANGELOG.md"
+          if [[ ! -f "${CHANGELOG}" ]]; then CHANGELOG="docs/CHANGELOG.md"; fi
+          sed -n "/## \\[${VERSION}\\]/,/## \\[/p" "${CHANGELOG}" | head -n -1 > release_notes.md \
+            || echo "See CHANGELOG.md" > release_notes.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
