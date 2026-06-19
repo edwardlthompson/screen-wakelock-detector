@@ -23,4 +23,4 @@ Prep already done: metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS (20
 | Sprint | Archive |
 |--------|---------|
 | M0–M15 | [`docs/COMPLETED.md`](docs/COMPLETED.md) |
-| TM · AR · human backlog automation | [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md) |
+| TM · AR · AU · human backlog automation | [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md) |

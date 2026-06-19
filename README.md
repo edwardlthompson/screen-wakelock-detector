@@ -21,7 +21,7 @@ Mystery screen wakes drain battery and interrupt sleep. This app maintains a sea
 
 **Distribution:** F-Droid only ([build from source](#getting-started) until listed).
 
-**Forges:** [GitLab](https://gitlab.com/) (primary merge requests) · [GitHub](https://github.com/edwardlthompson/screen-wakelock-detector) (CI, releases, issues)
+**Forges:** [GitHub](https://github.com/edwardlthompson/screen-wakelock-detector) (CI, releases, issues — primary until GitLab mirror) · [GitLab](https://gitlab.com/) _(MR target after project creation)_
 
 ---
 
@@ -70,7 +70,7 @@ When published: [F-Droid — com.screenwakelock.detector](https://f-droid.org/pa
 **Requirements:** JDK 17 (Temurin), Android SDK, Git
 
 ```bash
-git clone https://gitlab.com/<namespace>/screen-wakelock-detector.git
+git clone https://github.com/edwardlthompson/screen-wakelock-detector.git
 cd screen-wakelock-detector
 ./gradlew assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk

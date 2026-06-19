@@ -4,6 +4,18 @@ Archive of finished BUILD_PLAN sprints. Product milestone history: [`docs/COMPLE
 
 ---
 
+## Sprint AU — Audit review (2026-06-19)
+
+**Gate:** Local audit — bootstrap/feature-gate/gradle PASS; Android CI green on `95bce34`; `watch-agent-gates.sh --step au-audit` PASS. See ephemeral [`CODE_REVIEW.md`](CODE_REVIEW.md) (gitignored).
+
+- [x] [AGENT] F-001 — Add `docs/REPO_HYGIENE.md` (hygiene automation map)
+- [x] [AGENT] F-002 — Add `docs/PARALLEL_AGENT_SCOPES.md` (single-module Android scopes)
+- [x] [AGENT] F-003 — README forge + clone URL → GitHub primary until GitLab live
+- [x] [AGENT] F-004 — `AGENT_MEMORY.md` refresh (v1.2.13, bootstrap `95bce34`)
+- [x] [AGENT] `CODE_REVIEW.md` written from 2026-06-19 gate run
+- [ ] [HUMAN] F-005 — Private vulnerability reporting (deferred to BUILD_PLAN backlog)
+- [ ] [HUMAN] F-006 — GitLab + F-Droid first ship (existing backlog)
+
 ## Sprint AR — Audit review (2026-06-19)
 
 **Gate:** Local audit — bootstrap/feature-gate/gradle PASS; `watch-agent-gates.sh --step ar-audit` PASS. See ephemeral [`CODE_REVIEW.md`](CODE_REVIEW.md) (gitignored).

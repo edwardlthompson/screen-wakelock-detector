@@ -105,6 +105,9 @@ See [`DECISION_LOG.md`](DECISION_LOG.md) for dated architectural decisions.
 
 | Date | Event |
 |------|-------|
+| 2026-06-19 | Audit AU: `docs/REPO_HYGIENE.md` + `docs/PARALLEL_AGENT_SCOPES.md`; README forge/clone → GitHub primary; Android CI green on `95bce34` |
+| 2026-06-19 | Bootstrap sync `95bce34`: agent tooling, gates, release automation, living docs at repo root |
+| 2026-06-19 | v1.2.13 released: wake attribution (active snapshot, FSI/TURN_SCREEN_ON); tag `v1.2.13` on GitHub |
 | 2026-06-19 | Audit AR: `check-github-ci.sh` Android CI auto-detect; `count-critical-high-dependabot.sh`; 0 Critical/High alerts |
 | 2026-06-19 | M8 icon legibility automated: `check-icon-legibility.sh` + `m8_icon_launcher.sh` PASS b5214fc6 (round=0.82 safe=0.93 contrast=255) |
 | 2026-06-19 | M2/M4/M5 copy/tone automated sign-off: `check-copy-tone.sh` + `m245_copy_verify.sh` PASS b5214fc6 |
