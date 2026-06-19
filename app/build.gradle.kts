@@ -27,8 +27,8 @@ android {
         applicationId = "com.screenwakelock.detector"
         minSdk = 29
         targetSdk = 35
-        versionCode = 1002012
-        versionName = "1.2.12"
+        versionCode = 1002013
+        versionName = "1.2.13"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }

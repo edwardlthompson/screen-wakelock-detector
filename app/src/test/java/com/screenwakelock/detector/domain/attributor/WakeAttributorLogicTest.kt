@@ -85,4 +85,72 @@ class WakeAttributorLogicTest {
         )
         assertNull(rootWakeCandidate(snapshot) { null })
     }
+
+    @Test
+    fun notificationReasonCode_fullScreenIntent() {
+        assertEquals(
+            ReasonCode.NOTIFICATION_FULL_SCREEN,
+            notificationReasonCode(
+                category = null,
+                importance = android.app.NotificationManager.IMPORTANCE_DEFAULT,
+                hasFullScreenIntent = true,
+            ),
+        )
+    }
+
+    @Test
+    fun activeNotificationCandidates_skipsLowImportanceOngoing() {
+        val snapshots = listOf(
+            com.screenwakelock.detector.domain.model.ActiveNotificationSnapshot(
+                packageName = "com.example.low",
+                channelId = "misc",
+                channelName = "Misc",
+                category = null,
+                importance = android.app.NotificationManager.IMPORTANCE_LOW,
+                hasFullScreenIntent = false,
+                hasTurnScreenOn = false,
+            ),
+            com.screenwakelock.detector.domain.model.ActiveNotificationSnapshot(
+                packageName = "com.example.alarm",
+                channelId = "alarms",
+                channelName = "Alarms",
+                category = android.app.Notification.CATEGORY_ALARM,
+                importance = android.app.NotificationManager.IMPORTANCE_DEFAULT,
+                hasFullScreenIntent = false,
+                hasTurnScreenOn = false,
+            ),
+        )
+        val result = activeNotificationCandidates(snapshots, emptyList()) { "Label" }
+        assertEquals(1, result.size)
+        assertEquals("com.example.alarm", result.first().packageName)
+        assertEquals(ReasonCode.NOTIFICATION_FULL_SCREEN, result.first().reasonCode)
+    }
+
+    @Test
+    fun mergeNotificationCandidates_keepsHigherConfidence() {
+        val cached = listOf(
+            WakeCandidate(
+                packageName = "com.example.app",
+                appLabel = "Example",
+                channelId = "alerts",
+                channelName = "Alerts",
+                reasonCode = ReasonCode.NOTIFICATION_UNKNOWN,
+                confidence = 0.55f,
+            ),
+        )
+        val active = listOf(
+            WakeCandidate(
+                packageName = "com.example.app",
+                appLabel = "Example",
+                channelId = "alerts",
+                channelName = "Alerts",
+                reasonCode = ReasonCode.NOTIFICATION_FULL_SCREEN,
+                confidence = 0.88f,
+            ),
+        )
+        val merged = mergeNotificationCandidates(cached, active)
+        assertEquals(1, merged.size)
+        assertEquals(ReasonCode.NOTIFICATION_FULL_SCREEN, merged.first().reasonCode)
+        assertEquals(0.88f, merged.first().confidence)
+    }
 }

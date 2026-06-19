@@ -1,10 +1,13 @@
 package com.screenwakelock.detector.service
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.util.Log
 import com.screenwakelock.detector.data.repository.NotificationCacheRepository
+import com.screenwakelock.detector.domain.model.ActiveNotificationSnapshot
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,16 +54,22 @@ class NotificationCaptureService : NotificationListenerService() {
             notification.priority
         }
 
+        val observedAtMillis = System.currentTimeMillis()
         scope.launch {
             notificationCacheRepository.cacheNotification(
                 packageName = sbn.packageName,
                 channelId = channelId,
                 channelName = channelName,
-                postedAtMillis = sbn.postTime,
+                postedAtMillis = observedAtMillis,
                 category = notification.category,
                 importance = importance,
             )
         }
+    }
+
+    override fun onListenerDisconnected() {
+        super.onListenerDisconnected()
+        Log.w(TAG, "Notification listener disconnected — attribution may miss notifications until reconnected")
     }
 
     override fun onListenerConnected() {
@@ -71,6 +80,36 @@ class NotificationCaptureService : NotificationListenerService() {
                 onNotificationPosted(sbn)
             }
         }
+    }
+
+    private fun toSnapshot(sbn: StatusBarNotification): ActiveNotificationSnapshot? {
+        val notification = sbn.notification ?: return null
+        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notification.channelId
+        } else {
+            null
+        }
+        val channelName = runCatching {
+            val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            nm.getNotificationChannel(channelId)?.name?.toString()
+        }.getOrNull()
+        val importance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && channelId != null) {
+            val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            nm.getNotificationChannel(channelId)?.importance
+                ?: NotificationManager.IMPORTANCE_DEFAULT
+        } else {
+            @Suppress("DEPRECATION")
+            notification.priority
+        }
+        return ActiveNotificationSnapshot(
+            packageName = sbn.packageName,
+            channelId = channelId,
+            channelName = channelName,
+            category = notification.category,
+            importance = importance,
+            hasFullScreenIntent = notification.fullScreenIntent != null,
+            hasTurnScreenOn = (notification.flags and NotificationFlagTurnScreenOn) != 0,
+        )
     }
 
     fun dismissMatching(packageName: String, channelId: String?): Int {
@@ -92,10 +131,19 @@ class NotificationCaptureService : NotificationListenerService() {
     }
 
     companion object {
+        private const val TAG = "NotificationCapture"
+        /** [Notification] flag to turn the screen on when posted (API 27+). */
+        private const val NotificationFlagTurnScreenOn = 1 shl 19
+
         @Volatile
         private var instance: NotificationCaptureService? = null
 
         fun dismissNotifications(packageName: String, channelId: String?): Int =
             instance?.dismissMatching(packageName, channelId) ?: 0
+
+        fun snapshotActiveNotifications(): List<ActiveNotificationSnapshot> {
+            val svc = instance ?: return emptyList()
+            return svc.activeNotifications?.mapNotNull { svc.toSnapshot(it) } ?: emptyList()
+        }
     }
 }

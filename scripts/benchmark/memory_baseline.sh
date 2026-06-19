@@ -8,7 +8,6 @@ ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${ROOT}"
 
 PACKAGE="${PACKAGE:-com.screenwakelock.detector}"
-ADB="${ADB:-adb}"
 FALLBACK_BASELINE="${SCRIPT_DIR}/baselines/memory_baseline.json"
 HISTORY_DIR="${HISTORY_DIR:-${ROOT}/artifacts/benchmark-history}"
 ITERATIONS="${ITERATIONS:-5}"
@@ -23,6 +22,7 @@ fail() { echo "[memory_baseline] FAIL: $*" >&2; exit 1; }
 
 # shellcheck source=scripts/smoke/_device.sh
 source "${ROOT}/scripts/smoke/_device.sh"
+ADB="$(resolve_smoke_adb)"
 DEVICE="$(pick_smoke_device "${ADB}")" || fail "no authorized device — set SMOKE_DEVICE"
 ADB_S=( "${ADB}" -s "${DEVICE}" )
 
@@ -83,7 +83,8 @@ done
 
 TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 mkdir -p "${HISTORY_DIR}"
-RUN_FILE="${HISTORY_DIR}/memory_${TIMESTAMP//:/-}_${DEVICE}.json"
+DEVICE_SAFE="${DEVICE//[:\/]/_}"
+RUN_FILE="${HISTORY_DIR}/memory_${TIMESTAMP//:/-}_${DEVICE_SAFE}.json"
 
 python3 - "${RUN_FILE}" "${VERSION}" "${DEVICE}" "${MODEL}" "${TIMESTAMP}" "${last_pss}" "${last_java}" "${ITERATIONS}" <<'PY'
 import json, sys

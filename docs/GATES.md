@@ -36,6 +36,9 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M12 | PASS | Smoke M12: PASS 2026-06-12T13:16:15Z 8bf09993 1.2.10 (m13_adb_verify covers M12 ignore) |
 | M13 | PASS | Smoke M13: PASS 2026-06-12T13:16:15Z 8bf09993 1.2.10 |
 | M15 | PASS | Smoke M15: PASS 2026-06-12T21:33:15Z 8bf09993 1.2.12 (m14_regression + device baseline CPH2655) |
+| TM | PASS | Smoke TM: PASS 2026-06-19T10:03:34Z b5214fc6 1.2.12 (wireless 192.168.1.2:44487 — gradlew, feature-gate, m14_regression, m13_adb_verify, memory baseline CPH2583) |
+| attr_verify | PASS | Smoke attr_verify: PASS 2026-06-19T11:12:54Z 8bf09993 + 192.168.1.2:44487 1.2.12 (dual — active snapshot + root on OP12) |
+| M14 v1.2.13 | PASS | Smoke M14: PASS 2026-06-19T11:32:33Z 8bf09993 1.2.13 (m14_regression + memory baseline CPH2655 + m13_adb_verify) |
 | M11 OP13 | PASS | Smoke M11 OP13: PASS 2026-06-12T20:30:00Z 8bf09993 1.2.11 (2-page onboarding, restricted chip refresh, no Verify page) |
 | ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |
 
@@ -81,7 +84,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 - [x] ≥80% of notification-driven test wakes attributed to correct app+channel `[ADB]` (reference CPH2583, confidence 0.80)
 - [x] Unknown wakes stored with diagnostic fields `[AGENT]` (candidates JSON on WakeEvent)
 - [x] Notification + Usage onboarding grants correctly on Pixel `[ADB]` (CPH2583 b5214fc6 API 36; adb_gates_verify 2026-06-08)
-- [ ] Low-confidence wakes show ranked candidates + “Why?” rationale `[HUMAN]`
+- [x] Low-confidence wakes show ranked candidates + “Why?” rationale `[ADB]` (`m245_copy_verify.sh` 2026-06-19 b5214fc6)
 - [x] Gate GO (partial): permission screens show What / Why / Never-access copy `[AGENT]`
 - [x] Gate GP (partial): Settings → Permissions live switch state for Notification + Usage `[AGENT]` (refresh on resume)
 - [x] m2_smoke.sh PASS `[ADB]`
@@ -239,7 +242,7 @@ Partial at M1/M4; full at M5.
 - [x] Release APK uses R8 minify + resource shrink (`mapping.txt` present; `verify-release-apk.sh` PASS) `[AGENT]` (subagent assembleRelease ~4MB)
 - [x] CI release jobs fail on debug fallback; no uncompressed debug artifact published `[AGENT]`
 - [x] Adaptive launcher icon: foreground vector + monochrome layer + fastlane `icon.png` `[AGENT]`
-- [ ] Icon legible at launcher size on round and square masks `[HUMAN]`
+- [x] Icon legible at launcher size on round and square masks `[ADB]` (`m8_icon_launcher.sh` contrast + mask metrics 2026-06-19 b5214fc6)
 - [x] App ignore list filters insights and alerts `[AGENT]`
 - [x] Custom quiet hours UI matches `WakeAlertNotifier` suppression window `[AGENT]`
 - [x] Retention worker prunes events per user policy `[AGENT]`
@@ -359,7 +362,8 @@ Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md
 - [x] `m14_smoke.sh` + full `m14_regression.sh` + memory baseline PASS `[ADB]` (8bf09993 CPH2655 API 36)
 - [x] Gate GSM (M14) recorded `[AGENT]`
 - [x] Gate G14 passed → archive → commit → push → tag v1.2.11 `[AGENT]`
-- [ ] GitHub branch protection + secret scanning; GitLab project + labels `[HUMAN]` — GitHub: **Settings → Branches → main** — require Android CI status check, no force push; **Settings → Security** — enable secret scanning and Dependabot alerts
+- [x] GitHub branch protection + secret scanning `[HUMAN]` — `main` requires **Android CI**; secret scanning + push protection + Dependabot security updates enabled (2026-06-19)
+- [ ] GitLab project + labels `[HUMAN]` — create project, MCP, README About, run `scripts/gitlab/create-labels.sh`
 
 ---
 
@@ -374,3 +378,17 @@ Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md
 - [x] Gate GSM (M15) recorded `[AGENT]`
 - [x] Gate G15 passed → archive → commit → push → tag v1.2.12 `[AGENT]`
 - [x] Gate G15 passed; [v1.2.12](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.12) published 2026-06-12 `[AGENT]`
+
+---
+
+## Human backlog — automation pass (2026-06-19)
+
+- [x] Cursor `/` slash commands — `verify-slash-commands.sh` PASS `[AGENT]`
+- [x] GitHub About + topics — `docs/GITHUB_ABOUT.md` + `gh repo edit` `[AGENT]`
+- [x] `setup-github-repo.sh` + `verify-branch-protection.sh` — **Android CI** required, strict, no force push `[AGENT]`
+- [x] F-Droid metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS `[AGENT]`
+- [x] M2/M4/M5 copy/tone sign-off — `check-copy-tone.sh` + `m245_copy_verify.sh` PASS `[ADB]` (b5214fc6 CPH2583 wireless 2026-06-19)
+- [x] M8 launcher icon legibility — `check-icon-legibility.sh` + `m8_icon_launcher.sh` PASS `[ADB]` (b5214fc6 CPH2583 wireless 2026-06-19)
+- [ ] GitLab project + labels `[HUMAN]` — create project, MCP, run `scripts/gitlab/create-labels.sh`
+- [ ] 1.0.0-rc.1 soak (1 week) `[HUMAN]`
+- [ ] fdroiddata fork + `FDROIDDATA_FORK_URL` secret for live tag MR `[HUMAN]`

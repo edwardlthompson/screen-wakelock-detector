@@ -12,6 +12,7 @@ import com.screenwakelock.detector.domain.model.AttributionData
 import com.screenwakelock.detector.domain.model.ReasonCode
 import com.screenwakelock.detector.domain.model.WakeCandidate
 import com.screenwakelock.detector.root.RootAttributor
+import com.screenwakelock.detector.service.NotificationCaptureService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,28 +31,17 @@ class WakeAttributor @Inject constructor(
         val start = screenOnMillis - correlationWindowMs
         val end = screenOnMillis + correlationWindowMs
 
-        val notifications = notificationCache.getInWindow(start, end)
-        val notificationCandidates = notifications.map { notif ->
-            val reason = when {
-                notif.importance >= android.app.NotificationManager.IMPORTANCE_HIGH ->
-                    ReasonCode.NOTIFICATION_HEADS_UP
-                notif.category == android.app.Notification.CATEGORY_CALL ->
-                    ReasonCode.NOTIFICATION_RING
-                else -> ReasonCode.NOTIFICATION_UNKNOWN
-            }
-            val proximity = 1f - (
-                kotlin.math.abs(notif.postedAtMillis - screenOnMillis).toFloat() /
-                    correlationWindowMs
-                ).coerceIn(0f, 1f)
-            WakeCandidate(
-                packageName = notif.packageName,
-                appLabel = resolveAppLabel(notif.packageName),
-                channelId = notif.channelId,
-                channelName = notif.channelName,
-                reasonCode = reason,
-                confidence = 0.5f + proximity * 0.45f,
-            )
-        }.sortedByDescending { it.confidence }
+        val cachedInWindow = notificationCache.getInWindow(start, end)
+        val cachedCandidates = cachedNotificationCandidates(
+            cachedInWindow,
+            screenOnMillis,
+            correlationWindowMs,
+        ) { pkg -> resolveAppLabel(pkg) }
+        val activeCandidates = activeNotificationCandidates(
+            NotificationCaptureService.snapshotActiveNotifications(),
+            cachedCandidates,
+        ) { pkg -> resolveAppLabel(pkg) }
+        val notificationCandidates = mergeNotificationCandidates(cachedCandidates, activeCandidates)
 
         var rootSnapshot = if (rootEnabled) {
             rootAttributor.captureSnapshot { uid -> uidToPackage(uid) }
@@ -110,16 +100,41 @@ class WakeAttributor @Inject constructor(
         val event = UsageEvents.Event()
         var lastPackage: String? = null
         var lastTime = 0L
+        var lastNotificationPackage: String? = null
+        var lastNotificationTime = 0L
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
-            if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND ||
-                event.eventType == UsageEvents.Event.ACTIVITY_RESUMED
-            ) {
-                if (event.timeStamp >= lastTime) {
-                    lastPackage = event.packageName
-                    lastTime = event.timeStamp
+            when (event.eventType) {
+                UsageEvents.Event.MOVE_TO_FOREGROUND,
+                UsageEvents.Event.ACTIVITY_RESUMED,
+                -> {
+                    if (event.timeStamp >= lastTime) {
+                        lastPackage = event.packageName
+                        lastTime = event.timeStamp
+                    }
+                }
+                UsageEventsEventNotificationInterruption -> {
+                    if (event.timeStamp >= lastNotificationTime) {
+                        lastNotificationPackage = event.packageName
+                        lastNotificationTime = event.timeStamp
+                    }
                 }
             }
+        }
+        if (lastNotificationPackage != null) {
+            val proximity = 1f - (
+                kotlin.math.abs(lastNotificationTime - screenOnMillis).toFloat() / DEFAULT_WINDOW_MS
+                ).coerceIn(0f, 1f)
+            return listOf(
+                WakeCandidate(
+                    packageName = lastNotificationPackage,
+                    appLabel = resolveAppLabel(lastNotificationPackage),
+                    channelId = null,
+                    channelName = null,
+                    reasonCode = ReasonCode.NOTIFICATION_UNKNOWN,
+                    confidence = 0.45f + proximity * 0.35f,
+                ),
+            )
         }
         if (lastPackage != null) {
             val proximity = 1f - (
@@ -187,5 +202,7 @@ class WakeAttributor @Inject constructor(
     companion object {
         private const val TAG = "WakeAttributor"
         const val DEFAULT_WINDOW_MS = 5_000L
+        /** [UsageEvents.Event] type for notification interruption (API 29+). */
+        private const val UsageEventsEventNotificationInterruption = 12
     }
 }

@@ -6,7 +6,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${ROOT}"
 
-ADB="${ADB:-adb}"
+# shellcheck source=scripts/smoke/_unlock.sh
+source "${SCRIPT_DIR}/_unlock.sh"
+
+# shellcheck source=scripts/smoke/_device.sh
+source "${SCRIPT_DIR}/_device.sh"
+ADB="$(resolve_smoke_adb)"
 PACKAGE="${PACKAGE:-com.screenwakelock.detector}"
 APK_PATH="${APK_PATH:-app/build/outputs/apk/debug/app-debug.apk}"
 
@@ -24,10 +29,9 @@ now_ms() {
     || python -c 'import time; print(int(time.time()*1000))'
 }
 
-# shellcheck source=scripts/smoke/_device.sh
-source "${SCRIPT_DIR}/_device.sh"
 DEVICE="$(pick_smoke_device "${ADB}")" || fail "device selection failed"
 ADB_S=( "${ADB}" -s "${DEVICE}" )
+"${ADB_S[@]}" root >/dev/null 2>&1 || true
 
 MODEL="$("${ADB_S[@]}" shell getprop ro.product.model | tr -d '\r')"
 SDK="$("${ADB_S[@]}" shell getprop ro.build.version.sdk | tr -d '\r')"
@@ -53,9 +57,14 @@ ui_dump() {
 
 run_sql() {
   local sql="$1"
-  "${ADB_S[@]}" shell am force-stop "${PACKAGE}" 2>/dev/null || true
-  sleep 1
-  "${ADB_S[@]}" shell "run-as ${PACKAGE} sqlite3 databases/screen_wakelock.db \"${sql}\"" 2>/dev/null | tr -d '\r'
+  local db_path="/data/data/${PACKAGE}/databases/screen_wakelock.db"
+  if "${ADB_S[@]}" shell id 2>/dev/null | grep -q "uid=0(root)"; then
+    "${ADB_S[@]}" shell "sqlite3 '${db_path}' \"${sql}\"" 2>/dev/null | tr -d '\r'
+  else
+    "${ADB_S[@]}" shell am force-stop "${PACKAGE}" 2>/dev/null || true
+    sleep 1
+    "${ADB_S[@]}" shell "run-as ${PACKAGE} sqlite3 databases/screen_wakelock.db \"${sql}\"" 2>/dev/null | tr -d '\r'
+  fi
 }
 
 clear_test_rows() {
@@ -85,6 +94,8 @@ launch_home() {
 }
 
 complete_onboarding_if_needed() {
+  smoke_unlock "${ADB_S[@]}" || fail "Unlock device (set SMOKE_PIN or unlock manually)"
+  smoke_assert_unlocked "${ADB_S[@]}" || fail "Device still locked — set SMOKE_PIN in .env"
   local ui
   launch_home
   ui="$(ui_dump)"
@@ -107,11 +118,12 @@ complete_onboarding_if_needed
 
 open_quickfix() {
   local wake_id="$1"
+  smoke_unlock "${ADB_S[@]}" || fail "Unlock device before QuickFix UI test"
   "${ADB_S[@]}" shell am force-stop "${PACKAGE}" 2>/dev/null || true
   sleep 1
   "${ADB_S[@]}" shell am start -a android.intent.action.VIEW \
     -d "screenwakelock://app/quickfix/${wake_id}" -p "${PACKAGE}" >/dev/null 2>&1 || true
-  sleep 3
+  sleep 5
 }
 
 open_history() {
@@ -238,6 +250,7 @@ verify_ignored_removable_in_settings() {
 
 # --- M12: attributed wake ignore + undo ---
 clear_test_rows
+clear_test_ignores
 TS="$(now_ms)"
 seed_attributed_wake "${TS}"
 ATTR_ID="$(run_sql "SELECT id FROM wake_events WHERE attributedPackage='${ATTR_PKG}' ORDER BY timestampMillis DESC LIMIT 1;")"
