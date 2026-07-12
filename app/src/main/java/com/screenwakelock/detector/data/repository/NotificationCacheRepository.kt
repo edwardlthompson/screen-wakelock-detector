@@ -18,6 +18,8 @@ class NotificationCacheRepository @Inject constructor(
         postedAtMillis: Long,
         category: String?,
         importance: Int,
+        hasFullScreenIntent: Boolean = false,
+        hasTurnScreenOn: Boolean = false,
     ) {
         notificationCacheDao.insert(
             NotificationCacheEntity(
@@ -27,6 +29,8 @@ class NotificationCacheRepository @Inject constructor(
                 postedAtMillis = postedAtMillis,
                 category = category,
                 importance = importance,
+                hasFullScreenIntent = hasFullScreenIntent,
+                hasTurnScreenOn = hasTurnScreenOn,
             ),
         )
     }

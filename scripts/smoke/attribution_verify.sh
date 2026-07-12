@@ -43,12 +43,16 @@ SERIAL_HW="$("${ADB_S[@]}" shell getprop ro.serialno | tr -d '\r')"
 log "Device ${DEVICE} (${MODEL}, API ${SDK}, hw=${SERIAL_HW})"
 
 export JAVA_HOME="${JAVA_HOME:-/c/Program Files/Android/Android Studio/jbr}"
-[[ -f "${APK_PATH}" ]] || ./gradlew assembleDebug
 
-if ! "${ADB_S[@]}" install -r "${APK_PATH}" >/dev/null 2>&1; then
-  log "Install failed — uninstalling prior build"
-  "${ADB_S[@]}" uninstall "${PACKAGE}" || true
-  "${ADB_S[@]}" install "${APK_PATH}"
+if [[ "${SKIP_INSTALL:-0}" == "1" ]]; then
+  log "SKIP_INSTALL=1 — keeping installed APK and DB history"
+else
+  [[ -f "${APK_PATH}" ]] || ./gradlew assembleDebug
+  if ! "${ADB_S[@]}" install -r "${APK_PATH}" >/dev/null 2>&1; then
+    log "Install failed — uninstalling prior build"
+    "${ADB_S[@]}" uninstall "${PACKAGE}" || true
+    "${ADB_S[@]}" install "${APK_PATH}"
+  fi
 fi
 
 VERSION="$("${ADB_S[@]}" shell dumpsys package "${PACKAGE}" | grep versionName | head -1 | tr -d '\r' || true)"

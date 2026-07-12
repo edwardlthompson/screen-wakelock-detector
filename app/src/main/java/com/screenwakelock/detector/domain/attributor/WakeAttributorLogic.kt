@@ -32,13 +32,31 @@ fun isWakeLikelyNotification(
     category == Notification.CATEGORY_CALL ||
     category == Notification.CATEGORY_ALARM
 
+/** Active notifications at DEFAULT+ are still useful when cache window misses. */
+fun isAttributionEligibleNotification(
+    category: String?,
+    importance: Int,
+    hasFullScreenIntent: Boolean,
+    hasTurnScreenOn: Boolean,
+): Boolean = isWakeLikelyNotification(
+    category,
+    importance,
+    hasFullScreenIntent,
+    hasTurnScreenOn,
+) || importance >= NotificationManager.IMPORTANCE_DEFAULT
+
 fun cachedNotificationCandidates(
     notifications: List<CachedNotification>,
     screenOnMillis: Long,
     correlationWindowMs: Long,
     resolveLabel: (String) -> String?,
 ): List<WakeCandidate> = notifications.map { notif ->
-    val reason = notificationReasonCode(notif.category, notif.importance)
+    val reason = notificationReasonCode(
+        notif.category,
+        notif.importance,
+        notif.hasFullScreenIntent,
+        notif.hasTurnScreenOn,
+    )
     val proximity = 1f - (
         kotlin.math.abs(notif.postedAtMillis - screenOnMillis).toFloat() /
             correlationWindowMs
@@ -55,37 +73,39 @@ fun cachedNotificationCandidates(
 
 fun activeNotificationCandidates(
     snapshots: List<ActiveNotificationSnapshot>,
-    existing: List<WakeCandidate>,
+    @Suppress("UNUSED_PARAMETER") existing: List<WakeCandidate>,
     resolveLabel: (String) -> String?,
-): List<WakeCandidate> {
-    val existingKeys = existing.map { it.packageName to it.channelId }.toSet()
-    return snapshots
-        .filter { snap ->
-            isWakeLikelyNotification(
-                snap.category,
-                snap.importance,
-                snap.hasFullScreenIntent,
-                snap.hasTurnScreenOn,
-            )
-        }
-        .filter { snap -> (snap.packageName to snap.channelId) !in existingKeys }
-        .map { snap ->
-            val reason = notificationReasonCode(
-                snap.category,
-                snap.importance,
-                snap.hasFullScreenIntent,
-                snap.hasTurnScreenOn,
-            )
-            WakeCandidate(
-                packageName = snap.packageName,
-                appLabel = resolveLabel(snap.packageName),
-                channelId = snap.channelId,
-                channelName = snap.channelName,
-                reasonCode = reason,
-                confidence = confidenceForActiveNotification(reason),
-            )
-        }
-}
+): List<WakeCandidate> = snapshots
+    .filter { snap ->
+        isAttributionEligibleNotification(
+            snap.category,
+            snap.importance,
+            snap.hasFullScreenIntent,
+            snap.hasTurnScreenOn,
+        )
+    }
+    .map { snap ->
+        val wakeLikely = isWakeLikelyNotification(
+            snap.category,
+            snap.importance,
+            snap.hasFullScreenIntent,
+            snap.hasTurnScreenOn,
+        )
+        val reason = notificationReasonCode(
+            snap.category,
+            snap.importance,
+            snap.hasFullScreenIntent,
+            snap.hasTurnScreenOn,
+        )
+        WakeCandidate(
+            packageName = snap.packageName,
+            appLabel = resolveLabel(snap.packageName),
+            channelId = snap.channelId,
+            channelName = snap.channelName,
+            reasonCode = reason,
+            confidence = confidenceForActiveNotification(reason, wakeLikely),
+        )
+    }
 
 fun mergeNotificationCandidates(
     cached: List<WakeCandidate>,
@@ -96,12 +116,15 @@ fun mergeNotificationCandidates(
     .map { group -> group.maxBy { it.confidence } }
     .sortedByDescending { it.confidence }
 
-private fun confidenceForActiveNotification(reason: ReasonCode): Float = when (reason) {
-    ReasonCode.NOTIFICATION_FULL_SCREEN -> 0.88f
-    ReasonCode.NOTIFICATION_RING -> 0.85f
-    ReasonCode.NOTIFICATION_HEADS_UP -> 0.78f
-    ReasonCode.NOTIFICATION_UNKNOWN -> 0.65f
-    else -> 0.65f
+private fun confidenceForActiveNotification(reason: ReasonCode, wakeLikely: Boolean): Float {
+    if (!wakeLikely) return 0.58f
+    return when (reason) {
+        ReasonCode.NOTIFICATION_FULL_SCREEN -> 0.88f
+        ReasonCode.NOTIFICATION_RING -> 0.85f
+        ReasonCode.NOTIFICATION_HEADS_UP -> 0.78f
+        ReasonCode.NOTIFICATION_UNKNOWN -> 0.65f
+        else -> 0.65f
+    }
 }
 
 fun capUsageCandidateConfidence(

@@ -4,6 +4,18 @@ Archive of finished BUILD_PLAN sprints. Product milestone history: [`docs/COMPLE
 
 ---
 
+## Sprint ATTR — Unknown-wake pipeline (2026-07-12)
+
+**Gate:** `watch-agent-gates.sh --step attr-p0p1` PASS; feature-gate 6 stages. OP13 baseline before fix: 37/64 UNKNOWN (57%).
+
+- [x] [AGENT] P0 — Sync notification cache insert; clear `instance` on disconnect + `requestRebind`
+- [x] [AGENT] P0 — Empty-candidate 150ms retry; active snapshot before cache read
+- [x] [AGENT] P1 — Active DEFAULT+ candidates (0.58 conf); drop active dedup blocking FSI merge
+- [x] [AGENT] P1 — Cache `hasFullScreenIntent` / `hasTurnScreenOn` + Room migration 2→3
+- [x] [AGENT] Unit tests + version **1.2.14** / `1002014`
+- [x] [ADB] Sideload 1.2.14 on OP13 and re-run `attribution_verify.sh` — PASS (stale path attributed; session 0 unknown; listenerBound=true)
+- [ ] [HUMAN] Release/tag when unknown rate improved on soak
+
 ## Sprint AU — Audit review (2026-06-19)
 
 **Gate:** Local audit — bootstrap/feature-gate/gradle PASS; Android CI green on `95bce34`; `watch-agent-gates.sh --step au-audit` PASS. See ephemeral [`CODE_REVIEW.md`](CODE_REVIEW.md) (gitignored).

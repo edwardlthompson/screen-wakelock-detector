@@ -2,8 +2,6 @@ package com.screenwakelock.detector.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.screenwakelock.detector.data.db.AppDatabase
 import com.screenwakelock.detector.data.db.NotificationCacheDao
 import com.screenwakelock.detector.data.db.WakeEventDao
@@ -26,16 +24,8 @@ object DatabaseModule {
             AppDatabase::class.java,
             "screen_wakelock.db",
         )
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
             .build()
-
-    private val MIGRATION_1_2 = object : Migration(1, 2) {
-        override fun migrate(db: SupportSQLiteDatabase) {
-            db.execSQL(
-                "ALTER TABLE wake_events ADD COLUMN rootParserId TEXT DEFAULT NULL",
-            )
-        }
-    }
 
     @Provides
     fun provideWakeEventDao(database: AppDatabase): WakeEventDao =

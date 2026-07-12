@@ -12,10 +12,12 @@ import com.screenwakelock.detector.domain.model.AttributionData
 import com.screenwakelock.detector.domain.model.ReasonCode
 import com.screenwakelock.detector.domain.model.WakeCandidate
 import com.screenwakelock.detector.root.RootAttributor
+import com.screenwakelock.detector.root.RootSnapshot
 import com.screenwakelock.detector.service.NotificationCaptureService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.delay
 
 @Singleton
 class WakeAttributor @Inject constructor(
@@ -31,37 +33,32 @@ class WakeAttributor @Inject constructor(
         val start = screenOnMillis - correlationWindowMs
         val end = screenOnMillis + correlationWindowMs
 
-        val cachedInWindow = notificationCache.getInWindow(start, end)
-        val cachedCandidates = cachedNotificationCandidates(
-            cachedInWindow,
-            screenOnMillis,
-            correlationWindowMs,
-        ) { pkg -> resolveAppLabel(pkg) }
-        val activeCandidates = activeNotificationCandidates(
-            NotificationCaptureService.snapshotActiveNotifications(),
-            cachedCandidates,
-        ) { pkg -> resolveAppLabel(pkg) }
-        val notificationCandidates = mergeNotificationCandidates(cachedCandidates, activeCandidates)
-
-        var rootSnapshot = if (rootEnabled) {
-            rootAttributor.captureSnapshot { uid -> uidToPackage(uid) }
-        } else {
-            null
-        }
-
-        val usageCandidates = capUsageCandidateConfidence(
-            findUsageCandidates(screenOnMillis),
-            notificationCandidates.isNotEmpty(),
+        var gathered = gatherCandidates(
+            screenOnMillis = screenOnMillis,
+            start = start,
+            end = end,
+            correlationWindowMs = correlationWindowMs,
+            notificationCache = notificationCache,
+            rootEnabled = rootEnabled,
+            previousRoot = null,
         )
 
-        val allCandidates = buildList {
-            addAll(notificationCandidates)
-            addAll(usageCandidates)
-            rootSnapshot?.let { snap ->
-                rootWakeCandidate(snap) { pkg -> resolveAppLabel(pkg) }?.let { add(it) }
-            }
-        }.sortedByDescending { it.confidence }
+        // Cache insert is synchronous now, but OEM listener delivery can still lag briefly.
+        if (gathered.candidates.isEmpty()) {
+            delay(EMPTY_RETRY_DELAY_MS)
+            gathered = gatherCandidates(
+                screenOnMillis = screenOnMillis,
+                start = start,
+                end = end,
+                correlationWindowMs = correlationWindowMs,
+                notificationCache = notificationCache,
+                rootEnabled = rootEnabled,
+                previousRoot = gathered.rootSnapshot,
+            )
+        }
 
+        val allCandidates = gathered.candidates
+        val rootSnapshot = gathered.rootSnapshot
         val top = allCandidates.firstOrNull()
         val reasonCode = when {
             allCandidates.size > 1 && (top?.confidence ?: 0f) < 0.75f ->
@@ -87,9 +84,55 @@ class WakeAttributor @Inject constructor(
                 TAG,
                 "Attributed wake pkg=${result.packageName} channel=${result.channelId} " +
                     "confidence=${result.confidence} reason=${result.reasonCode} " +
-                    "candidates=${result.candidates.size}",
+                    "candidates=${result.candidates.size} " +
+                    "listenerBound=${NotificationCaptureService.isListenerBound()}",
             )
         }
+    }
+
+    private suspend fun gatherCandidates(
+        screenOnMillis: Long,
+        start: Long,
+        end: Long,
+        correlationWindowMs: Long,
+        notificationCache: NotificationCacheRepository,
+        rootEnabled: Boolean,
+        previousRoot: RootSnapshot?,
+    ): GatheredCandidates {
+        // Active snapshot first — avoids racing a just-posted cache row.
+        val activeSnapshots = NotificationCaptureService.snapshotActiveNotifications()
+        val cachedInWindow = notificationCache.getInWindow(start, end)
+        val cachedCandidates = cachedNotificationCandidates(
+            cachedInWindow,
+            screenOnMillis,
+            correlationWindowMs,
+        ) { pkg -> resolveAppLabel(pkg) }
+        val activeCandidates = activeNotificationCandidates(
+            activeSnapshots,
+            cachedCandidates,
+        ) { pkg -> resolveAppLabel(pkg) }
+        val notificationCandidates = mergeNotificationCandidates(cachedCandidates, activeCandidates)
+
+        val rootSnapshot = when {
+            !rootEnabled -> previousRoot
+            previousRoot != null -> previousRoot
+            else -> rootAttributor.captureSnapshot { uid -> uidToPackage(uid) }
+        }
+
+        val usageCandidates = capUsageCandidateConfidence(
+            findUsageCandidates(screenOnMillis),
+            notificationCandidates.isNotEmpty(),
+        )
+
+        val allCandidates = buildList {
+            addAll(notificationCandidates)
+            addAll(usageCandidates)
+            rootSnapshot?.let { snap ->
+                rootWakeCandidate(snap) { pkg -> resolveAppLabel(pkg) }?.let { add(it) }
+            }
+        }.sortedByDescending { it.confidence }
+
+        return GatheredCandidates(allCandidates, rootSnapshot)
     }
 
     private fun findUsageCandidates(screenOnMillis: Long): List<WakeCandidate> {
@@ -199,9 +242,15 @@ class WakeAttributor @Inject constructor(
         return pm.getPackagesForUid(uid)?.firstOrNull()
     }
 
+    private data class GatheredCandidates(
+        val candidates: List<WakeCandidate>,
+        val rootSnapshot: RootSnapshot?,
+    )
+
     companion object {
         private const val TAG = "WakeAttributor"
         const val DEFAULT_WINDOW_MS = 5_000L
+        private const val EMPTY_RETRY_DELAY_MS = 150L
         /** [UsageEvents.Event] type for notification interruption (API 29+). */
         private const val UsageEventsEventNotificationInterruption = 12
     }

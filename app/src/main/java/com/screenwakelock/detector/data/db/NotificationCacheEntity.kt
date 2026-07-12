@@ -16,4 +16,6 @@ data class NotificationCacheEntity(
     val postedAtMillis: Long,
     val category: String?,
     val importance: Int,
+    val hasFullScreenIntent: Boolean = false,
+    val hasTurnScreenOn: Boolean = false,
 )

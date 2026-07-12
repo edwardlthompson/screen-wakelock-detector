@@ -14,6 +14,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.14] — 2026-07-12
+
+Reduce unknown screen wakes from attribution pipeline gaps found on OP13 (57% UNKNOWN in 24h).
+
+### Fixed
+
+- Notification cache write is **synchronous** so screen-on attribution sees just-posted notifications
+- Active snapshot includes **DEFAULT+** ongoing notifications (low confidence), not only HIGH/alarm/call/FSI
+- Active path no longer drops FSI upgrades when the same package/channel is already cached
+- Cache stores `hasFullScreenIntent` / `hasTurnScreenOn` (Room migration 2→3)
+- Listener disconnect clears bound instance and requests rebind; empty-candidate **150ms retry**
+
+### Changed
+
+- Attribution prefers active snapshot before cache window read
+- `WakeAttributor` logs `listenerBound=` on each attribution
+
 ## [1.2.13] — 2026-06-19
 
 Wake attribution improvements for ongoing notifications and OP13 unknown-wake reduction.

@@ -105,6 +105,7 @@ See [`DECISION_LOG.md`](DECISION_LOG.md) for dated architectural decisions.
 
 | Date | Event |
 |------|-------|
+| 2026-07-12 | ATTR v1.2.14: sync cache, DEFAULT+ active snapshot, FSI cache flags, listener rebind; OP13 baseline was 57% UNKNOWN (37/64) |
 | 2026-06-19 | Audit AU: `docs/REPO_HYGIENE.md` + `docs/PARALLEL_AGENT_SCOPES.md`; README forge/clone → GitHub primary; Android CI green on `95bce34` |
 | 2026-06-19 | Bootstrap sync `95bce34`: agent tooling, gates, release automation, living docs at repo root |
 | 2026-06-19 | v1.2.13 released: wake attribution (active snapshot, FSI/TURN_SCREEN_ON); tag `v1.2.13` on GitHub |

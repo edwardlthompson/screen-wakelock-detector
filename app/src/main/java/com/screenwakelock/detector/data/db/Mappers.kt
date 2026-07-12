@@ -86,4 +86,6 @@ fun NotificationCacheEntity.toDomain() = com.screenwakelock.detector.domain.mode
     postedAtMillis = postedAtMillis,
     category = category,
     importance = importance,
+    hasFullScreenIntent = hasFullScreenIntent,
+    hasTurnScreenOn = hasTurnScreenOn,
 )

@@ -8,4 +8,6 @@ data class CachedNotification(
     val postedAtMillis: Long,
     val category: String?,
     val importance: Int,
+    val hasFullScreenIntent: Boolean = false,
+    val hasTurnScreenOn: Boolean = false,
 )

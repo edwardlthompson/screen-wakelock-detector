@@ -99,7 +99,7 @@ class WakeAttributorLogicTest {
     }
 
     @Test
-    fun activeNotificationCandidates_skipsLowImportanceOngoing() {
+    fun activeNotificationCandidates_includesDefaultImportance_skipsLow() {
         val snapshots = listOf(
             com.screenwakelock.detector.domain.model.ActiveNotificationSnapshot(
                 packageName = "com.example.low",
@@ -107,6 +107,15 @@ class WakeAttributorLogicTest {
                 channelName = "Misc",
                 category = null,
                 importance = android.app.NotificationManager.IMPORTANCE_LOW,
+                hasFullScreenIntent = false,
+                hasTurnScreenOn = false,
+            ),
+            com.screenwakelock.detector.domain.model.ActiveNotificationSnapshot(
+                packageName = "com.example.default",
+                channelId = "shell_cmd",
+                channelName = "Shell",
+                category = null,
+                importance = android.app.NotificationManager.IMPORTANCE_DEFAULT,
                 hasFullScreenIntent = false,
                 hasTurnScreenOn = false,
             ),
@@ -121,9 +130,42 @@ class WakeAttributorLogicTest {
             ),
         )
         val result = activeNotificationCandidates(snapshots, emptyList()) { "Label" }
-        assertEquals(1, result.size)
-        assertEquals("com.example.alarm", result.first().packageName)
-        assertEquals(ReasonCode.NOTIFICATION_FULL_SCREEN, result.first().reasonCode)
+        assertEquals(2, result.size)
+        assertEquals("com.example.default", result[0].packageName)
+        assertEquals(0.58f, result[0].confidence)
+        assertEquals("com.example.alarm", result[1].packageName)
+        assertEquals(ReasonCode.NOTIFICATION_FULL_SCREEN, result[1].reasonCode)
+    }
+
+    @Test
+    fun activeNotificationCandidates_doesNotDedupAgainstCache_mergeKeepsFsi() {
+        val cached = listOf(
+            WakeCandidate(
+                packageName = "com.example.app",
+                appLabel = "Example",
+                channelId = "alerts",
+                channelName = "Alerts",
+                reasonCode = ReasonCode.NOTIFICATION_UNKNOWN,
+                confidence = 0.55f,
+            ),
+        )
+        val snapshots = listOf(
+            com.screenwakelock.detector.domain.model.ActiveNotificationSnapshot(
+                packageName = "com.example.app",
+                channelId = "alerts",
+                channelName = "Alerts",
+                category = null,
+                importance = android.app.NotificationManager.IMPORTANCE_DEFAULT,
+                hasFullScreenIntent = true,
+                hasTurnScreenOn = false,
+            ),
+        )
+        val active = activeNotificationCandidates(snapshots, cached) { "Example" }
+        assertEquals(1, active.size)
+        val merged = mergeNotificationCandidates(cached, active)
+        assertEquals(1, merged.size)
+        assertEquals(ReasonCode.NOTIFICATION_FULL_SCREEN, merged.first().reasonCode)
+        assertEquals(0.88f, merged.first().confidence)
     }
 
     @Test
@@ -152,5 +194,27 @@ class WakeAttributorLogicTest {
         assertEquals(1, merged.size)
         assertEquals(ReasonCode.NOTIFICATION_FULL_SCREEN, merged.first().reasonCode)
         assertEquals(0.88f, merged.first().confidence)
+    }
+
+    @Test
+    fun cachedNotificationCandidates_usesFullScreenFlags() {
+        val cached = listOf(
+            com.screenwakelock.detector.domain.model.CachedNotification(
+                packageName = "com.example.fsi",
+                channelId = "alerts",
+                channelName = "Alerts",
+                postedAtMillis = 1_000L,
+                category = null,
+                importance = android.app.NotificationManager.IMPORTANCE_DEFAULT,
+                hasFullScreenIntent = true,
+                hasTurnScreenOn = false,
+            ),
+        )
+        val result = cachedNotificationCandidates(
+            cached,
+            screenOnMillis = 1_000L,
+            correlationWindowMs = 5_000L,
+        ) { "FSI" }
+        assertEquals(ReasonCode.NOTIFICATION_FULL_SCREEN, result.first().reasonCode)
     }
 }
