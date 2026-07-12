@@ -39,7 +39,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | TM | PASS | Smoke TM: PASS 2026-06-19T10:03:34Z b5214fc6 1.2.12 (wireless 192.168.1.2:44487 — gradlew, feature-gate, m14_regression, m13_adb_verify, memory baseline CPH2583) |
 | attr_verify | PASS | Smoke attr_verify: PASS 2026-06-19T11:12:54Z 8bf09993 + 192.168.1.2:44487 1.2.12 (dual — active snapshot + root on OP12) |
 | attr_verify v1.2.14 | PASS | Smoke attr_verify: PASS 2026-07-12T03:34:53Z 8bf09993 1.2.14 (DEFAULT+ active; stale path attributed; session 0 unknown) |
-| M14 v1.2.14 | PASS | Smoke M14: PASS 2026-07-12T03:41:29Z 8bf09993 1.2.14 (m14_regression + memory baseline CPH2655 + m13_adb_verify) |
+| M14 v1.2.14 | PASS | Smoke M14: PASS 2026-07-12T03:56:52Z 8bf09993 1.2.14 (m14_regression + memory baseline CPH2655 + m13_adb_verify; ship regress) |
 | M14 v1.2.13 | PASS | Smoke M14: PASS 2026-06-19T11:32:33Z 8bf09993 1.2.13 (m14_regression + memory baseline CPH2655 + m13_adb_verify) |
 | M11 OP13 | PASS | Smoke M11 OP13: PASS 2026-06-12T20:30:00Z 8bf09993 1.2.11 (2-page onboarding, restricted chip refresh, no Verify page) |
 | ADB gates | PASS | adb_gates_verify: PASS 2026-06-08T08:51:00Z b5214fc6 1.1.0 |

@@ -13,9 +13,8 @@ Active tasks only. Completed work: [`docs/COMPLETED.md`](docs/COMPLETED.md), [`C
 - [ ] **GitLab** — Create project, connect MCP, paste About from [`docs/GITLAB.md`](docs/GITLAB.md), run `scripts/gitlab/create-labels.sh`
 - [ ] **GitHub security** — Enable private vulnerability reporting (Settings → Code security)
 - [ ] **F-Droid first ship** — 1-week `1.0.0-rc.1` soak on daily driver; fork fdroiddata; set `FDROIDDATA_FORK_URL` + `GITLAB_TOKEN` secrets so tag pushes open live MRs
-- [ ] **Sideload / release v1.2.14** — sign + publish after soak on OP13 unknown-rate
 
-Prep already done: metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS (2026-06-19).
+Prep already done: metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS (2026-06-19). v1.2.14 released 2026-07-12.
 
 ---
 

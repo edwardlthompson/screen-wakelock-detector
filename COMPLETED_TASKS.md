@@ -14,7 +14,7 @@ Archive of finished BUILD_PLAN sprints. Product milestone history: [`docs/COMPLE
 - [x] [AGENT] P1 — Cache `hasFullScreenIntent` / `hasTurnScreenOn` + Room migration 2→3
 - [x] [AGENT] Unit tests + version **1.2.14** / `1002014`
 - [x] [ADB] Sideload 1.2.14 on OP13 and re-run `attribution_verify.sh` — PASS (stale path attributed; session 0 unknown; listenerBound=true)
-- [ ] [HUMAN] Release/tag when unknown rate improved on soak
+- [x] [HUMAN] Release/tag — [v1.2.14](https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.14) published 2026-07-12; ship regress PASS 8bf09993
 
 ## Sprint AU — Audit review (2026-06-19)
 

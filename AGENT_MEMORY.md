@@ -105,6 +105,7 @@ See [`DECISION_LOG.md`](DECISION_LOG.md) for dated architectural decisions.
 
 | Date | Event |
 |------|-------|
+| 2026-07-12 | **v1.2.14** shipped: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.14 — ATTR unknown-wake fixes; M14 regress PASS 8bf09993 |
 | 2026-07-12 | ATTR v1.2.14: sync cache, DEFAULT+ active snapshot, FSI cache flags, listener rebind; OP13 baseline was 57% UNKNOWN (37/64) |
 | 2026-06-19 | Audit AU: `docs/REPO_HYGIENE.md` + `docs/PARALLEL_AGENT_SCOPES.md`; README forge/clone → GitHub primary; Android CI green on `95bce34` |
 | 2026-06-19 | Bootstrap sync `95bce34`: agent tooling, gates, release automation, living docs at repo root |
