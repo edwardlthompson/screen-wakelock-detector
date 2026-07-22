@@ -21,6 +21,9 @@ fun WakeEventEntity.toDomain(): WakeEvent = WakeEvent(
     wakelockName = wakelockName,
     rootParserId = rootParserId,
     screenOffDurationMs = screenOffDurationMs,
+    shieldOutcome = shieldOutcome,
+    shieldDetail = shieldDetail,
+    evidencePackagesJson = evidencePackagesJson,
 )
 
 fun WakeEvent.toEntity(): WakeEventEntity = WakeEventEntity(
@@ -38,6 +41,9 @@ fun WakeEvent.toEntity(): WakeEventEntity = WakeEventEntity(
     wakelockName = wakelockName,
     rootParserId = rootParserId,
     screenOffDurationMs = screenOffDurationMs,
+    shieldOutcome = shieldOutcome,
+    shieldDetail = shieldDetail,
+    evidencePackagesJson = evidencePackagesJson,
 )
 
 fun encodeCandidates(candidates: List<WakeCandidate>): String {

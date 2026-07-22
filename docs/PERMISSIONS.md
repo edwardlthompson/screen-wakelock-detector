@@ -15,9 +15,10 @@ All special permissions are **optional for basic screen-on logging** except wher
 | **Foreground service** | `FOREGROUND_SERVICE` + type | Required for monitoring | Reliable background screen-on capture | Monitoring may not start |
 | **Post notifications** | `POST_NOTIFICATIONS` (API 33+) | Optional | Threshold alerts naming app + channel | Alerts in-app only |
 | **Battery unrestricted** | `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Recommended | Reliable capture during Doze/deep sleep | Missed wakes when aggressively optimized |
-| **Root (`su`)** | Runtime via libsu | Optional | Live wakelock holder from dumpsys parsers | Root UI grayed; non-root attribution only |
+| **Root (`su`)** | Runtime via libsu | Optional | Live wakelock holder from dumpsys parsers; Wake Shield L3 sleep/deny | Root UI grayed; non-root attribution only |
+| **Accessibility (Wake Shield)** | `BIND_ACCESSIBILITY_SERVICE` | Optional | `GLOBAL_ACTION_LOCK_SCREEN` only when Wake Shield armed | L2 re-lock skipped; L1 (+ L3 if root) still work |
 
-**Not used:** `INTERNET`, location, contacts, SMS, microphone, camera.
+**Not used:** `INTERNET`, location, contacts, SMS, microphone, camera. Accessibility does **not** retrieve window content.
 
 ---
 
@@ -133,6 +134,16 @@ See [`ROOT.md`](ROOT.md). Root is **never required** for core functionality.
 - One-time `su` grant via Magisk, KernelSU, APatch, etc.
 - All tooling ships inside the APK (libsu + parsers)
 - No Shizuku, Magisk modules, or companion apps
+
+---
+
+## Accessibility (Wake Shield only)
+
+**System setting:** Settings → Accessibility → Screen Wakelock Detector (Wake Shield)
+
+**Purpose:** When Wake Shield is armed, perform `GLOBAL_ACTION_LOCK_SCREEN` after a hostile wake. The service config sets `canRetrieveWindowContent=false` — no screen content scraping.
+
+**Not required** for detection, forensics, notification cancel (L1), or root sleep (L3).
 
 ---
 

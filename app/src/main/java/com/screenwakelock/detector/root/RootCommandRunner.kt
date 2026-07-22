@@ -11,14 +11,30 @@ data class RootCommandResult(
 class RootCommandRunner(
     private val rootShellService: RootShellService,
 ) {
-    suspend fun execute(allowlist: RootCommandAllowlist): RootCommandResult {
+    suspend fun execute(allowlist: RootCommandAllowlist): RootCommandResult =
+        executeCommand(allowlist.command)
+
+    /**
+     * Runs a command only if [RootCommandAllowlist.isAllowed] accepts it
+     * (fixed enum entries or validated templates).
+     */
+    suspend fun executeCommand(command: String): RootCommandResult {
+        if (!RootCommandAllowlist.isAllowed(command)) {
+            return RootCommandResult(
+                command = command,
+                success = false,
+                output = null,
+                error = "Command not in allowlist",
+                durationMs = 0,
+            )
+        }
         val start = System.currentTimeMillis()
-        val result = rootShellService.runCommand(allowlist.command)
+        val result = rootShellService.runCommand(command)
         val duration = System.currentTimeMillis() - start
         return result.fold(
             onSuccess = { output ->
                 RootCommandResult(
-                    command = allowlist.command,
+                    command = command,
                     success = true,
                     output = output,
                     error = null,
@@ -27,7 +43,7 @@ class RootCommandRunner(
             },
             onFailure = { error ->
                 RootCommandResult(
-                    command = allowlist.command,
+                    command = command,
                     success = false,
                     output = null,
                     error = error.message,
@@ -37,15 +53,5 @@ class RootCommandRunner(
         )
     }
 
-    suspend fun executeUnsafe(input: String): RootCommandResult {
-        val allowlist = RootCommandAllowlist.fromUserInput(input)
-            ?: return RootCommandResult(
-                command = input,
-                success = false,
-                output = null,
-                error = "Command not in allowlist",
-                durationMs = 0,
-            )
-        return execute(allowlist)
-    }
+    suspend fun executeUnsafe(input: String): RootCommandResult = executeCommand(input)
 }

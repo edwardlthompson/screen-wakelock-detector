@@ -4,6 +4,13 @@ Major architectural and process decisions. Living summary tables remain in [`AGE
 
 ---
 
+## 2026-07-21 — M16 Wake Shield
+
+- **Opt-in multi-tier wake firewall** under `wakeshield/`: L0 forensics → L1 notification cancel → L2 Accessibility re-lock → L3 root sleep / `TURN_SCREEN_ON` deny.
+- **Policy:** ~1.5s grace; Unknown / non-allowlisted after grace → enforce (not a user blocklist).
+- **Separate shield allowlist** from History ignored apps; panic disable on FGS + Settings; Room v4 evidence columns.
+- **L3 requires Magisk/KSU `su`** — ADB root alone is insufficient for in-app libsu.
+
 ## 2026-06-06 — Foundation
 
 - **minSdk 29** for usage stats and modern notification APIs.

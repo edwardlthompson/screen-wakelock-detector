@@ -28,6 +28,7 @@ import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.widget.WakeCountWidgetReceiver
 import com.screenwakelock.detector.widget.WakeWidgetReceiver
 import com.screenwakelock.detector.util.TimeUtils
+import com.screenwakelock.detector.wakeshield.ShieldCoordinator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,12 +47,14 @@ class WakeMonitorService : LifecycleService() {
     @Inject lateinit var wakeAttributor: WakeAttributor
     @Inject lateinit var wakeAlertNotifier: WakeAlertNotifier
     @Inject lateinit var callbackHolder: WakeMonitorCallbackHolder
+    @Inject lateinit var shieldCoordinator: ShieldCoordinator
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var screenOffMillis: Long? = null
     private var receiver: WakeMonitorReceiver? = null
     private var displayListener: DisplayManager.DisplayListener? = null
     private var lastScreenOnHandledAt = 0L
+    @Volatile private var shieldArmedCached = false
 
     override fun onCreate() {
         super.onCreate()
@@ -68,6 +71,12 @@ class WakeMonitorService : LifecycleService() {
                 System.currentTimeMillis() - NOTIFICATION_RETENTION_MS,
             )
         }
+        serviceScope.launch {
+            preferencesRepository.shieldEnabled.collect { enabled ->
+                shieldArmedCached = enabled
+                startForegroundWithNotification()
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -76,6 +85,12 @@ class WakeMonitorService : LifecycleService() {
             ACTION_STOP -> {
                 stopSelf()
                 return START_NOT_STICKY
+            }
+            ACTION_PANIC_DISABLE_SHIELD -> {
+                serviceScope.launch {
+                    shieldCoordinator.panicDisable()
+                    startForegroundWithNotification()
+                }
             }
         }
         startForegroundWithNotification()
@@ -163,6 +178,10 @@ class WakeMonitorService : LifecycleService() {
                 wakeEventRepository,
             )
         }
+        serviceScope.launch {
+            runCatching { shieldCoordinator.onWakeLogged(stored) }
+                .onFailure { Log.w(TAG, "Shield coordinator failed: ${it.message}") }
+        }
     }
 
     private suspend fun isMonitoringPausedBySchedule(nowMillis: Long): Boolean {
@@ -180,14 +199,30 @@ class WakeMonitorService : LifecycleService() {
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.monitoring_notification_title))
             .setContentText(getString(R.string.monitoring_notification_text))
             .setSmallIcon(R.drawable.ic_tile)
             .setContentIntent(pending)
             .setOngoing(true)
             .setCategory(Notification.CATEGORY_SERVICE)
-            .build()
+        if (shieldArmedCached) {
+            val panicPending = PendingIntent.getService(
+                this,
+                1,
+                Intent(this, WakeMonitorService::class.java).apply {
+                    action = ACTION_PANIC_DISABLE_SHIELD
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+            builder.setContentText(getString(R.string.shield_monitoring_notification_text))
+            builder.addAction(
+                0,
+                getString(R.string.shield_panic_action),
+                panicPending,
+            )
+        }
+        val notification = builder.build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(
                 NOTIFICATION_ID,
@@ -238,6 +273,8 @@ class WakeMonitorService : LifecycleService() {
         const val CHANNEL_ID = "wake_monitor"
         const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.screenwakelock.detector.STOP_MONITOR"
+        const val ACTION_PANIC_DISABLE_SHIELD =
+            "com.screenwakelock.detector.PANIC_DISABLE_SHIELD"
         private const val NOTIFICATION_RETENTION_MS = 86_400_000L
 
         fun start(context: android.content.Context) {

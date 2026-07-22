@@ -18,4 +18,44 @@
     <string name="about_no_handler">No app found to open this link</string>
     <string name="changelog_url" translatable="false">https://github.com/edwardlthompson/screen-wakelock-detector/blob/main/docs/CHANGELOG.md</string>
     <string name="donate_venmo_url" translatable="false">https://venmo.com/code?user_id=1857304970395648420</string>
+
+    <!-- Wake Shield -->
+    <string name="shield_section_title">Wake Shield</string>
+    <string name="shield_master_title">Wake Shield</string>
+    <string name="shield_master_summary">Opt-in firewall: after a short grace, cancel wake notifications, lock, and (with root) sleep/deny holders. Not a guarantee — screen may flash. Alarms and calls are best-effort exempt.</string>
+    <string name="shield_forensics_title">Wake forensics</string>
+    <string name="shield_forensics_summary">Log active notification packages and shield outcomes even when Shield is off</string>
+    <string name="shield_root_kill_title">Kill / deny wake holders (root)</string>
+    <string name="shield_root_kill_summary">After detect: KEYCODE_SLEEP and optional TURN_SCREEN_ON appops deny. Confirm carefully — denies stick until undone.</string>
+    <string name="shield_root_kill_confirm_title">Enable root wake deny?</string>
+    <string name="shield_root_kill_confirm_body">This can set TURN_SCREEN_ON ignore on identified packages. Use Panic disable or the undo list to restore.</string>
+    <string name="shield_accessibility_title">Lock screen access</string>
+    <string name="shield_accessibility_summary_on">Accessibility connected — can re-lock</string>
+    <string name="shield_accessibility_summary_off">Open Accessibility settings to allow lock-screen action only (no content reading)</string>
+    <string name="shield_accessibility_description">Used only to lock the screen when Wake Shield blocks a wake. Does not read screen content.</string>
+    <string name="shield_capability_listener">Notification access: %1$s</string>
+    <string name="shield_capability_a11y">Accessibility lock: %1$s</string>
+    <string name="shield_capability_root">Root kill: %1$s</string>
+    <string name="shield_ready">ready</string>
+    <string name="shield_missing">missing</string>
+    <string name="shield_allowlist_title">Shield allowlist</string>
+    <string name="shield_allowlist_empty">No allowlisted apps — add apps that may wake the screen</string>
+    <string name="shield_allowlist_add">Add from recent wakes</string>
+    <string name="shield_denied_title">Appops denied packages</string>
+    <string name="shield_denied_undo">Restore TURN_SCREEN_ON</string>
+    <string name="shield_panic_title">Disable Wake Shield now</string>
+    <string name="shield_panic_summary">Immediate disarm and restore sticky appops denies</string>
+    <string name="shield_panic_action">Disable Shield</string>
+    <string name="shield_monitoring_notification_text">Wake Shield armed — tap Disable Shield to panic-stop</string>
+    <string name="shield_fsi_settings">Full screen intent settings</string>
+    <string name="shield_fsi_settings_summary">System special access for which apps may use full-screen wakes</string>
+    <string name="shield_detail_banner_title">Wake Shield</string>
+    <string name="shield_detail_banner_body">Outcome: %1$s</string>
+    <string name="shield_never_shield">Never shield this app</string>
+    <string name="shield_backup_confirm_title">Wake Shield was restored from backup</string>
+    <string name="shield_backup_confirm_body">Shield is armed from an import. Keep it on only if you intend the firewall to stay active.</string>
+    <string name="shield_backup_keep">Keep armed</string>
+    <string name="shield_backup_disarm">Disarm</string>
+    <string name="shield_confirm_enable">Enable</string>
+    <string name="shield_confirm_cancel">Cancel</string>
 </resources>

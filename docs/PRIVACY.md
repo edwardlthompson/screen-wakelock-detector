@@ -2,7 +2,7 @@
 
 **Screen Wakelock Detector** (`com.screenwakelock.detector`)
 
-**Last updated:** 2026-06-06
+**Last updated:** 2026-07-21
 
 ---
 
@@ -24,7 +24,8 @@ This app helps you understand **what wakes your phone screen**. All processing a
 | Notification metadata | Correlate wakes to channels (package, channel ID, category, tag, post time) | Cached briefly; not message bodies by default |
 | Confidence scores and reason codes | Transparency (“Why this app?”) | Same |
 | Root diagnostic output (optional) | Parse wakelock holders when root enabled | Parsed fields only; raw dumpsys not persisted long-term |
-| App settings | Preferences, alert thresholds, onboarding state | Same |
+| Wake Shield outcomes / evidence packages | Show what the optional firewall did (metadata packages only) | Same as wake history |
+| App settings | Preferences, alert thresholds, onboarding state, Wake Shield allowlist | Same |
 
 ---
 
@@ -47,7 +48,8 @@ See [`PERMISSIONS.md`](PERMISSIONS.md) for full detail. Summary:
 - **Foreground service** — reliable background monitoring
 - **Post notifications** — optional local alerts only
 - **Battery exemption** — reduce missed wakes in Doze
-- **Root (optional)** — local shell commands from fixed allowlist; parsed on device
+- **Root (optional)** — local shell commands from fixed allowlist; parsed on device; optional Wake Shield L3 sleep/deny
+- **Accessibility (optional)** — Wake Shield re-lock only; does not read screen content
 
 ---
 

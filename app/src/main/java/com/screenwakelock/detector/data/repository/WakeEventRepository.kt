@@ -57,4 +57,13 @@ class WakeEventRepository @Inject constructor(
     ): List<WakeEvent> =
         wakeEventDao.getRootEnhancedForPackageSince(packageName, sinceMillis, limit)
             .map { it.toDomain() }
+
+    suspend fun updateShieldFields(
+        id: Long,
+        shieldOutcome: String?,
+        shieldDetail: String?,
+        evidencePackagesJson: String?,
+    ) {
+        wakeEventDao.updateShieldFields(id, shieldOutcome, shieldDetail, evidencePackagesJson)
+    }
 }

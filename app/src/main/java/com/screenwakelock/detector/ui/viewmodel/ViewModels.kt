@@ -227,6 +227,9 @@ class DetailViewModel @Inject constructor(
     suspend fun unignoreApp(packageName: String) =
         preferencesRepository.removeIgnoredPackage(packageName)
 
+    suspend fun neverShieldApp(packageName: String) =
+        preferencesRepository.addShieldAllowlistPackage(packageName)
+
     val ignoredPackages = preferencesRepository.ignoredPackages
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 }
@@ -272,6 +275,8 @@ class InsightsViewModel @Inject constructor(
 class SettingsViewModel @Inject constructor(
     private val preferencesRepository: PreferencesRepository,
     private val wakeEventRepository: WakeEventRepository,
+    private val shieldCoordinator: com.screenwakelock.detector.wakeshield.ShieldCoordinator,
+    private val rootWakeEnforcer: com.screenwakelock.detector.wakeshield.RootWakeEnforcer,
 ) : ViewModel() {
     val monitoringEnabled = preferencesRepository.monitoringEnabled
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
@@ -303,6 +308,18 @@ class SettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 7)
     val nightlyBudgets = preferencesRepository.nightlyBudgets
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+    val shieldEnabled = preferencesRepository.shieldEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val shieldRootKillEnabled = preferencesRepository.shieldRootKillEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val wakeForensicsEnabled = preferencesRepository.wakeForensicsEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val shieldAllowlistPackages = preferencesRepository.shieldAllowlistPackages
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+    val shieldDeniedPackages = preferencesRepository.shieldDeniedPackages
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+    val shieldBackupConfirmPending = preferencesRepository.shieldBackupConfirmPending
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     suspend fun setMonitoringEnabled(v: Boolean) = preferencesRepository.setMonitoringEnabled(v)
     suspend fun setAlertOnEveryWake(v: Boolean) = preferencesRepository.setAlertOnEveryWake(v)
@@ -321,6 +338,27 @@ class SettingsViewModel @Inject constructor(
     suspend fun setNightlyBudget(packageName: String, maxWakes: Int) =
         preferencesRepository.setNightlyBudget(packageName, maxWakes)
 
+    suspend fun setShieldEnabled(v: Boolean) = preferencesRepository.setShieldEnabled(v)
+    suspend fun setShieldRootKillEnabled(v: Boolean) =
+        preferencesRepository.setShieldRootKillEnabled(v)
+    suspend fun setWakeForensicsEnabled(v: Boolean) =
+        preferencesRepository.setWakeForensicsEnabled(v)
+    suspend fun addShieldAllowlistPackage(pkg: String) =
+        preferencesRepository.addShieldAllowlistPackage(pkg)
+    suspend fun removeShieldAllowlistPackage(pkg: String) =
+        preferencesRepository.removeShieldAllowlistPackage(pkg)
+    suspend fun undoShieldDeniedPackage(pkg: String) {
+        rootWakeEnforcer.restoreAppOp(pkg)
+        preferencesRepository.removeShieldDeniedPackage(pkg)
+    }
+    suspend fun panicDisableShield() = shieldCoordinator.panicDisable()
+    suspend fun clearShieldBackupConfirm() =
+        preferencesRepository.setShieldBackupConfirmPending(false)
+    suspend fun disarmShieldFromBackupConfirm() {
+        preferencesRepository.setShieldEnabled(false)
+        preferencesRepository.setShieldBackupConfirmPending(false)
+    }
+
     suspend fun buildBackupJson(): String {
         val settings = BackupUtils.BackupSettings(
             monitoringEnabled = preferencesRepository.monitoringEnabled.first(),
@@ -338,6 +376,10 @@ class SettingsViewModel @Inject constructor(
             monitorPauseStartHour = preferencesRepository.monitorPauseStartHour.first(),
             monitorPauseEndHour = preferencesRepository.monitorPauseEndHour.first(),
             nightlyBudgets = preferencesRepository.nightlyBudgets.first(),
+            shieldEnabled = preferencesRepository.shieldEnabled.first(),
+            shieldRootKillEnabled = preferencesRepository.shieldRootKillEnabled.first(),
+            wakeForensicsEnabled = preferencesRepository.wakeForensicsEnabled.first(),
+            shieldAllowlistPackages = preferencesRepository.shieldAllowlistPackages.first(),
         )
         return BackupUtils.buildBackupJson(wakeEventRepository.getAll(), settings)
     }
@@ -377,6 +419,25 @@ class SettingsViewModel @Inject constructor(
             budgets.keys().forEach { key ->
                 preferencesRepository.setNightlyBudget(key, budgets.getInt(key))
             }
+        }
+        val shieldOn = settingsObj.optBoolean("shieldEnabled", false)
+        preferencesRepository.setShieldEnabled(shieldOn)
+        preferencesRepository.setShieldRootKillEnabled(
+            settingsObj.optBoolean("shieldRootKillEnabled", false),
+        )
+        if (settingsObj.has("wakeForensicsEnabled")) {
+            preferencesRepository.setWakeForensicsEnabled(
+                settingsObj.optBoolean("wakeForensicsEnabled", false),
+            )
+        }
+        val allow = settingsObj.optJSONArray("shieldAllowlistPackages")
+        if (allow != null) {
+            for (i in 0 until allow.length()) {
+                preferencesRepository.addShieldAllowlistPackage(allow.getString(i))
+            }
+        }
+        if (shieldOn) {
+            preferencesRepository.setShieldBackupConfirmPending(true)
         }
     }
 }

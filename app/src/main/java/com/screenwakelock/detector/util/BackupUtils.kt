@@ -27,6 +27,10 @@ object BackupUtils {
         val monitorPauseStartHour: Int,
         val monitorPauseEndHour: Int,
         val nightlyBudgets: Map<String, Int>,
+        val shieldEnabled: Boolean = false,
+        val shieldRootKillEnabled: Boolean = false,
+        val wakeForensicsEnabled: Boolean = false,
+        val shieldAllowlistPackages: Set<String> = emptySet(),
     )
 
     data class ImportPreview(
@@ -82,6 +86,13 @@ object BackupUtils {
                             put(pkg, count)
                         }
                     },
+                )
+                put("shieldEnabled", settings.shieldEnabled)
+                put("shieldRootKillEnabled", settings.shieldRootKillEnabled)
+                put("wakeForensicsEnabled", settings.wakeForensicsEnabled)
+                put(
+                    "shieldAllowlistPackages",
+                    JSONArray(settings.shieldAllowlistPackages.toList()),
                 )
             },
         )

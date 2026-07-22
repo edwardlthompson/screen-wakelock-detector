@@ -54,15 +54,22 @@ app/src/test/resources/root/
 
 ## Allowlisted commands
 
-Executed only via `RootCommandAllowlist` enum:
+Executed only via `RootCommandAllowlist` (fixed enum + validated templates):
 
 ```text
 dumpsys power
 dumpsys batterystats --checkin
 cat /sys/kernel/debug/wakeup_sources
+input keyevent KEYCODE_SLEEP
+input keyevent KEYCODE_POWER
+cmd appops set <package> TURN_SCREEN_ON ignore   # package charset-validated
+cmd appops set <package> TURN_SCREEN_ON allow
+echo <tag> > /sys/power/wake_unlock              # tag charset-validated
 ```
 
-**Security:** Unit tests must assert rejection of arbitrary strings. Timeouts and max output bytes enforced in `RootCommandRunner`.
+**Wake Shield (L3):** When Settings → Wake Shield → Kill / deny wake holders is on (and root enabled), `RootWakeEnforcer` may sleep the display and optionally set sticky `TURN_SCREEN_ON ignore` for a positively identified non-exempt package. Panic disable and Settings undo restore appops.
+
+**Security:** Unit tests must assert rejection of arbitrary strings and injection (`;`, spaces). Timeouts and max output bytes enforced in `RootCommandRunner`. Never interpolate free-form user input into shell.
 
 ---
 

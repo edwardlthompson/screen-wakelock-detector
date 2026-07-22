@@ -1,0 +1,1 @@
+Wake Shield (opt-in): block mystery screen wakes after a short grace — cancel wake notifications, re-lock via Accessibility, and with Magisk/root sleep or deny TURN_SCREEN_ON. Panic disable, allowlist, and safety rails included. Alarms and calls stay best-effort exempt.

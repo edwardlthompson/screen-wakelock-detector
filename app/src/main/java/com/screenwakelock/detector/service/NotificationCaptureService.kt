@@ -1,19 +1,26 @@
 package com.screenwakelock.detector.service
 
+import android.app.KeyguardManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.content.ComponentName
+import android.hardware.display.DisplayManager
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import android.view.Display
 import com.screenwakelock.detector.data.repository.NotificationCacheRepository
+import com.screenwakelock.detector.data.repository.PreferencesRepository
 import com.screenwakelock.detector.domain.model.ActiveNotificationSnapshot
+import com.screenwakelock.detector.wakeshield.ShieldExemptPackages
+import com.screenwakelock.detector.wakeshield.ShieldHardExemptResolver
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -21,6 +28,8 @@ import kotlinx.coroutines.runBlocking
 class NotificationCaptureService : NotificationListenerService() {
 
     @Inject lateinit var notificationCacheRepository: NotificationCacheRepository
+    @Inject lateinit var preferencesRepository: PreferencesRepository
+    @Inject lateinit var hardExemptResolver: ShieldHardExemptResolver
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -57,7 +66,42 @@ class NotificationCaptureService : NotificationListenerService() {
                 hasFullScreenIntent = hasFullScreenIntent,
                 hasTurnScreenOn = hasTurnScreenOn,
             )
+            maybeShieldCancel(sbn, notification, importance, hasFullScreenIntent, hasTurnScreenOn)
         }
+    }
+
+    private suspend fun maybeShieldCancel(
+        sbn: StatusBarNotification,
+        notification: Notification,
+        importance: Int,
+        hasFullScreenIntent: Boolean,
+        hasTurnScreenOn: Boolean,
+    ) {
+        if (!preferencesRepository.shieldEnabled.first()) return
+        if (!isDisplayOffOrKeyguardLocked()) return
+        val category = notification.category
+        if (category == Notification.CATEGORY_CALL || category == Notification.CATEGORY_ALARM) {
+            return
+        }
+        val exempt = hardExemptResolver.resolve() +
+            preferencesRepository.shieldAllowlistPackages.first()
+        if (sbn.packageName in exempt || ShieldExemptPackages.isStaticExempt(sbn.packageName)) {
+            return
+        }
+        if (hasFullScreenIntent) return
+        val wakeCapable = hasTurnScreenOn || importance >= NotificationManager.IMPORTANCE_HIGH
+        if (!wakeCapable) return
+        cancelNotification(sbn.key)
+        Log.i(TAG, "Shield L1 cancelled wake-capable notif pkg=${sbn.packageName}")
+    }
+
+    private fun isDisplayOffOrKeyguardLocked(): Boolean {
+        val kg = getSystemService(KeyguardManager::class.java)
+        if (kg?.isKeyguardLocked == true) return true
+        val dm = getSystemService(DisplayManager::class.java) ?: return false
+        val state = dm.getDisplay(Display.DEFAULT_DISPLAY)?.state ?: return false
+        return state == Display.STATE_OFF || state == Display.STATE_DOZE ||
+            state == Display.STATE_DOZE_SUSPEND
     }
 
     override fun onListenerDisconnected() {
@@ -153,6 +197,33 @@ class NotificationCaptureService : NotificationListenerService() {
         fun snapshotActiveNotifications(): List<ActiveNotificationSnapshot> {
             val svc = instance ?: return emptyList()
             return svc.activeNotifications?.mapNotNull { svc.toSnapshot(it) } ?: emptyList()
+        }
+
+        /**
+         * Cancel wake-capable notifications except exempt packages and CALL/ALARM categories.
+         */
+        fun cancelWakeCapableExcept(exemptPackages: Set<String>): Int {
+            val svc = instance ?: return 0
+            var count = 0
+            svc.activeNotifications?.forEach { sbn ->
+                val notification = sbn.notification ?: return@forEach
+                val category = notification.category
+                if (category == Notification.CATEGORY_CALL ||
+                    category == Notification.CATEGORY_ALARM
+                ) {
+                    return@forEach
+                }
+                if (sbn.packageName in exemptPackages) return@forEach
+                if (ShieldExemptPackages.isStaticExempt(sbn.packageName)) return@forEach
+                val snap = svc.toSnapshot(sbn) ?: return@forEach
+                if (snap.hasFullScreenIntent) return@forEach
+                val wakeCapable = snap.hasTurnScreenOn ||
+                    snap.importance >= NotificationManager.IMPORTANCE_HIGH
+                if (!wakeCapable) return@forEach
+                svc.cancelNotification(sbn.key)
+                count++
+            }
+            return count
         }
     }
 }

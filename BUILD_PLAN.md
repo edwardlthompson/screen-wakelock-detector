@@ -2,9 +2,23 @@
 
 Active tasks only. Completed work: [`docs/COMPLETED.md`](docs/COMPLETED.md), [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md), [`docs/GATES.md`](docs/GATES.md).
 
-**Current sprint:** _(none)_
+**Current sprint:** M16 Wake Shield
 
 **Labels:** `[AGENT]` · `[ADB]` · `[HUMAN]` · `[AUTO]` · `[PARALLEL-OK]`
+
+---
+
+## Sequential — M16 Wake Shield
+
+- [x] [AGENT] Scaffold `wakeshield/` + prefs + Room `shieldOutcome` + `ShieldPolicy` unit tests
+- [x] [AGENT] Safety rails: panic, cooldown, self-wake, appops undo, OEM exempt pack
+- [x] [AGENT] L0 forensics + L1 notification cancel while shield armed
+- [x] [AGENT] L2 Accessibility lock service + Settings capability row
+- [x] [AGENT] L3 `RootWakeEnforcer` + allowlisted sleep/appops/wake_unlock + ROOT.md/tests
+- [x] [AGENT] Settings Wake Shield UI + Detail outcome banner + docs/CHANGELOG
+- [x] [ADB] `scripts/smoke/m16_smoke.sh` on OP13 arm/register PASS (`8bf09993` 1.2.14–1.2.15)
+- [ ] [ADB] OP12 Magisk: alarm allow + hostile sleep + panic (needs `SMOKE_PIN` or unlock)
+- [ ] [HUMAN] Soak: mystery wakes + false nuclear check before archive
 
 ---
 

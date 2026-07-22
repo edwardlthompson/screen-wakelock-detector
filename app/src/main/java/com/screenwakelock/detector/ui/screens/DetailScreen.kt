@@ -35,8 +35,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.screenwakelock.detector.R
 import com.screenwakelock.detector.domain.model.ReasonCode
 import com.screenwakelock.detector.domain.model.WakeEventIdentity
 import com.screenwakelock.detector.root.RootAttributor
@@ -47,6 +49,7 @@ import com.screenwakelock.detector.ui.viewmodel.DetailViewModel
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.SilenceWake
 import com.screenwakelock.detector.util.TimeUtils
+import com.screenwakelock.detector.wakeshield.ShieldOutcome
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,6 +111,20 @@ fun DetailScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (!e.shieldOutcome.isNullOrBlank() &&
+                    e.shieldOutcome != ShieldOutcome.NONE.name
+                ) {
+                    item {
+                        ShieldOutcomeBanner(
+                            outcome = ShieldOutcome.fromStorage(e.shieldOutcome),
+                            detail = e.shieldDetail,
+                            packageName = e.attributedPackage,
+                            onNeverShield = { pkg ->
+                                scope.launch { viewModel.neverShieldApp(pkg) }
+                            },
+                        )
+                    }
+                }
                 if (e.reasonCode == ReasonCode.NOTIFICATION_FULL_SCREEN) {
                     item {
                         FullScreenIntentBanner(
@@ -392,6 +409,46 @@ private fun FullScreenIntentBanner(onOpenSettings: () -> Unit) {
         )
         OutlinedButton(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth()) {
             Text("Open notification settings")
+        }
+    }
+}
+
+@Composable
+private fun ShieldOutcomeBanner(
+    outcome: ShieldOutcome,
+    detail: String?,
+    packageName: String?,
+    onNeverShield: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+    ) {
+        Text(
+            stringResource(R.string.shield_detail_banner_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.tertiary,
+        )
+        Text(
+            stringResource(R.string.shield_detail_banner_body, outcome.friendlyLabel()),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(vertical = 8.dp),
+        )
+        if (!detail.isNullOrBlank()) {
+            Text(
+                detail,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
+        if (!packageName.isNullOrBlank()) {
+            OutlinedButton(
+                onClick = { onNeverShield(packageName) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.shield_never_shield))
+            }
         }
     }
 }

@@ -18,6 +18,8 @@ Free and open source software requirements for **Screen Wakelock Detector**.
 | **No network in default flavor** | No `INTERNET` permission — CI grep in validate stage |
 | **Reproducible builds** | From v1.0.0 — pinned toolchain |
 
+**Wake Shield (optional):** Accessibility is used only for `GLOBAL_ACTION_LOCK_SCREEN` with `canRetrieveWindowContent=false`. Default OFF; disclose in Settings/PRIVACY for F-Droid reviewers.
+
 ---
 
 ## Approved dependencies (examples)

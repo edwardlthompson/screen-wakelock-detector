@@ -97,7 +97,7 @@ See [`DECISION_LOG.md`](DECISION_LOG.md) for dated architectural decisions.
 
 ## Blockers / open questions
 
-- _(none)_
+- **SMOKE_PIN** — OP13 (`8bf09993`) lock screen blocks `m13_adb_verify` / full `m14_regression` UI steps until `.env` has `SMOKE_PIN=` or device unlocked manually.
 
 ---
 
@@ -105,6 +105,8 @@ See [`DECISION_LOG.md`](DECISION_LOG.md) for dated architectural decisions.
 
 | Date | Event |
 |------|-------|
+| 2026-07-22 | **v1.2.15 ship prep:** `pre-release-gate` PASS; versionCode `1002015`; m16_smoke + m14_smoke + memory baseline PASS on `8bf09993` CPH2655. `m14_regression` / `m13_adb_verify` blocked — device PIN lock, no `SMOKE_PIN` in `.env`. Use Git Bash (not WSL `bash.exe`) for JAVA_HOME/gh on Windows. |
+| 2026-07-21 | **M16 Wake Shield** implemented + OP13 smoke PASS `8bf09993` CPH2655: debug APK sideloaded (reinstall after signature mismatch); FGS “Wake Shield armed”; `shieldOutcome=ALLOWED_EXEMPT` on wakes 5–6. Note: phone was lock-screened (no SMOKE_PIN); a11y grant can drop — re-apply via settings put if needed. |
 | 2026-07-12 | **v1.2.14** shipped: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.14 — ATTR unknown-wake fixes; M14 regress PASS 8bf09993 |
 | 2026-07-12 | ATTR v1.2.14: sync cache, DEFAULT+ active snapshot, FSI cache flags, listener rebind; OP13 baseline was 57% UNKNOWN (37/64) |
 | 2026-06-19 | Audit AU: `docs/REPO_HYGIENE.md` + `docs/PARALLEL_AGENT_SCOPES.md`; README forge/clone → GitHub primary; Android CI green on `95bce34` |

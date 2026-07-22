@@ -172,4 +172,20 @@ private class FakeWakeEventDao : WakeEventDao {
         }
             .sortedByDescending { it.timestampMillis }
             .take(limit)
+
+    override suspend fun updateShieldFields(
+        id: Long,
+        shieldOutcome: String?,
+        shieldDetail: String?,
+        evidencePackagesJson: String?,
+    ) {
+        val idx = store.indexOfFirst { it.id == id }
+        if (idx < 0) return
+        store[idx] = store[idx].copy(
+            shieldOutcome = shieldOutcome,
+            shieldDetail = shieldDetail,
+            evidencePackagesJson = evidencePackagesJson,
+        )
+        flow.value = store.sortedByDescending { it.timestampMillis }
+    }
 }

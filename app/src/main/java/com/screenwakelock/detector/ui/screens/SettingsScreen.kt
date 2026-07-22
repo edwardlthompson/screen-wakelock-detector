@@ -82,6 +82,13 @@ fun SettingsScreen(
     val pauseStartHour by viewModel.monitorPauseStartHour.collectAsState()
     val pauseEndHour by viewModel.monitorPauseEndHour.collectAsState()
     val allEvents by historyViewModel.allEventsForExport.collectAsState()
+    val shieldEnabled by viewModel.shieldEnabled.collectAsState()
+    val wakeForensics by viewModel.wakeForensicsEnabled.collectAsState()
+    val rootEnabled by viewModel.rootEnabled.collectAsState()
+    val shieldRootKill by viewModel.shieldRootKillEnabled.collectAsState()
+    val shieldAllowlist by viewModel.shieldAllowlistPackages.collectAsState()
+    val shieldDenied by viewModel.shieldDeniedPackages.collectAsState()
+    val shieldBackupConfirm by viewModel.shieldBackupConfirmPending.collectAsState()
     val appDisplayResolver = rememberAppDisplayResolver()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -163,6 +170,24 @@ fun SettingsScreen(
                     pendingImportUri = null
                 }) {
                     Text("Cancel")
+                }
+            },
+        )
+    }
+
+    if (shieldBackupConfirm) {
+        AlertDialog(
+            onDismissRequest = { scope.launch { viewModel.clearShieldBackupConfirm() } },
+            title = { Text(stringResource(R.string.shield_backup_confirm_title)) },
+            text = { Text(stringResource(R.string.shield_backup_confirm_body)) },
+            confirmButton = {
+                TextButton(onClick = { scope.launch { viewModel.clearShieldBackupConfirm() } }) {
+                    Text(stringResource(R.string.shield_backup_keep))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { scope.launch { viewModel.disarmShieldFromBackupConfirm() } }) {
+                    Text(stringResource(R.string.shield_backup_disarm))
                 }
             },
         )
@@ -393,6 +418,28 @@ fun SettingsScreen(
                     )
                 }
             }
+            wakeShieldSettingsItems(
+                shieldEnabled = shieldEnabled,
+                wakeForensics = wakeForensics,
+                rootEnabled = rootEnabled,
+                shieldRootKill = shieldRootKill,
+                allowlist = shieldAllowlist,
+                denied = shieldDenied,
+                recentPackages = recentPackages,
+                packageLabel = { pkg ->
+                    allEvents.firstOrNull { it.attributedPackage == pkg }
+                        ?.let { appDisplayResolver.resolveAppName(it) }
+                        ?: pkg
+                },
+                scope = scope,
+                onSetShieldEnabled = { viewModel.setShieldEnabled(it) },
+                onSetForensics = { viewModel.setWakeForensicsEnabled(it) },
+                onSetRootKill = { viewModel.setShieldRootKillEnabled(it) },
+                onAddAllowlist = { viewModel.addShieldAllowlistPackage(it) },
+                onRemoveAllowlist = { viewModel.removeShieldAllowlistPackage(it) },
+                onUndoDenied = { viewModel.undoShieldDeniedPackage(it) },
+                onPanic = { viewModel.panicDisableShield() },
+            )
             item {
                 Text(
                     "Data & privacy",

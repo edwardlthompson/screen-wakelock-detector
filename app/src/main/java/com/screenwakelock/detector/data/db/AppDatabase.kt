@@ -8,7 +8,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [WakeEventEntity::class, NotificationCacheEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -38,6 +38,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE wake_events ADD COLUMN shieldOutcome TEXT DEFAULT NULL",
+                )
+                db.execSQL(
+                    "ALTER TABLE wake_events ADD COLUMN shieldDetail TEXT DEFAULT NULL",
+                )
+                db.execSQL(
+                    "ALTER TABLE wake_events ADD COLUMN evidencePackagesJson TEXT DEFAULT NULL",
+                )
+            }
+        }
+
         fun getInstance(context: android.content.Context): AppDatabase =
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
@@ -45,7 +59,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "screen_wakelock.db",
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build().also { instance = it }
             }
     }

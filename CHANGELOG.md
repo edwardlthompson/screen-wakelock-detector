@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.15] — 2026-07-21
+
+Opt-in **Wake Shield** multi-tier wake firewall for rooted and non-rooted devices.
+
+### Added
+
+- **Wake Shield** (opt-in): L0 forensics evidence, L1 notification cancel, L2 Accessibility re-lock, L3 root sleep / `TURN_SCREEN_ON` deny after 1.5s grace (Unknown → hostile)
+- Safety rails: panic disable (notification + Settings), cooldown, self-wake suppression, appops undo, OEM/emergency exempts, backup restore confirmation
+- Settings → Wake Shield allowlist; Detail outcome banner + “Never shield this app”
+- Root allowlist: `KEYCODE_SLEEP` / `KEYCODE_POWER`, validated `appops` + `wake_unlock` templates
+- Room migration 3→4 (`shieldOutcome`, `shieldDetail`, `evidencePackagesJson`)
+- Smoke: `scripts/smoke/m16_smoke.sh` (+ OP13 arm helpers)
+
 ## [1.2.14] — 2026-07-12
 
 Reduce unknown screen wakes from attribution pipeline gaps found on OP13 (57% UNKNOWN in 24h).

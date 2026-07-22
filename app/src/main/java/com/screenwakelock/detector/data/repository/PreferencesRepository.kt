@@ -34,6 +34,10 @@ class PreferencesRepository @Inject constructor(
         val MONITOR_PAUSE_START_HOUR = intPreferencesKey("monitor_pause_start_hour")
         val MONITOR_PAUSE_END_HOUR = intPreferencesKey("monitor_pause_end_hour")
         val NIGHTLY_BUDGETS = stringPreferencesKey("nightly_budgets")
+        val SHIELD_ENABLED = booleanPreferencesKey("shield_enabled")
+        val SHIELD_ROOT_KILL_ENABLED = booleanPreferencesKey("shield_root_kill_enabled")
+        val WAKE_FORENSICS_ENABLED = booleanPreferencesKey("wake_forensics_enabled")
+        val SHIELD_BACKUP_CONFIRM_PENDING = booleanPreferencesKey("shield_backup_confirm_pending")
     }
 
     val hasCompletedIntro: Flow<Boolean> =
@@ -84,6 +88,33 @@ class PreferencesRepository @Inject constructor(
     val nightlyBudgets: Flow<Map<String, Int>> =
         context.settingsDataStore.data.map { prefs ->
             parseNightlyBudgets(prefs[Keys.NIGHTLY_BUDGETS] ?: "")
+        }
+
+    val shieldEnabled: Flow<Boolean> =
+        context.settingsDataStore.data.map { it[Keys.SHIELD_ENABLED] ?: false }
+
+    val shieldRootKillEnabled: Flow<Boolean> =
+        context.settingsDataStore.data.map { it[Keys.SHIELD_ROOT_KILL_ENABLED] ?: false }
+
+    val wakeForensicsEnabled: Flow<Boolean> =
+        context.settingsDataStore.data.map { prefs ->
+            prefs[Keys.WAKE_FORENSICS_ENABLED]
+                ?: (prefs[Keys.ROOT_ENABLED] == true)
+        }
+
+    val shieldAllowlistPackages: Flow<Set<String>> =
+        context.settingsDataStore.data.map {
+            it[PreferenceKeys.SHIELD_ALLOWLIST_PACKAGES] ?: emptySet()
+        }
+
+    val shieldDeniedPackages: Flow<Set<String>> =
+        context.settingsDataStore.data.map {
+            it[PreferenceKeys.SHIELD_DENIED_PACKAGES] ?: emptySet()
+        }
+
+    val shieldBackupConfirmPending: Flow<Boolean> =
+        context.settingsDataStore.data.map {
+            it[Keys.SHIELD_BACKUP_CONFIRM_PENDING] ?: false
         }
 
     suspend fun setHasCompletedIntro(completed: Boolean) {
@@ -173,6 +204,56 @@ class PreferencesRepository @Inject constructor(
             current.remove(packageName)
             prefs[Keys.NIGHTLY_BUDGETS] = encodeNightlyBudgets(current)
         }
+    }
+
+    suspend fun setShieldEnabled(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.SHIELD_ENABLED] = enabled }
+    }
+
+    suspend fun setShieldRootKillEnabled(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.SHIELD_ROOT_KILL_ENABLED] = enabled }
+    }
+
+    suspend fun setWakeForensicsEnabled(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.WAKE_FORENSICS_ENABLED] = enabled }
+    }
+
+    suspend fun addShieldAllowlistPackage(packageName: String) {
+        context.settingsDataStore.edit { prefs ->
+            val current = prefs[PreferenceKeys.SHIELD_ALLOWLIST_PACKAGES] ?: emptySet()
+            prefs[PreferenceKeys.SHIELD_ALLOWLIST_PACKAGES] = current + packageName
+        }
+    }
+
+    suspend fun removeShieldAllowlistPackage(packageName: String) {
+        context.settingsDataStore.edit { prefs ->
+            val current = prefs[PreferenceKeys.SHIELD_ALLOWLIST_PACKAGES] ?: emptySet()
+            prefs[PreferenceKeys.SHIELD_ALLOWLIST_PACKAGES] = current - packageName
+        }
+    }
+
+    suspend fun addShieldDeniedPackage(packageName: String) {
+        context.settingsDataStore.edit { prefs ->
+            val current = prefs[PreferenceKeys.SHIELD_DENIED_PACKAGES] ?: emptySet()
+            prefs[PreferenceKeys.SHIELD_DENIED_PACKAGES] = current + packageName
+        }
+    }
+
+    suspend fun removeShieldDeniedPackage(packageName: String) {
+        context.settingsDataStore.edit { prefs ->
+            val current = prefs[PreferenceKeys.SHIELD_DENIED_PACKAGES] ?: emptySet()
+            prefs[PreferenceKeys.SHIELD_DENIED_PACKAGES] = current - packageName
+        }
+    }
+
+    suspend fun clearShieldDeniedPackages() {
+        context.settingsDataStore.edit {
+            it[PreferenceKeys.SHIELD_DENIED_PACKAGES] = emptySet()
+        }
+    }
+
+    suspend fun setShieldBackupConfirmPending(pending: Boolean) {
+        context.settingsDataStore.edit { it[Keys.SHIELD_BACKUP_CONFIRM_PENDING] = pending }
     }
 
     suspend fun nightlyBudgetFor(packageName: String): Int? {

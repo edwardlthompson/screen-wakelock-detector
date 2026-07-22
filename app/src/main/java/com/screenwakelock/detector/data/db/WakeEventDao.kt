@@ -81,4 +81,20 @@ interface WakeEventDao {
         sinceMillis: Long,
         limit: Int,
     ): List<WakeEventEntity>
+
+    @Query(
+        """
+        UPDATE wake_events
+        SET shieldOutcome = :shieldOutcome,
+            shieldDetail = :shieldDetail,
+            evidencePackagesJson = :evidencePackagesJson
+        WHERE id = :id
+        """,
+    )
+    suspend fun updateShieldFields(
+        id: Long,
+        shieldOutcome: String?,
+        shieldDetail: String?,
+        evidencePackagesJson: String?,
+    )
 }
