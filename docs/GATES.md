@@ -395,6 +395,7 @@ Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md
 - [x] Device smoke on OP13 (8bf09993 CPH2655): install, arm shield, FGS armed text, shieldOutcome recorded `[ADB]`
 - [ ] OP12 soak + alarm-allow / panic manual confirm `[HUMAN]`
 - [x] Gate GSM (M16) recorded for OP13 device PASS `[AGENT]`
+- [x] v1.2.15 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.15 `[AGENT]`
 
 ---
 
