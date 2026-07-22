@@ -39,6 +39,7 @@ Required before `archive-completed-tasks.py` and milestone push.
 | M16 | DEVICE PASS | Smoke M16 OP13: PASS 2026-07-21 8bf09993 CPH2655 1.2.14 — installed debug APK; listener+a11y granted; Wake Shield armed (FGS “Wake Shield armed” + Disable Shield); shieldOutcome=ALLOWED_EXEMPT on recent wakes |
 | M16 v1.2.15 | DEVICE PASS | Smoke M16: PASS 2026-07-22T03:27:00Z 8bf09993 1.2.15 (m16_smoke package registration + unit tests; pre-release-gate PASS) |
 | M14 v1.2.15 | PARTIAL | Smoke M14: PARTIAL 2026-07-22T03:38:57Z 8bf09993 1.2.15 — ship regress: m14_smoke + memory baseline CPH2655 PASS (PSS≈75–78MB); m13_adb_verify / full m14_regression blocked (lock screen, no SMOKE_PIN) |
+| M14 v1.2.16 | PARTIAL | Smoke M14: PARTIAL 2026-07-22T05:58:00Z b5214fc6 1.2.16 — ship: m14_smoke + memory baseline CPH2583 PASS (PSS≈80–81MB); m13_adb_verify blocked (lock screen, no SMOKE_PIN) |
 | TM | PASS | Smoke TM: PASS 2026-06-19T10:03:34Z b5214fc6 1.2.12 (wireless 192.168.1.2:44487 — gradlew, feature-gate, m14_regression, m13_adb_verify, memory baseline CPH2583) |
 | attr_verify | PASS | Smoke attr_verify: PASS 2026-06-19T11:12:54Z 8bf09993 + 192.168.1.2:44487 1.2.12 (dual — active snapshot + root on OP12) |
 | attr_verify v1.2.14 | PASS | Smoke attr_verify: PASS 2026-07-12T03:34:53Z 8bf09993 1.2.14 (DEFAULT+ active; stale path attributed; session 0 unknown) |
@@ -343,12 +344,12 @@ Partial at M1/M4; full at M5.
 
 Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md) § Pre-release.
 
-- [x] `./gradlew lint test assembleDebug` PASS `[AGENT]` (v1.2.15 — `pre-release-gate.sh` / feature-gate 2026-07-22)
+- [x] `./gradlew lint test assembleDebug` PASS `[AGENT]` (v1.2.16 — `pre-release-gate.sh` / feature-gate 2026-07-22)
 - [x] All unit tests PASS; no new lint errors `[AGENT]`
-- [x] Applicable `m{N}_smoke.sh` + ADB verify scripts PASS — record serial in smoke log `[ADB]` (8bf09993; m16_smoke + m14_smoke 2026-07-22; m13_adb_verify pending SMOKE_PIN unlock)
+- [x] Applicable `m{N}_smoke.sh` + ADB verify scripts PASS — record serial in smoke log `[ADB]` (b5214fc6; m14_smoke 2026-07-22; m13_adb_verify pending SMOKE_PIN unlock)
 - [x] `CHANGELOG [Unreleased]` finalized; `AGENT_MEMORY` updated `[AGENT]`
 - [x] FOSS audit + no `INTERNET` permission (CI checks) `[AGENT]`
-- [x] `scripts/benchmark/memory_baseline.sh` PASS when device connected `[ADB]` (device-keyed `baselines/devices/{MODEL}.json`; CPH2655 2026-07-22)
+- [x] `scripts/benchmark/memory_baseline.sh` PASS when device connected `[ADB]` (device-keyed `baselines/devices/{MODEL}.json`; CPH2583 2026-07-22)
 - [x] Signed APK verify via `scripts/release/build-signed-apk.sh` / `publish-signed-release.sh` (calls `verify-signed-apk.sh`) `[AGENT]`
 - [ ] Optional debug: LeakCanary manual session before major releases (no release dep) `[HUMAN]`
 

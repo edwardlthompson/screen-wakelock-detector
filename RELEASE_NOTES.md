@@ -1,30 +1,23 @@
-# Release notes — v1.2.15
+# Release notes — v1.2.16
 
-**Date:** 2026-07-21  
-**Device soak:** OP13 `8bf09993` (CPH2655)
+**Date:** 2026-07-22  
+**Device soak:** OP12 `b5214fc6` (CPH2583)
 
 ## Highlights
 
-- **Wake Shield** — optional multi-tier wake firewall (forensics → notification cancel → Accessibility lock → root sleep/deny)
-- Grace window (~1.5s); Unknown wakes treated as hostile after grace
-- Panic disable on the monitoring notification; shield allowlist; Detail outcome banner
+- **Wake Shield hardening** — L3 uses `KEYCODE_SLEEP` only (never `KEYCODE_POWER` toggle)
+- Cooldown/self-wake armed **before** L1–L3 so shield actions cannot re-enter
+- Longer rails (cooldown 10s / self-wake 5s)
+- Shield decisions reuse the wake’s attribution — no second root `dumpsys` pass
 
-## Requirements for full enforcement
+## Why
 
-| Tier | Needs |
-|------|--------|
-| L0 forensics | Optional (on with root by default) |
-| L1 cancel | Notification access |
-| L2 re-lock | Accessibility (Wake Shield service) |
-| L3 kill/deny | Magisk/KernelSU `su` + Root + Kill/deny toggles |
-
-ADB root alone does not enable L3 — install Magisk (or KSU) and grant the app.
+Prevents wake/sleep storms and unnecessary CPU work if Wake Shield + root kill is armed on a noisy device.
 
 ## Verify
 
 ```bash
 ./gradlew lint test assembleDebug
+bash scripts/smoke/m14_smoke.sh
 bash scripts/smoke/m16_smoke.sh
-# with device:
-bash scripts/smoke/m14_regression.sh
 ```

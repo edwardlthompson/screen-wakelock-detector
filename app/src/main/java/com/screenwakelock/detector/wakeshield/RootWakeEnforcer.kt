@@ -28,21 +28,16 @@ class RootWakeEnforcer @Inject constructor(
         var unlocked = false
         val notes = mutableListOf<String>()
 
+        // Never fall back to KEYCODE_POWER — it toggles and can create a wake/sleep storm.
         val sleepResult = rootCommandRunner.execute(RootCommandAllowlist.INPUT_KEYCODE_SLEEP)
         if (sleepResult.success) {
             slept = true
             notes += "sleep"
+            if (displayStillOn) {
+                notes += "sleep_sent_display_was_on"
+            }
         } else {
             notes += "sleep_fail:${sleepResult.error}"
-            if (displayStillOn) {
-                val power = rootCommandRunner.execute(RootCommandAllowlist.INPUT_KEYCODE_POWER)
-                if (power.success) {
-                    slept = true
-                    notes += "power_fallback"
-                } else {
-                    notes += "power_fail:${power.error}"
-                }
-            }
         }
 
         if (allowAppOpDeny && !packageName.isNullOrBlank()) {

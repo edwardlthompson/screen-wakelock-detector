@@ -4,6 +4,13 @@ Major architectural and process decisions. Living summary tables remain in [`AGE
 
 ---
 
+## 2026-07-22 — Wake Shield thrash / thermal rails
+
+- **Never use `KEYCODE_POWER` as L3 fallback** — it toggles and can create wake/sleep storms.
+- **Arm cooldown + self-wake before L1–L3** so shield-caused lock/sleep cannot re-enter enforcement.
+- **Reuse wake attribution in `ShieldCoordinator`** — avoid a second root `dumpsys` pass per wake.
+- Rails: cooldown **10s**, self-wake suppress **5s** (was 5s / 2s).
+
 ## 2026-07-21 — M16 Wake Shield
 
 - **Opt-in multi-tier wake firewall** under `wakeshield/`: L0 forensics → L1 notification cancel → L2 Accessibility re-lock → L3 root sleep / `TURN_SCREEN_ON` deny.

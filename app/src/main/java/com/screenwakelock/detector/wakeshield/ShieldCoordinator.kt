@@ -5,10 +5,8 @@ import android.content.Context
 import android.hardware.display.DisplayManager
 import android.util.Log
 import android.view.Display
-import com.screenwakelock.detector.data.repository.NotificationCacheRepository
 import com.screenwakelock.detector.data.repository.PreferencesRepository
 import com.screenwakelock.detector.data.repository.WakeEventRepository
-import com.screenwakelock.detector.domain.attributor.WakeAttributor
 import com.screenwakelock.detector.domain.model.ReasonCode
 import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.service.NotificationCaptureService
@@ -23,8 +21,6 @@ class ShieldCoordinator @Inject constructor(
     @ApplicationContext private val context: Context,
     private val preferencesRepository: PreferencesRepository,
     private val wakeEventRepository: WakeEventRepository,
-    private val notificationCacheRepository: NotificationCacheRepository,
-    private val wakeAttributor: WakeAttributor,
     private val runtimeState: ShieldRuntimeState,
     private val hardExemptResolver: ShieldHardExemptResolver,
     private val rootWakeEnforcer: RootWakeEnforcer,
@@ -76,17 +72,12 @@ class ShieldCoordinator @Inject constructor(
             return
         }
 
+        // Reuse the wake's attribution — do not re-run dumpsys/root snapshot (CPU / heat).
         val interactive = isInteractiveAbort()
-        val rootEnabled = preferencesRepository.rootEnabled.first()
-        val attribution = wakeAttributor.attribute(
-            screenOnMillis = System.currentTimeMillis(),
-            notificationCache = notificationCacheRepository,
-            rootEnabled = rootEnabled,
-        )
         val active = NotificationCaptureService.snapshotActiveNotifications()
-        val matched = active.firstOrNull { it.packageName == attribution.packageName }
+        val matched = active.firstOrNull { it.packageName == event.attributedPackage }
         val hasFsi = matched?.hasFullScreenIntent == true ||
-            attribution.reasonCode == ReasonCode.NOTIFICATION_FULL_SCREEN
+            event.reasonCode == ReasonCode.NOTIFICATION_FULL_SCREEN
         val hardExempt = hardExemptResolver.resolve()
         val allowlist = preferencesRepository.shieldAllowlistPackages.first()
 
@@ -95,8 +86,8 @@ class ShieldCoordinator @Inject constructor(
                 shieldEnabled = true,
                 inCooldown = runtimeState.inCooldown(),
                 interactiveAbort = interactive,
-                packageName = attribution.packageName,
-                reasonCode = attribution.reasonCode,
+                packageName = event.attributedPackage,
+                reasonCode = event.reasonCode,
                 hasFullScreenIntent = hasFsi,
                 fsiPermissionGranted = false,
                 userAllowlist = allowlist,
@@ -111,7 +102,7 @@ class ShieldCoordinator @Inject constructor(
                 (snap.hasFullScreenIntent || snap.hasTurnScreenOn) &&
                     (snap.packageName in hardExempt ||
                         snap.packageName in allowlist ||
-                        snap.packageName == attribution.packageName && hasFsi)
+                        snap.packageName == event.attributedPackage && hasFsi)
             }
             val lateExemptPkg = active.any { it.packageName in hardExempt }
             if (lateExemptPkg) {
@@ -140,7 +131,7 @@ class ShieldCoordinator @Inject constructor(
                     persist(event.id, ShieldOutcome.PANIC_DISABLED, evidence.summary, evidence)
                     return
                 }
-                enforceHostile(event, decision, attribution.wakelockTag, evidence)
+                enforceHostile(event, decision, event.wakelockTag, evidence)
             }
         }
     }
@@ -157,6 +148,9 @@ class ShieldCoordinator @Inject constructor(
         var slept = false
         var denied = false
         var rootFailed = false
+
+        // Arm cooldown + self-wake rails before L1/L2/L3 so our own lock/sleep cannot re-enter.
+        runtimeState.markEnforcement()
 
         // L1 — cancel attributed package notifications (never CALL/ALARM categories in proactive path)
         runCatching {
@@ -233,10 +227,6 @@ class ShieldCoordinator @Inject constructor(
             } else {
                 rootFailed = true
             }
-        }
-
-        if (locked || slept || denied || cancelled > 0) {
-            runtimeState.markEnforcement()
         }
 
         val outcome = when {

@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.16] — 2026-07-22
+
+Wake Shield thermal/safety hardening after device heat investigation.
+
+### Fixed
+
+- Wake Shield: no `KEYCODE_POWER` toggle fallback (prevents wake/sleep storms); arm cooldown/self-wake before L1–L3; reuse wake attribution instead of a second root dumpsys
+- Longer rails: cooldown 10s, self-wake suppress 5s
+
 ## [1.2.15] — 2026-07-21
 
 Opt-in **Wake Shield** multi-tier wake firewall for rooted and non-rooted devices.

@@ -53,3 +53,6 @@ donations.json
 # Secrets
 .env
 *.pem
+
+# Local tool shims
+.tools/

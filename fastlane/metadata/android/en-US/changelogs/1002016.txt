@@ -1,0 +1,1 @@
+Wake Shield hardening: sleep-only L3 (no POWER toggle), stronger cooldown/self-wake rails, and no second root dumpsys during shield decisions — avoids wake/sleep thrash and heat.

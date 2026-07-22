@@ -30,8 +30,10 @@ sealed class ShieldDecision {
 
 object ShieldPolicy {
     const val GRACE_MS = 1_500L
-    const val COOLDOWN_MS = 5_000L
-    const val SELF_WAKE_SUPPRESS_MS = 2_000L
+    /** Minimum gap between hostile enforcement attempts (includes failed sleep). */
+    const val COOLDOWN_MS = 10_000L
+    /** Suppress shield reaction to wakes we caused (lock / sleep). */
+    const val SELF_WAKE_SUPPRESS_MS = 5_000L
 
     fun decide(input: ShieldPolicyInput): ShieldDecision {
         if (!input.shieldEnabled) return ShieldDecision.SkipDisabled
