@@ -11,4 +11,6 @@ bash scripts/check-repo-hygiene.sh
 
 Report pass/fail per script. Fix failures before marking BUILD_PLAN items complete.
 
+Skills: `validate-bootstrap`, `check-repo-hygiene`, `canvas-bootstrap-status`.
+
 Begin now.

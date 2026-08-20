@@ -49,6 +49,7 @@ donations.json
 
 # Cursor ephemeral
 .cursor/agent-progress.json
+.cursor/mcp.json
 
 # Secrets
 .env

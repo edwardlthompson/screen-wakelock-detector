@@ -4,6 +4,13 @@ Major architectural and process decisions. Living summary tables remain in [`AGE
 
 ---
 
+## 2026-08-20 — Partial bootstrap FOSS Cursor surface (0.21.0)
+
+- **Status:** Accepted
+- **Context:** Child was on template `0.11.0`; upstream at `v0.21.0`. Full upgrade would overwrite Android CI, Apache-2.0, and `app/`.
+- **Decision:** Adopt FOSS hooks/skills/agents/worktrees/`local-compute`, `/cleanup` `/coach` `/tour` `/ideas`, seed memory files, refresh agent docs with SWD notes. Skip commercial Cursor, Pages, release-please automerge, branding-kit README rewrite. Keep `.template-version` at `0.11.0`.
+- **Consequences:** Agents gain 0.12–0.21 FOSS Cursor surface; product `app/` untouched. See `docs/BOOTSTRAP_ALIGNMENT.md`.
+
 ## 2026-07-22 — Wake Shield thrash / thermal rails
 
 - **Never use `KEYCODE_POWER` as L3 fallback** — it toggles and can create wake/sleep storms.

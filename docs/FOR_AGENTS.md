@@ -141,3 +141,11 @@ If overlap is reported, split tasks or serialize the conflicting rows in BUILD_P
 ### Encoding failures on Windows
 
 Run `python3 scripts/check-file-encoding.py` after edits. Write text with UTF-8 (no BOM); never UTF-16.
+
+## Screen Wakelock Detector notes
+
+- Prefer editing production code under `app/`.
+- FOSS Cursor hooks/skills/agents/worktrees are active; commercial Cursor docs are not shipped.
+- Human-only recurring work lives in `BUILD_PLAN.md` and `HUMAN_BACKLOG.md`.
+- File size budgets: **300 lines static data**, **150 lines pure logic** — see [`docs/FILE_SIZE_GUIDE.md`](FILE_SIZE_GUIDE.md).
+

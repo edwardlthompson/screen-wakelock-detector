@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- FOSS Cursor surface from agent-project-bootstrap v0.21.0: hooks, skills, agents, worktrees, `/cleanup` `/coach` `/tour` `/ideas`, seed `HUMAN_BACKLOG` / `KNOWLEDGE_BASE`, and `TEMPLATE_INDEX.json` (`.template-version` stays `0.11.0`)
+
 ## [1.2.16] — 2026-07-22
 
 Wake Shield thermal/safety hardening after device heat investigation.

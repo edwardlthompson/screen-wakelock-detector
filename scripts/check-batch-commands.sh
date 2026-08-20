@@ -8,7 +8,7 @@ cd "$ROOT"
 ERRORS=0
 
 ATOMIC=(
-  audit debug gates triage dependabot push prerelease regress
+  audit cleanup coach tour ideas debug gates triage dependabot push prerelease regress
   feature fix init prune ci docs upgrade setup plan restore compact scope
 )
 

@@ -1,5 +1,8 @@
 {
   "stack": "android",
   "project_name": "Screen Wakelock Detector",
-  "release_repo": "edwardlthompson/screen-wakelock-detector"
+  "release_repo": "edwardlthompson/screen-wakelock-detector",
+  "distribution_tier": "foss",
+  "active_modules": ["android"],
+  "pruned": true
 }

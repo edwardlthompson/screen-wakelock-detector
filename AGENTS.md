@@ -29,3 +29,25 @@
 ## Module activation
 
 Android only — see `modules/android/MODULE.md`.
+
+## Cursor FOSS integrations
+
+Shipped from bootstrap `v0.21.0` (see `docs/CURSOR_INTEGRATIONS.md`):
+
+- **Hooks** — `.cursor/hooks.json` (destructive-ops + UTF-8; fail-open)
+- **Skills** — `.cursor/skills/` companions for `/gates`, `/scope`, `/fix`, hygiene
+- **Subagents** — `.cursor/agents/` verifier, gate-fixer, explorer
+- **Local compute first** — `.cursor/rules/local-compute.mdc`
+- **Worktrees** — `.cursor/worktrees.json` + setup scripts
+- **Optional MCP** — copy `.cursor/mcp.foss.example` → gitignored `.cursor/mcp.json`
+
+Validate: `python3 scripts/agent-run.py check-cursor-hooks -- --smoke` (if `agent-run.py` is available).
+
+Commercial Cursor surfaces are not activated (`distribution_tier: foss`).
+
+## This child repo
+
+- **Stack:** Android only — production `app/`; do not reintroduce web/python examples
+- **License:** Apache-2.0 (not template MIT)
+- **Alignment:** `docs/BOOTSTRAP_ALIGNMENT.md` (template `0.11.0` + FOSS Cursor surface from `v0.21.0`)
+- **Not adopted:** template Pages/release-please automerge, plugin packaging, branding-kit README rewrite

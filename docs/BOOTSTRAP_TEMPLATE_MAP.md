@@ -1,6 +1,6 @@
 # Bootstrap Template Map — Screen Wakelock Detector
 
-Maps [agent-project-bootstrap](https://github.com/edwardlthompson/agent-project-bootstrap) v**0.11.0** to this **android** child repo.
+Maps [agent-project-bootstrap](https://github.com/edwardlthompson/agent-project-bootstrap) v**0.11.0** (FOSS Cursor surface from **v0.21.0**) to this **android** child repo. See [`BOOTSTRAP_ALIGNMENT.md`](BOOTSTRAP_ALIGNMENT.md).
 
 **Production path locked:** `app/` — do not relocate to `examples/android/`.
 

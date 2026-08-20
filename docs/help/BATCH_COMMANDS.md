@@ -27,7 +27,7 @@ Bookmark this page for when you come back after a break.
 
 Grouped by life moment (not every command — use `/` menu for the full list).
 
-**Getting started:** `/init` · `/setup` · `/prune` · `/gates`
+**Getting started:** `/tour` · `/coach` · `/init` · `/setup` · `/prune` · `/gates`
 
 **Building:** `/plan` · `/feature` · `/fix` (gates failed after `/build`) · `/scope` (parallel agents)
 

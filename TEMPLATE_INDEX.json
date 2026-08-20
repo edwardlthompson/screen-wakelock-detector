@@ -1,0 +1,396 @@
+{
+  "template_version": "0.11.0",
+  "entry_points": {
+    "bootstrap": "docs/START_HERE.md",
+    "reference": "docs/FOR_AGENTS.md",
+    "cursor_modes": "docs/CURSOR_MODES.md",
+    "batch_commands_help": "docs/help/BATCH_COMMANDS.md",
+    "batch_commands_catalog": "docs/BATCH_COMMANDS.md"
+  },
+  "modules": {
+    "android": {
+      "guide": "modules/android/MODULE.md",
+      "example": "app/"
+    }
+  },
+  "files": [
+    {
+      "path": "docs/START_HERE.md",
+      "purpose": "Session entry",
+      "read_when": "session_start",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "docs/CURSOR_MODES.md",
+      "purpose": "Cursor mode router",
+      "read_when": "session_start",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "docs/FOR_AGENTS.md",
+      "purpose": "Agent ops",
+      "read_when": "session_start",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "AGENTS.md",
+      "purpose": "Agent router",
+      "read_when": "session_start",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "BUILD_PLAN.md",
+      "purpose": "Task board",
+      "read_when": "session_start",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "docs/BATCH_COMMANDS.md",
+      "purpose": "Batch command registry",
+      "read_when": "prompt_needed",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "docs/help/BATCH_COMMANDS.md",
+      "purpose": "Human cheat sheet",
+      "read_when": "bootstrap_session_start",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "docs/BOOTSTRAP_ALIGNMENT.md",
+      "purpose": "Gap analysis vs upstream bootstrap",
+      "read_when": "prompt_needed",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "docs/FILE_SIZE_GUIDE.md",
+      "purpose": "300L/150L taxonomy",
+      "read_when": "prompt_needed",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "HUMAN_BACKLOG.md",
+      "purpose": "Deferred HUMAN/ADB tasks",
+      "read_when": "session_start",
+      "update_when": "milestone_boundary",
+      "owner": "human"
+    },
+    {
+      "path": "KNOWLEDGE_BASE.md",
+      "purpose": "Defect notes",
+      "read_when": "prompt_needed",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": ".cursor/rules/local-compute.mdc",
+      "purpose": "Local-first compute rule",
+      "read_when": "session_start",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/agent-run.py",
+      "purpose": "Quiet agent script runner",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/agent-progress.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-batch-commands.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-changelog-unreleased.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-copy-tone.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-cursor-hooks.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-cursor-integrations.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-design-cohesion.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-file-encoding.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-file-limits.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-github-ci.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-icon-legibility.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-large-tracked-files.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-license-compliance.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-markdown-tables.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-readme-health.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-repo-hygiene.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-security-triage.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-template-version-sync.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/check-tracked-artifacts.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/count-critical-high-dependabot.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/cursor-feature-radar.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/feature-autofix.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/feature-gate.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/init-project.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/plan-parallel-dispatch.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/pre-release-gate.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/purge-ephemeral.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/setup-agent-worktrees.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/setup-github-repo.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/sync-exemplar-config.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/validate-bootstrap.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/validate-template-index.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/verify-about-feature-gate.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/verify-branch-protection.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/verify-slash-commands.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": "scripts/watch-agent-gates.sh",
+      "purpose": "Script",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": ".github/workflows/android-ci.yml",
+      "purpose": "GitHub workflow",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": ".github/workflows/archive-build-plan.yml",
+      "purpose": "GitHub workflow",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": ".github/workflows/fdroid-publish.yml",
+      "purpose": "GitHub workflow",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "purpose": "GitHub workflow",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    },
+    {
+      "path": ".github/workflows/republish-release.yml",
+      "purpose": "GitHub workflow",
+      "read_when": "validation",
+      "update_when": "milestone_boundary",
+      "owner": "maintainer"
+    }
+  ]
+}

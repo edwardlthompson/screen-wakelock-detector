@@ -10,4 +10,6 @@ If exit 1: read `.cursor/agent-progress.json` and gate JSON; fix lint/tests in a
 On exit 2 (3-strike), halt and switch to Debug Mode or escalate to human.
 Push to remote still requires `/push`, `/ship`, or explicit user approval.
 
+Skill: `watch-gates-autofix`.
+
 Begin now.

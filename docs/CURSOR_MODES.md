@@ -75,3 +75,22 @@ Slash commands in `.cursor/commands/` load recipes when you type `/audit`, `/boo
 | Agents / maintainers | [`docs/BATCH_COMMANDS.md`](BATCH_COMMANDS.md) |
 
 Bare words (`audit`) also work via `.cursor/rules/batch-commands.mdc`; prefer `/` menu when bare words fail.
+
+## Local compute first
+
+On **This Computer**, prefer machine parallelism over Cloud Agents:
+
+| Lever | Use |
+|-------|-----|
+| Parallel `/scope` Task subagents | After Sequential lock when scopes do not overlap |
+| `/worktree` | Isolated local checkouts |
+| Local gates | `validate-bootstrap` / `feature-gate.sh --stack android` |
+
+Rule: [`.cursor/rules/local-compute.mdc`](../.cursor/rules/local-compute.mdc).
+
+## Screen Wakelock Detector notes
+
+- Active stack is **android** only (`app/`).
+- Milestone smoke (`scripts/smoke/m{N}_smoke.sh`) is `[ADB]` — not a Cursor mode.
+- Maintenance/BUILD_PLAN is Sequential-first; Parallel only for `<!-- PARALLEL -->` blocks.
+

@@ -31,4 +31,6 @@ bash scripts/watch-agent-gates.sh --once --autofix --step none
 
 Archive completed sprint to @COMPLETED_TASKS.md; slim active board; update Archived Sprints row.
 
+Skill: `check-repo-hygiene`.
+
 Begin now.

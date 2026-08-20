@@ -51,7 +51,7 @@ REQUIRED=(
 )
 
 BATCH_COMMANDS=(
-  audit debug gates triage dependabot push prerelease regress
+  audit cleanup coach tour ideas debug gates triage dependabot push prerelease regress
   feature fix init prune ci docs upgrade setup plan restore compact scope
   bootstrap verify build ship maintain
 )

@@ -21,7 +21,7 @@ Persistent facts for AI agents working on **Screen Wakelock Detector**. Update t
 | **minSdk** | 29 (Android 10) |
 | **targetSdk** | 35 |
 | **Modules** | Single `app` module |
-| **Bootstrap template** | agent-project-bootstrap **0.11.0** (TM sprint 2026-06-19) |
+| **Bootstrap template** | agent-project-bootstrap **0.11.0** + FOSS Cursor surface from **v0.21.0** (see `docs/BOOTSTRAP_ALIGNMENT.md`) |
 | **material3** | 1.4.0+ stable; expressive opt-in on dedicated branch only |
 | **JDK (CI/local)** | 17 (Temurin) |
 | **Version source** | `app/build.gradle.kts` → `versionName` / `versionCode` |
@@ -105,6 +105,7 @@ See [`DECISION_LOG.md`](DECISION_LOG.md) for dated architectural decisions.
 
 | Date | Event |
 |------|-------|
+| 2026-08-20 | Partial bootstrap sync: FOSS Cursor surface from template **v0.21.0** (hooks/skills/agents/worktrees, `/cleanup` `/coach` `/tour` `/ideas`). `.template-version` remains **0.11.0**. See `docs/BOOTSTRAP_ALIGNMENT.md`. Display-refresh ARR work left uncommitted. |
 | 2026-07-22 | **v1.2.16 released:** https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.16 — Wake Shield thrash hardening; Android CI https://github.com/edwardlthompson/screen-wakelock-detector/actions/runs/29895541686 ; m14_smoke + memory baseline PASS `b5214fc6` CPH2583; m13_adb_verify blocked (lock screen). Heat triage: Life360 GPS + Huawei Health wakes primary. |
 | 2026-07-22 | **v1.2.15 released:** https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.15 — Wake Shield; Android CI https://github.com/edwardlthompson/screen-wakelock-detector/actions/runs/29888614974 ; Release https://github.com/edwardlthompson/screen-wakelock-detector/actions/runs/29888999518 ; regress m14_smoke + memory baseline PASS `8bf09993`; m13_adb_verify blocked (no SMOKE_PIN). |
 | 2026-07-21 | **M16 Wake Shield** implemented + OP13 smoke PASS `8bf09993` CPH2655: debug APK sideloaded (reinstall after signature mismatch); FGS “Wake Shield armed”; `shieldOutcome=ALLOWED_EXEMPT` on wakes 5–6. Note: phone was lock-screened (no SMOKE_PIN); a11y grant can drop — re-apply via settings put if needed. |

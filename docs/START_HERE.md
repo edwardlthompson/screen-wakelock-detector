@@ -4,7 +4,7 @@
 
 ## What is this?
 
-Production **FOSS Android app** (`app/` module) aligned with [agent-project-bootstrap](https://github.com/edwardlthompson/agent-project-bootstrap) v0.11.0. Child repo — not a greenfield template clone.
+Production **FOSS Android app** (`app/` module) aligned with [agent-project-bootstrap](https://github.com/edwardlthompson/agent-project-bootstrap) (`.template-version` `0.11.0`; FOSS Cursor surface from `v0.21.0`). Child repo — not a greenfield template clone. See [`docs/BOOTSTRAP_ALIGNMENT.md`](BOOTSTRAP_ALIGNMENT.md).
 
 ## Read order
 
@@ -25,6 +25,8 @@ Type **`/`** in Cursor Agent chat. Cheat sheet: [`docs/help/BATCH_COMMANDS.md`](
 | `/ship` | Pre-release — prerelease, push, regress |
 | `/gates` | Local `./gradlew lint test assembleDebug` |
 | `/bootstrap` | Re-run init + setup + gates (existing repo) |
+| `/cleanup` | Hygiene + encoding + tracked-artifact sweep |
+| `/coach` | Next recommended action (see `docs/help/COACH.md`) |
 
 ## Production path (locked)
 

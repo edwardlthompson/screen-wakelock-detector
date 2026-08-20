@@ -2,7 +2,7 @@
 
 > Technical catalog for agents and maintainers. **Humans:** start with [docs/help/BATCH_COMMANDS.md](help/BATCH_COMMANDS.md).
 
-25 slash commands: **20 atomic** workflows + **5 super** orchestrators. Bare-word triggers: `.cursor/rules/batch-commands.mdc`.
+29 slash commands: **24 atomic** workflows + **5 super** orchestrators. Bare-word triggers: `.cursor/rules/batch-commands.mdc`.
 
 ## Super commands
 
@@ -19,6 +19,10 @@
 | Command | Workflow | Super parent | PROMPT_LIBRARY |
 |---------|----------|--------------|----------------|
 | `/audit` | Full repo review → BUILD_PLAN → execute → cleanup | maintain | 22 |
+| `/cleanup` | Archive ✅ BUILD_PLAN rows → COMPLETED_TASKS.md | build, audit | — |
+| `/coach` | Next recommended action from START_HERE / BUILD_PLAN | — | — |
+| `/tour` | First-run portable tour | bootstrap | — |
+| `/ideas` | Capture a backlog idea without implementing | — | — |
 | `/debug` | Defect investigation | — | 20 |
 | `/gates` | Local validation suite | bootstrap, verify, build | 4/5 |
 | `/triage` | Weekly security pass | maintain | 6 |
