@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -69,6 +70,7 @@ fun AppNavigation(
     deepLinkRootAutomation: String? = null,
     deepLinkDonateAutomation: String? = null,
     deepLinkHistoryQuery: String? = null,
+    deepLinkOnboardingPage: String? = null,
     onDeepLinkConsumed: () -> Unit = {},
 ) {
     val navController = rememberNavController()
@@ -88,6 +90,7 @@ fun AppNavigation(
 
     var pendingRootAutomation by remember { mutableStateOf<String?>(null) }
     var pendingDonateAutomation by remember { mutableStateOf<String?>(null) }
+    var pendingOnboardingPage by remember { mutableStateOf<String?>(null) }
 
     androidx.compose.runtime.LaunchedEffect(
         hasCompletedIntro,
@@ -98,6 +101,7 @@ fun AppNavigation(
         deepLinkRootAutomation,
         deepLinkDonateAutomation,
         deepLinkHistoryQuery,
+        deepLinkOnboardingPage,
     ) {
         if (BuildConfig.DEBUG && deepLinkRootAutomation == "enable" && deepLinkRoute == "root") {
             onboardingViewModel.completeIntro()
@@ -113,6 +117,14 @@ fun AppNavigation(
             navController.navigate(Routes.SETTINGS) {
                 popUpTo(navController.graph.id) { inclusive = true }
             }
+            return@LaunchedEffect
+        }
+        if (deepLinkRoute == "onboarding") {
+            pendingOnboardingPage = deepLinkOnboardingPage
+            navController.navigate(Routes.ONBOARDING) {
+                launchSingleTop = true
+            }
+            onDeepLinkConsumed()
             return@LaunchedEffect
         }
         if (!hasCompletedIntro) {
@@ -175,13 +187,16 @@ fun AppNavigation(
             modifier = modifier,
         ) {
             composable(Routes.ONBOARDING) {
-                OnboardingScreen(
-                    onComplete = {
-                        navController.navigate(Routes.HOME) {
-                            popUpTo(Routes.ONBOARDING) { inclusive = true }
-                        }
-                    },
-                )
+                key(pendingOnboardingPage) {
+                    OnboardingScreen(
+                        initialPage = pendingOnboardingPage,
+                        onComplete = {
+                            navController.navigate(Routes.HOME) {
+                                popUpTo(Routes.ONBOARDING) { inclusive = true }
+                            }
+                        },
+                    )
+                }
             }
             composable(Routes.HOME) {
                 HomeScreen(

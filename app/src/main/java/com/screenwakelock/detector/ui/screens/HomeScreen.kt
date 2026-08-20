@@ -31,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.ui.components.MissingPermissionsBanner
 import com.screenwakelock.detector.ui.components.QuickFixBottomSheet
+import com.screenwakelock.detector.ui.components.UnknownRateChip
 import com.screenwakelock.detector.ui.components.WakeEventCard
 import com.screenwakelock.detector.ui.components.rememberAppDisplayResolver
 import com.screenwakelock.detector.ui.viewmodel.HomeViewModel
@@ -50,6 +51,8 @@ fun HomeScreen(
 ) {
     val latest by viewModel.latestWake.collectAsState()
     val ignoredPackages by viewModel.ignoredPackages.collectAsState()
+    val unknownRate by viewModel.unknownRate.collectAsState()
+    val shieldEnabled by viewModel.shieldEnabled.collectAsState()
     val appDisplayResolver = rememberAppDisplayResolver()
     val healthScore = viewModel.permissionHealthScore
     var showQuickFix by remember { mutableStateOf(false) }
@@ -133,6 +136,10 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             MissingPermissionsBanner(onNavigatePermissions = onNavigatePermissions)
+            UnknownRateChip(
+                snapshot = unknownRate,
+                onGrantPermissions = { onNavigatePermissions("notification_access") },
+            )
             if (healthScore < 100) {
                 Column(
                     modifier = Modifier
@@ -167,6 +174,7 @@ fun HomeScreen(
                     event = latest!!,
                     appDisplayResolver = appDisplayResolver,
                     onClick = { onNavigateDetail(latest!!.id) },
+                    shieldArmed = shieldEnabled,
                 )
                 Button(
                     onClick = {

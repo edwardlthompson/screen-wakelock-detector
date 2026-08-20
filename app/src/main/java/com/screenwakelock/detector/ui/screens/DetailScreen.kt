@@ -120,6 +120,7 @@ fun DetailScreen(
                         ShieldOutcomeBanner(
                             outcome = ShieldOutcome.fromStorage(e.shieldOutcome),
                             detail = e.shieldDetail,
+                            evidenceJson = e.evidencePackagesJson,
                             packageName = e.attributedPackage,
                             onNeverShield = { pkg ->
                                 scope.launch { viewModel.neverShieldApp(pkg) }
@@ -419,6 +420,7 @@ private fun FullScreenIntentBanner(onOpenSettings: () -> Unit) {
 private fun ShieldOutcomeBanner(
     outcome: ShieldOutcome,
     detail: String?,
+    evidenceJson: String?,
     packageName: String?,
     onNeverShield: (String) -> Unit,
 ) {
@@ -437,13 +439,15 @@ private fun ShieldOutcomeBanner(
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(vertical = 8.dp),
         )
-        if (!detail.isNullOrBlank()) {
-            Text(
+        Text(
+            com.screenwakelock.detector.wakeshield.ShieldDecisionCopy.why(
+                outcome,
                 detail,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
-        }
+                evidenceJson,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
         if (!packageName.isNullOrBlank()) {
             OutlinedButton(
                 onClick = { onNeverShield(packageName) },

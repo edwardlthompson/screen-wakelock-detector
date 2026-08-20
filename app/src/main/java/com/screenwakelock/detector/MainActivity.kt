@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
                         deepLinkRootAutomation = deepLinkParams.rootAutomation,
                         deepLinkDonateAutomation = deepLinkParams.donateAutomation,
                         deepLinkHistoryQuery = deepLinkParams.historyQuery,
+                        deepLinkOnboardingPage = deepLinkParams.onboardingPage,
                         onDeepLinkConsumed = { deepLinkParams = DeepLinkParams() },
                     )
                 }

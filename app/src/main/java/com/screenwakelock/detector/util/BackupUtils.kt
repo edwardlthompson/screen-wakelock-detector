@@ -21,6 +21,7 @@ object BackupUtils {
         val nighttimeEndHour: Int,
         val quietHoursEnabled: Boolean,
         val ignoredPackages: Set<String>,
+        val nightIgnoredPackages: Set<String> = emptySet(),
         val retentionDays: Int,
         val minWakeDurationMs: Int,
         val monitorScheduleEnabled: Boolean,
@@ -47,17 +48,17 @@ object BackupUtils {
                 put(
                     JSONObject().apply {
                         put("timestampMillis", event.timestampMillis)
-                        put("attributedPackage", event.attributedPackage)
-                        put("attributedAppLabel", event.attributedAppLabel)
-                        put("channelId", event.channelId)
-                        put("channelName", event.channelName)
+                        putOpt("attributedPackage", event.attributedPackage)
+                        putOpt("attributedAppLabel", event.attributedAppLabel)
+                        putOpt("channelId", event.channelId)
+                        putOpt("channelName", event.channelName)
                         put("reasonCode", event.reasonCode.name)
                         put("confidence", event.confidence.toDouble())
                         put("rootEnhanced", event.rootEnhanced)
-                        put("wakelockTag", event.wakelockTag)
-                        put("wakelockName", event.wakelockName)
-                        put("rootParserId", event.rootParserId)
-                        put("screenOffDurationMs", event.screenOffDurationMs)
+                        putOpt("wakelockTag", event.wakelockTag)
+                        putOpt("wakelockName", event.wakelockName)
+                        putOpt("rootParserId", event.rootParserId)
+                        event.screenOffDurationMs?.let { put("screenOffDurationMs", it) }
                     },
                 )
             }
@@ -73,7 +74,8 @@ object BackupUtils {
                 put("nighttimeStartHour", settings.nighttimeStartHour)
                 put("nighttimeEndHour", settings.nighttimeEndHour)
                 put("quietHoursEnabled", settings.quietHoursEnabled)
-                put("ignoredPackages", JSONArray(settings.ignoredPackages.toList()))
+                put("ignoredPackages", stringArray(settings.ignoredPackages))
+                put("nightIgnoredPackages", stringArray(settings.nightIgnoredPackages))
                 put("retentionDays", settings.retentionDays)
                 put("minWakeDurationMs", settings.minWakeDurationMs)
                 put("monitorScheduleEnabled", settings.monitorScheduleEnabled)
@@ -92,7 +94,7 @@ object BackupUtils {
                 put("wakeForensicsEnabled", settings.wakeForensicsEnabled)
                 put(
                     "shieldAllowlistPackages",
-                    JSONArray(settings.shieldAllowlistPackages.toList()),
+                    stringArray(settings.shieldAllowlistPackages),
                 )
             },
         )
@@ -140,6 +142,12 @@ object BackupUtils {
         context.contentResolver.openOutputStream(uri)?.use { stream ->
             stream.write(json.toByteArray(Charsets.UTF_8))
         } ?: error("Cannot open output stream for backup")
+    }
+
+    private fun stringArray(values: Collection<String>): JSONArray {
+        val array = JSONArray()
+        values.forEach { array.put(it) }
+        return array
     }
 
     fun readUriText(context: Context, uri: Uri): String {

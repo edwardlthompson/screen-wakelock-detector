@@ -64,4 +64,17 @@ class DeepLinkParserTest {
         assertEquals("history", params.route)
         assertEquals("search.test", params.historyQuery)
     }
+
+    @Test
+    fun parseOnboardingPage() {
+        val params = parseDeepLinkString("screenwakelock://onboarding/privacy")
+        assertEquals("onboarding", params.route)
+        assertEquals("privacy", params.onboardingPage)
+    }
+
+    @Test
+    fun parsePermissionsHost() {
+        val params = parseDeepLinkString("screenwakelock://permissions")
+        assertEquals("permissions", params.route)
+    }
 }

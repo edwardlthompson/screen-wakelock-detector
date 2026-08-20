@@ -14,6 +14,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.18] — 2026-08-20
+
+Wake Shield visibility, night-only ignore, and F-Droid listing pack.
+
+### Added
+
+- Insights Wake Shield week totals (shielded vs allowed)
+- Home unknown-rate chip with grant nudge when attribution is thin
+- Night-only ignore list (same window as quiet hours / nighttime Insights)
+- Glance widgets show shield armed state and last outcome
+- Detail explains why Wake Shield allowed or enforced
+- F-Droid screenshot capture script (`scripts/fdroid/capture-screenshots.sh`)
+- Attribution fallback from wakelock tags plus low-importance notification candidates
+- History chips for Unknown / Shielded / Allowed
+- Optional weekly Wake Shield digest notification
+- Onboarding welcome / how-it-works / privacy / root slides and listing deep links
+- Backup includes night-only ignore list
+- Home last-wake card shows shield armed / last outcome
+- Insights offender actions: night-only ignore and never shield
+
+### Changed
+
+- Settings Ignored apps sits above Wake Shield; ADB verify scrolls until the package row is visible
+
 ## [1.2.17] — 2026-08-20
 
 High-refresh display preference plus FOSS Cursor bootstrap surface.

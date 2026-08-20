@@ -34,4 +34,7 @@ data class InsightsData(
     val topOffenders: List<OffenderSummary>,
     val recurringPatterns: List<RecurringPattern>,
     val heatmap: List<HeatmapCell>,
+    val shieldWeekShielded: Int = 0,
+    val shieldWeekAllowed: Int = 0,
+    val shieldWeekOther: Int = 0,
 )

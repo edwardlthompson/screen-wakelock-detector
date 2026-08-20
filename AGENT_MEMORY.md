@@ -105,6 +105,7 @@ See [`DECISION_LOG.md`](DECISION_LOG.md) for dated architectural decisions.
 
 | Date | Event |
 |------|-------|
+| 2026-08-20 | **v1.2.18 prepare:** M17/M18 Wake Shield visibility, night-only ignore, attribution fallback, F-Droid listing pack. Prerelease: feature-gate + security-triage PASS; m14_smoke + memory baseline CPH2583 PSS≈167MB; m13_adb_verify PASS `b5214fc6`. |
 | 2026-08-20 | **v1.2.17 released:** https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.17 — display refresh + FOSS Cursor surface; Android CI https://github.com/edwardlthompson/screen-wakelock-detector/actions/runs/32420943074 ; Release https://github.com/edwardlthompson/screen-wakelock-detector/actions/runs/32421579861 ; regress m14_smoke + memory baseline PASS `b5214fc6` CPH2583 (PSS≈166MB); m13_adb_verify PARTIAL (Settings Ignored apps scroll). |
 | 2026-07-22 | **v1.2.16 released:** https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.16 — Wake Shield thrash hardening; Android CI https://github.com/edwardlthompson/screen-wakelock-detector/actions/runs/29895541686 ; m14_smoke + memory baseline PASS `b5214fc6` CPH2583; m13_adb_verify blocked (lock screen). Heat triage: Life360 GPS + Huawei Health wakes primary. |
 | 2026-07-22 | **v1.2.15 released:** https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.15 — Wake Shield; Android CI https://github.com/edwardlthompson/screen-wakelock-detector/actions/runs/29888614974 ; Release https://github.com/edwardlthompson/screen-wakelock-detector/actions/runs/29888999518 ; regress m14_smoke + memory baseline PASS `8bf09993`; m13_adb_verify blocked (no SMOKE_PIN). |
@@ -143,6 +144,14 @@ See [`DECISION_LOG.md`](DECISION_LOG.md) for dated architectural decisions.
 | 2026-06-06 | M0 documentation and automation scaffold created (docs, scripts, CI templates). |
 
 ---
+
+## 2026-08-20 — M18 product slices
+
+- [x] [AGENT] Tag-derived attribution + low-importance notification candidates
+- [x] [AGENT] History Unknown / Shielded / Allowed chips; weekly shield digest
+- [x] [AGENT] Onboarding slides + listing deep links + `featureGraphic.png`
+- [x] [AGENT] Backup night-only ignore; Home shield line; Insights night-ignore / never-shield
+- Recapture F-Droid phone screenshots on device after installing the new debug APK (`scripts/fdroid/capture-screenshots.sh`)
 
 ## Design decisions (M13)
 

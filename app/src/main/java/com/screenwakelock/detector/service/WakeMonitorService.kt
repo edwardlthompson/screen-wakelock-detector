@@ -155,9 +155,15 @@ class WakeMonitorService : LifecycleService() {
         WakeCountWidgetReceiver.requestUpdate(this)
 
         val stored = event.copy(id = id)
-        val ignored = preferencesRepository.ignoredPackages.first()
-        val isIgnored = com.screenwakelock.detector.domain.model.WakeEventIdentity
-            .isIgnored(stored, ignored)
+        val isIgnored = com.screenwakelock.detector.domain.model.WakeEventIdentity.isIgnored(
+            stored,
+            com.screenwakelock.detector.domain.model.IgnorePolicy(
+                always = preferencesRepository.ignoredPackages.first(),
+                nightOnly = preferencesRepository.nightIgnoredPackages.first(),
+                nightStartHour = preferencesRepository.nighttimeStartHour.first(),
+                nightEndHour = preferencesRepository.nighttimeEndHour.first(),
+            ),
+        )
         val alertEvery = preferencesRepository.alertOnEveryWake.first()
         val thresholdEnabled = preferencesRepository.thresholdAlertsEnabled.first()
         val isUnknown = stored.attributedPackage == null || stored.reasonCode == ReasonCode.UNKNOWN

@@ -233,10 +233,16 @@ verify_ignored_removable_in_settings() {
   ignored_pkg_in_prefs "${pkg}" || fail "Ignored package ${pkg} not in DataStore"
   pass "Ignored package ${pkg} present in DataStore"
   open_settings
-  scroll_settings_down
-  local ui
-  ui="$(ui_dump)"
-  echo "${ui}" | grep -qiE "Ignored apps|ignored" \
+  local ui=""
+  local i
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+    ui="$(ui_dump)"
+    if echo "${ui}" | grep -q "${pkg}"; then
+      break
+    fi
+    scroll_settings_down
+  done
+  echo "${ui}" | grep -qiE "Ignored apps|Always ignored|Night-only ignore" \
     || fail "Settings Ignored apps section not visible after scroll"
   pass "Settings Ignored apps section visible"
   echo "${ui}" | grep -q "${pkg}" \

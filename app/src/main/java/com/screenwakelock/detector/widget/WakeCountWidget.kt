@@ -24,17 +24,20 @@ import com.screenwakelock.detector.MainActivity
 import com.screenwakelock.detector.data.db.AppDatabase
 import com.screenwakelock.detector.data.db.toDomain
 import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
-import com.screenwakelock.detector.util.IgnoredPackagesReader
 import com.screenwakelock.detector.util.TimeUtils
 import com.screenwakelock.detector.util.WakeEventFilters
+import com.screenwakelock.detector.util.WidgetPrefsReader
 
 class WakeCountWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val db = AppDatabase.getInstance(context)
-        val ignored = IgnoredPackagesReader.read(context)
+        val policy = WidgetPrefsReader.ignorePolicy(context)
+        val shieldArmed = WidgetPrefsReader.shieldEnabled(context)
         val allEvents = db.wakeEventDao().getAll().map { it.toDomain() }
-        val visibleEvents = WakeEventFilters.filterVisible(allEvents, ignored)
+        val visibleEvents = WakeEventFilters.filterVisible(allEvents, policy)
+        val lastOutcome = visibleEvents.firstOrNull()?.shieldOutcome
+        val shieldLine = WidgetShieldStatus.line(shieldArmed, lastOutcome)
         val tonightKey = TimeUtils.nightKey(System.currentTimeMillis())
         val tonightEvents = visibleEvents.filter {
             TimeUtils.nightKey(it.timestampMillis) == tonightKey
@@ -56,6 +59,7 @@ class WakeCountWidget : GlanceAppWidget() {
             WakeCountWidgetContent(
                 count = count,
                 topOffender = offenderLabel,
+                shieldLine = shieldLine,
                 homeIntent = homeIntent,
             )
         }
@@ -72,6 +76,7 @@ class WakeCountWidget : GlanceAppWidget() {
 private fun WakeCountWidgetContent(
     count: Int,
     topOffender: String,
+    shieldLine: String,
     homeIntent: Intent,
 ) {
     Column(
@@ -89,5 +94,6 @@ private fun WakeCountWidgetContent(
             text = "Top: $topOffender",
             style = TextStyle(fontSize = 12.sp),
         )
+        Text(text = shieldLine, style = TextStyle(fontSize = 11.sp))
     }
 }

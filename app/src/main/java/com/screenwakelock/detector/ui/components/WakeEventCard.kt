@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
 import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.util.TimeUtils
+import com.screenwakelock.detector.widget.WidgetShieldStatus
 
 @Composable
 fun WakeEventCard(
@@ -28,6 +29,7 @@ fun WakeEventCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     trailingContent: @Composable (() -> Unit)? = null,
+    shieldArmed: Boolean? = null,
 ) {
     val appName = appDisplayResolver.resolveAppName(event)
     val subtitle = appDisplayResolver.resolveSubtitle(event)
@@ -67,6 +69,13 @@ fun WakeEventCard(
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    shieldArmed?.let { armed ->
+                        Text(
+                            text = WidgetShieldStatus.line(armed, event.shieldOutcome),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
                 trailingContent?.invoke()
             }

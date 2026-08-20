@@ -168,4 +168,22 @@ class InsightsCalculatorTest {
         assertEquals(2, wow.previous)
         assertEquals(0f, wow.deltaPercent)
     }
+
+    @Test
+    fun compute_includesShieldWeekTotals() {
+        val now = System.currentTimeMillis()
+        val events = listOf(
+            event(1, "com.app.a").copy(
+                timestampMillis = now,
+                shieldOutcome = com.screenwakelock.detector.wakeshield.ShieldOutcome.LOCKED.name,
+            ),
+            event(2, "com.app.b").copy(
+                timestampMillis = now - 1_000,
+                shieldOutcome = com.screenwakelock.detector.wakeshield.ShieldOutcome.ALLOWED_EXEMPT.name,
+            ),
+        )
+        val insights = InsightsCalculator.compute(events)
+        assertEquals(1, insights.shieldWeekShielded)
+        assertEquals(1, insights.shieldWeekAllowed)
+    }
 }

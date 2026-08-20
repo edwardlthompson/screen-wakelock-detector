@@ -130,6 +130,12 @@ class WakeAttributor @Inject constructor(
             rootSnapshot?.let { snap ->
                 rootWakeCandidate(snap) { pkg -> resolveAppLabel(pkg) }?.let { add(it) }
             }
+            if (isEmpty()) {
+                tagDerivedCandidate(
+                    rootSnapshot?.wakelockTag,
+                    rootSnapshot?.wakelockName,
+                ) { pkg -> resolveAppLabel(pkg) }?.let { add(it) }
+            }
         }.sortedByDescending { it.confidence }
 
         return GatheredCandidates(allCandidates, rootSnapshot)

@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.screenwakelock.detector.domain.insights.ShieldListFilter
 import com.screenwakelock.detector.domain.model.ReasonFilterGroup
 import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.ui.components.QuickFixBottomSheet
@@ -73,6 +74,7 @@ fun HistoryScreen(
     val nightOnly by viewModel.nightOnly.collectAsState()
     val hourFilter by viewModel.hourFilter.collectAsState()
     val reasonFilter by viewModel.reasonFilterGroup.collectAsState()
+    val shieldFilter by viewModel.shieldFilter.collectAsState()
     val startDate by viewModel.startDateMillis.collectAsState()
     val endDate by viewModel.endDateMillis.collectAsState()
     var searchActive by remember { mutableStateOf(false) }
@@ -236,6 +238,20 @@ fun HistoryScreen(
                             selected = reasonFilter == group,
                             onClick = { viewModel.toggleReasonFilterGroup(group) },
                             label = { Text(group.label) },
+                        )
+                    }
+                }
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .highRefreshScroll(),
+                ) {
+                    items(ShieldListFilter.entries.toList()) { filter ->
+                        FilterChip(
+                            selected = shieldFilter == filter,
+                            onClick = { viewModel.toggleShieldFilter(filter) },
+                            label = { Text(filter.label) },
                         )
                     }
                 }

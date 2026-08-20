@@ -87,6 +87,14 @@ class WakeAttributorLogicTest {
     }
 
     @Test
+    fun tagDerivedCandidate_parsesPackageFromTag() {
+        val candidate = tagDerivedCandidate("com.life360.android.safetymapd:gps", null) { "Life360" }
+        assertEquals("com.life360.android.safetymapd", candidate!!.packageName)
+        assertEquals(0.48f, candidate.confidence)
+        assertEquals(ReasonCode.ROOT_WAKELOCK, candidate.reasonCode)
+    }
+
+    @Test
     fun notificationReasonCode_fullScreenIntent() {
         assertEquals(
             ReasonCode.NOTIFICATION_FULL_SCREEN,
@@ -99,7 +107,7 @@ class WakeAttributorLogicTest {
     }
 
     @Test
-    fun activeNotificationCandidates_includesDefaultImportance_skipsLow() {
+    fun activeNotificationCandidates_includesLowAndDefaultImportance() {
         val snapshots = listOf(
             com.screenwakelock.detector.domain.model.ActiveNotificationSnapshot(
                 packageName = "com.example.low",
@@ -130,11 +138,13 @@ class WakeAttributorLogicTest {
             ),
         )
         val result = activeNotificationCandidates(snapshots, emptyList()) { "Label" }
-        assertEquals(2, result.size)
-        assertEquals("com.example.default", result[0].packageName)
-        assertEquals(0.58f, result[0].confidence)
-        assertEquals("com.example.alarm", result[1].packageName)
-        assertEquals(ReasonCode.NOTIFICATION_FULL_SCREEN, result[1].reasonCode)
+        assertEquals(3, result.size)
+        assertEquals(setOf("com.example.low", "com.example.default", "com.example.alarm"), result.map { it.packageName }.toSet())
+        assertEquals(0.58f, result.first { it.packageName == "com.example.default" }.confidence)
+        assertEquals(
+            ReasonCode.NOTIFICATION_FULL_SCREEN,
+            result.first { it.packageName == "com.example.alarm" }.reasonCode,
+        )
     }
 
     @Test

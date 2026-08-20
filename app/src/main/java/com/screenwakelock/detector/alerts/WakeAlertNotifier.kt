@@ -150,8 +150,15 @@ class WakeAlertNotifier @Inject constructor(
     }
 
     private suspend fun isIgnored(event: WakeEvent): Boolean {
-        val ignored = preferencesRepository.ignoredPackages.first()
-        return WakeEventIdentity.isIgnored(event, ignored)
+        return WakeEventIdentity.isIgnored(
+            event,
+            com.screenwakelock.detector.domain.model.IgnorePolicy(
+                always = preferencesRepository.ignoredPackages.first(),
+                nightOnly = preferencesRepository.nightIgnoredPackages.first(),
+                nightStartHour = preferencesRepository.nighttimeStartHour.first(),
+                nightEndHour = preferencesRepository.nighttimeEndHour.first(),
+            ),
+        )
     }
 
     private fun showNotification(
@@ -201,8 +208,42 @@ class WakeAlertNotifier @Inject constructor(
 
     companion object {
         const val ALERT_CHANNEL_ID = "wake_alerts"
+        const val DIGEST_CHANNEL_ID = "shield_digest"
         const val GROUP_KEY = "wake_alerts_group"
         const val UNKNOWN_ALERT_ID = 2001
         const val NIGHTLY_BUDGET_ALERT_ID = 3000
+        const val WEEKLY_DIGEST_ID = 4001
+
+        fun notifyWeeklyShieldDigest(context: Context, body: String) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    DIGEST_CHANNEL_ID,
+                    "Weekly shield digest",
+                    NotificationManager.IMPORTANCE_LOW,
+                )
+                context.getSystemService(NotificationManager::class.java)
+                    .createNotificationChannel(channel)
+            }
+            val intent = Intent(context, MainActivity::class.java).apply {
+                data = android.net.Uri.parse("screenwakelock://insights")
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            val pending = PendingIntent.getActivity(
+                context,
+                WEEKLY_DIGEST_ID,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+            val notification = NotificationCompat.Builder(context, DIGEST_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_tile)
+                .setContentTitle("Wake Shield this week")
+                .setContentText(body)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+                .setContentIntent(pending)
+                .setAutoCancel(true)
+                .build()
+            context.getSystemService(NotificationManager::class.java)
+                .notify(WEEKLY_DIGEST_ID, notification)
+        }
     }
 }

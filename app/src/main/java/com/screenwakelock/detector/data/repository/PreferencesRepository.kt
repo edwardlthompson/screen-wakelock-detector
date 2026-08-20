@@ -38,6 +38,7 @@ class PreferencesRepository @Inject constructor(
         val SHIELD_ROOT_KILL_ENABLED = booleanPreferencesKey("shield_root_kill_enabled")
         val WAKE_FORENSICS_ENABLED = booleanPreferencesKey("wake_forensics_enabled")
         val SHIELD_BACKUP_CONFIRM_PENDING = booleanPreferencesKey("shield_backup_confirm_pending")
+        val SHIELD_DIGEST_ENABLED = booleanPreferencesKey("shield_digest_enabled")
     }
 
     val hasCompletedIntro: Flow<Boolean> =
@@ -69,6 +70,9 @@ class PreferencesRepository @Inject constructor(
 
     val ignoredPackages: Flow<Set<String>> =
         context.settingsDataStore.data.map { it[PreferenceKeys.IGNORED_PACKAGES] ?: emptySet() }
+
+    val nightIgnoredPackages: Flow<Set<String>> =
+        context.settingsDataStore.data.map { it[PreferenceKeys.NIGHT_IGNORED_PACKAGES] ?: emptySet() }
 
     val retentionDays: Flow<Int> =
         context.settingsDataStore.data.map { it[Keys.RETENTION_DAYS] ?: 0 }
@@ -117,6 +121,9 @@ class PreferencesRepository @Inject constructor(
             it[Keys.SHIELD_BACKUP_CONFIRM_PENDING] ?: false
         }
 
+    val shieldDigestEnabled: Flow<Boolean> =
+        context.settingsDataStore.data.map { it[Keys.SHIELD_DIGEST_ENABLED] ?: true }
+
     suspend fun setHasCompletedIntro(completed: Boolean) {
         context.settingsDataStore.edit { it[Keys.HAS_COMPLETED_INTRO] = completed }
     }
@@ -163,6 +170,20 @@ class PreferencesRepository @Inject constructor(
         context.settingsDataStore.edit { prefs ->
             val current = prefs[PreferenceKeys.IGNORED_PACKAGES] ?: emptySet()
             prefs[PreferenceKeys.IGNORED_PACKAGES] = current - packageName
+        }
+    }
+
+    suspend fun addNightIgnoredPackage(packageName: String) {
+        context.settingsDataStore.edit { prefs ->
+            val current = prefs[PreferenceKeys.NIGHT_IGNORED_PACKAGES] ?: emptySet()
+            prefs[PreferenceKeys.NIGHT_IGNORED_PACKAGES] = current + packageName
+        }
+    }
+
+    suspend fun removeNightIgnoredPackage(packageName: String) {
+        context.settingsDataStore.edit { prefs ->
+            val current = prefs[PreferenceKeys.NIGHT_IGNORED_PACKAGES] ?: emptySet()
+            prefs[PreferenceKeys.NIGHT_IGNORED_PACKAGES] = current - packageName
         }
     }
 
@@ -254,6 +275,10 @@ class PreferencesRepository @Inject constructor(
 
     suspend fun setShieldBackupConfirmPending(pending: Boolean) {
         context.settingsDataStore.edit { it[Keys.SHIELD_BACKUP_CONFIRM_PENDING] = pending }
+    }
+
+    suspend fun setShieldDigestEnabled(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.SHIELD_DIGEST_ENABLED] = enabled }
     }
 
     suspend fun nightlyBudgetFor(packageName: String): Int? {

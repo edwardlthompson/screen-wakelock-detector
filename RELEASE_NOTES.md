@@ -1,22 +1,25 @@
-# Release notes — v1.2.17
+# Release notes — v1.2.18
 
 **Date:** 2026-08-20  
 **Device soak:** OP12 `b5214fc6` (CPH2583)
 
 ## Highlights
 
-- Prefer the display’s fastest **same-resolution** mode on the activity window
-- Mark History, Detail, Settings, Insights, Permissions, and Onboarding scroll surfaces **High** so adaptive panels can ramp during flings (API 35+)
-- FOSS Cursor surface from agent-project-bootstrap v0.21.0 (hooks, skills, agents, worktrees, `/cleanup` `/coach` `/tour` `/ideas`)
+- Wake Shield week totals on Insights; widgets and Home last-wake show armed / last outcome
+- Night-only ignore list; backup includes it; Insights can night-ignore or never-shield an offender
+- Attribution fallback from wakelock tags and low-importance notifications; Home unknown-rate chip
+- History chips for Unknown / Shielded / Allowed; optional weekly shield digest
+- F-Droid listing pack: extra onboarding slides, capture script, feature graphic
 
 ## Why
 
-120 Hz-class panels stay in a low mode unless the window picks a matching high-refresh mode and scroll surfaces vote High. Tooling catch-up keeps agent gates aligned with upstream without replacing Android CI.
+Mystery wakes stay UNKNOWN too often, and shield impact is hard to see. Listing screenshots were incomplete for F-Droid.
 
 ## Verify
 
 ```bash
 ./gradlew lint test assembleDebug
 bash scripts/smoke/m14_smoke.sh
+bash scripts/smoke/m13_adb_verify.sh
 bash scripts/benchmark/memory_baseline.sh
 ```

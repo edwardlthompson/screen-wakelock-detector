@@ -43,7 +43,7 @@ fun isAttributionEligibleNotification(
     importance,
     hasFullScreenIntent,
     hasTurnScreenOn,
-) || importance >= NotificationManager.IMPORTANCE_DEFAULT
+) || importance >= NotificationManager.IMPORTANCE_LOW
 
 fun cachedNotificationCandidates(
     notifications: List<CachedNotification>,
@@ -152,5 +152,25 @@ fun rootWakeCandidate(
         reasonCode = snapshot.reasonCode ?: ReasonCode.ROOT_WAKELOCK,
         confidence = if (snapshot.packageName != null) 0.85f else 0.55f,
         detail = snapshot.wakelockTag,
+    )
+}
+
+/** Last-resort identity from a parseable wakelock tag or name (no notification/usage hit). */
+fun tagDerivedCandidate(
+    wakelockTag: String?,
+    wakelockName: String? = null,
+    resolveLabel: (String) -> String?,
+): WakeCandidate? {
+    val pkg = PackageFromWakelockTag.extractPackage(wakelockTag)
+        ?: PackageFromWakelockTag.extractPackage(wakelockName)
+        ?: return null
+    return WakeCandidate(
+        packageName = pkg,
+        appLabel = resolveLabel(pkg),
+        channelId = null,
+        channelName = null,
+        reasonCode = ReasonCode.ROOT_WAKELOCK,
+        confidence = 0.48f,
+        detail = wakelockTag ?: wakelockName,
     )
 }

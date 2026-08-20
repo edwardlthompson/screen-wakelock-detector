@@ -1,6 +1,7 @@
 package com.screenwakelock.detector.domain.insights
 
 import com.screenwakelock.detector.domain.model.HeatmapCell
+import com.screenwakelock.detector.domain.model.IgnorePolicy
 import com.screenwakelock.detector.domain.model.InsightsData
 import com.screenwakelock.detector.domain.model.OffenderSummary
 import com.screenwakelock.detector.domain.model.RecurringPattern
@@ -14,9 +15,16 @@ object InsightsCalculator {
         nighttimeStartHour: Int = 23,
         nighttimeEndHour: Int = 6,
         ignoredPackages: Set<String> = emptySet(),
+        nightIgnoredPackages: Set<String> = emptySet(),
     ): InsightsData {
+        val policy = IgnorePolicy(
+            always = ignoredPackages,
+            nightOnly = nightIgnoredPackages,
+            nightStartHour = nighttimeStartHour,
+            nightEndHour = nighttimeEndHour,
+        )
         val filtered = events.filter { event ->
-            WakeEventFilters.isVisibleInLists(event, ignoredPackages)
+            WakeEventFilters.isVisibleInLists(event, policy)
         }
         val nighttime = filtered.filter {
             TimeUtils.isNighttime(it.timestampMillis, nighttimeStartHour, nighttimeEndHour)
@@ -46,6 +54,7 @@ object InsightsCalculator {
 
         val heatmap = buildHeatmap(filtered)
         val wow = computeWeekOverWeek(filtered)
+        val shieldWeek = ShieldWeekCalculator.summarize(filtered)
 
         return InsightsData(
             totalWakes = filtered.size,
@@ -56,6 +65,9 @@ object InsightsCalculator {
             topOffenders = offenders,
             recurringPatterns = patterns,
             heatmap = heatmap,
+            shieldWeekShielded = shieldWeek.shielded,
+            shieldWeekAllowed = shieldWeek.allowed,
+            shieldWeekOther = shieldWeek.other,
         )
     }
 

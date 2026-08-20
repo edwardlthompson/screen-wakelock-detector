@@ -27,8 +27,8 @@ import com.screenwakelock.detector.MainActivity
 import com.screenwakelock.detector.data.db.AppDatabase
 import com.screenwakelock.detector.data.db.toDomain
 import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
-import com.screenwakelock.detector.util.IgnoredPackagesReader
 import com.screenwakelock.detector.util.IntentUtils
+import com.screenwakelock.detector.util.WidgetPrefsReader
 import com.screenwakelock.detector.util.TimeUtils
 import com.screenwakelock.detector.util.WakeEventFilters
 
@@ -36,14 +36,16 @@ class WakeWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val db = AppDatabase.getInstance(context)
-        val ignored = IgnoredPackagesReader.read(context)
+        val policy = WidgetPrefsReader.ignorePolicy(context)
+        val shieldArmed = WidgetPrefsReader.shieldEnabled(context)
         val allEvents = db.wakeEventDao().getAll().map { it.toDomain() }
-        val visibleEvents = WakeEventFilters.filterVisible(allEvents, ignored)
+        val visibleEvents = WakeEventFilters.filterVisible(allEvents, policy)
         val entity = visibleEvents.firstOrNull()
         val resolver = AppDisplayResolver(context)
         val label = entity?.let {
             "${resolver.resolveAppName(it)} · ${TimeUtils.formatRelative(it.timestampMillis)}"
         } ?: "No wakes yet"
+        val shieldLine = WidgetShieldStatus.line(shieldArmed, entity?.shieldOutcome)
         val homeIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
@@ -54,6 +56,7 @@ class WakeWidget : GlanceAppWidget() {
         provideContent {
             WakeWidgetContent(
                 label = label,
+                shieldLine = shieldLine,
                 homeIntent = homeIntent,
                 fixIntent = fixIntent,
             )
@@ -70,6 +73,7 @@ class WakeWidget : GlanceAppWidget() {
 @Composable
 private fun WakeWidgetContent(
     label: String,
+    shieldLine: String,
     homeIntent: Intent,
     fixIntent: Intent,
 ) {
@@ -84,6 +88,7 @@ private fun WakeWidgetContent(
     ) {
         Text(text = "Last wake", style = TextStyle(fontSize = 12.sp))
         Text(text = label, style = TextStyle(fontSize = 14.sp))
+        Text(text = shieldLine, style = TextStyle(fontSize = 11.sp))
         Row(
             modifier = GlanceModifier
                 .fillMaxWidth()

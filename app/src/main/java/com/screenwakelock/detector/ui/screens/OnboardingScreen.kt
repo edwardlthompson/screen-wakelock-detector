@@ -41,10 +41,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun OnboardingScreen(
     onComplete: () -> Unit,
+    initialPage: String? = null,
     viewModel: OnboardingViewModel = hiltViewModel(),
 ) {
-    val pages = listOf(OnboardingPage.Intro, OnboardingPage.Permissions)
-    val pagerState = rememberPagerState(pageCount = { pages.size })
+    val pages = OnboardingPage.entries
+    val startPage = pages.indexOf(OnboardingPage.fromPath(initialPage)).coerceAtLeast(0)
+    val pagerState = rememberPagerState(initialPage = startPage, pageCount = { pages.size })
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val permissionRepo = remember { PermissionStatusRepository(context) }
@@ -67,7 +69,10 @@ fun OnboardingScreen(
             modifier = Modifier.weight(1f),
         ) { page ->
             when (pages[page]) {
-                OnboardingPage.Intro -> OnboardingIntro()
+                OnboardingPage.Welcome -> OnboardingIntro()
+                OnboardingPage.HowItWorks -> OnboardingHowItWorks()
+                OnboardingPage.Privacy -> OnboardingPrivacy()
+                OnboardingPage.Root -> OnboardingRoot()
                 OnboardingPage.Permissions -> OnboardingPermissions(permissionRepo, guideState)
             }
         }
@@ -84,7 +89,7 @@ fun OnboardingScreen(
             } else {
                 TextButton(onClick = {}) { Text("") }
             }
-            if (pagerState.currentPage >= OnboardingPage.Permissions.ordinal) {
+            if (pages[pagerState.currentPage] == OnboardingPage.Permissions) {
                 TextButton(
                     onClick = {
                         scope.launch {
@@ -117,8 +122,6 @@ fun OnboardingScreen(
         }
     }
 }
-
-private enum class OnboardingPage { Intro, Permissions }
 
 @Composable
 private fun OnboardingIntro() {

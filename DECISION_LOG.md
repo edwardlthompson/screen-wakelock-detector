@@ -4,6 +4,13 @@ Major architectural and process decisions. Living summary tables remain in [`AGE
 
 ---
 
+## 2026-08-20 — M17/M18 shield visibility and listing pack
+
+- **Status:** Accepted
+- **Context:** UNKNOWN attribution stayed high on silent ongoing notifications; shield impact was widget-only; F-Droid listing lacked onboarding slides and a feature graphic.
+- **Decision:** Tag-derived + low-importance notification candidates; night-only ignore in prefs/backup; History shield chips; weekly digest worker; extra onboarding pages + listing deep links; Insights night-ignore / never-shield.
+- **Consequences:** More attributed wakes without INTERNET; Settings ignored list is above Wake Shield. Recapture phone screenshots after installing 1.2.18.
+
 ## 2026-08-20 — Prefer fastest same-resolution display mode
 
 - **Status:** Accepted

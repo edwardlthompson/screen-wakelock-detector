@@ -203,3 +203,9 @@ Recommended store listing slides (light + dark + dynamic color where possible):
 9. Root settings — grayed vs enabled (M3+)
 
 Place PNGs in `fastlane/metadata/android/en-US/images/phoneScreenshots/`.
+
+Capture from a connected device:
+
+```bash
+bash scripts/fdroid/capture-screenshots.sh
+```

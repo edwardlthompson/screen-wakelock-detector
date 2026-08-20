@@ -68,9 +68,10 @@ fun InsightsScreen(
     val startHour by viewModel.nighttimeStart.collectAsState()
     val endHour by viewModel.nighttimeEnd.collectAsState()
     val ignored by viewModel.ignoredPackages.collectAsState()
+    val nightIgnored by viewModel.nightIgnoredPackages.collectAsState()
     val nightlyBudgets by viewModel.nightlyBudgets.collectAsState()
-    val insights = remember(events, startHour, endHour, ignored) {
-        InsightsCalculator.compute(events, startHour, endHour, ignored)
+    val insights = remember(events, startHour, endHour, ignored, nightIgnored) {
+        InsightsCalculator.compute(events, startHour, endHour, ignored, nightIgnored)
     }
     val isWide = LocalConfiguration.current.screenWidthDp >= 840
     val context = LocalContext.current
@@ -85,6 +86,22 @@ fun InsightsScreen(
             viewModel.ignoreApp(offender.packageName)
             val label = offender.appLabel ?: offender.packageName
             snackbar.showSnackbar("Ignored $label — hidden from History; remove in Settings")
+        }
+    }
+
+    fun onNightIgnoreOffender(offender: OffenderSummary) {
+        scope.launch {
+            viewModel.nightIgnoreApp(offender.packageName)
+            val label = offender.appLabel ?: offender.packageName
+            snackbar.showSnackbar("Night-only ignore for $label — hidden during quiet hours")
+        }
+    }
+
+    fun onNeverShieldOffender(offender: OffenderSummary) {
+        scope.launch {
+            viewModel.neverShieldApp(offender.packageName)
+            val label = offender.appLabel ?: offender.packageName
+            snackbar.showSnackbar("Never shield $label — Wake Shield will allow it")
         }
     }
 
@@ -203,6 +220,7 @@ fun InsightsScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     StatsRow(insights)
+                    InsightsShieldWeekSection(insights)
                     TopOffendersSection(
                         offenders = insights.topOffenders,
                         nightlyBudgets = nightlyBudgets,
@@ -212,6 +230,8 @@ fun InsightsScreen(
                             budgetTarget = offender
                         },
                         onIgnoreApp = ::onIgnoreOffender,
+                        onNightIgnoreApp = ::onNightIgnoreOffender,
+                        onNeverShield = ::onNeverShieldOffender,
                     )
                 }
                 Column(
@@ -255,6 +275,7 @@ fun InsightsScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item { StatsRow(insights) }
+                item { InsightsShieldWeekSection(insights) }
                 item { Text("Top offenders", style = MaterialTheme.typography.titleMedium) }
                 if (insights.topOffenders.isEmpty()) {
                     item {
@@ -274,6 +295,8 @@ fun InsightsScreen(
                                 budgetTarget = offender
                             },
                             onIgnoreApp = { onIgnoreOffender(offender) },
+                            onNightIgnoreApp = { onNightIgnoreOffender(offender) },
+                            onNeverShield = { onNeverShieldOffender(offender) },
                         )
                     }
                 }
@@ -341,6 +364,8 @@ private fun TopOffendersSection(
     onBatchMute: (OffenderSummary) -> Unit,
     onSetBudget: (OffenderSummary) -> Unit,
     onIgnoreApp: (OffenderSummary) -> Unit,
+    onNightIgnoreApp: (OffenderSummary) -> Unit,
+    onNeverShield: (OffenderSummary) -> Unit,
 ) {
     Text("Top offenders", style = MaterialTheme.typography.titleMedium)
     if (offenders.isEmpty()) {
@@ -353,6 +378,8 @@ private fun TopOffendersSection(
                 onBatchMute = onBatchMute,
                 onSetBudget = onSetBudget,
                 onIgnoreApp = { onIgnoreApp(offender) },
+                onNightIgnoreApp = { onNightIgnoreApp(offender) },
+                onNeverShield = { onNeverShield(offender) },
             )
         }
     }
@@ -366,6 +393,8 @@ private fun TopOffenderRow(
     onBatchMute: (OffenderSummary) -> Unit,
     onSetBudget: (OffenderSummary) -> Unit,
     onIgnoreApp: () -> Unit,
+    onNightIgnoreApp: () -> Unit,
+    onNeverShield: () -> Unit,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     ListItem(
@@ -406,6 +435,20 @@ private fun TopOffenderRow(
                         onClick = {
                             menuExpanded = false
                             onIgnoreApp()
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Night-only ignore") },
+                        onClick = {
+                            menuExpanded = false
+                            onNightIgnoreApp()
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Never shield") },
+                        onClick = {
+                            menuExpanded = false
+                            onNeverShield()
                         },
                     )
                 }

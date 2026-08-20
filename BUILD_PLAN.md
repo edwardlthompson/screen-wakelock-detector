@@ -10,6 +10,26 @@ Active tasks only. Completed work: [`docs/COMPLETED.md`](docs/COMPLETED.md), [`C
 
 ---
 
+## Sequential — M18 product slices
+
+- ✅ [AGENT] Cut UNKNOWN attribution (tag fallback + low-importance notifs)
+- ✅ [AGENT] History chips: Unknown / Shielded / Allowed
+- ✅ [AGENT] Local weekly shield digest
+- ✅ [AGENT] Finish F-Droid listing pack
+- ✅ [AGENT] Backup night-only ignore
+- ✅ [AGENT] Home last-wake shield line
+- ✅ [AGENT] Insights offender night-ignore / allowlist
+
+## Sequential — M17 product slices
+
+- ✅ [AGENT] Insights: Wake Shield week totals
+- ✅ [AGENT] Home unknown-rate chip + grant nudge
+- ✅ [AGENT] Quiet-hours / night-only ignore
+- ✅ [AGENT] F-Droid phone screenshots
+- ✅ [AGENT] Widget: shield armed + last outcome
+- ✅ [AGENT] Settings Ignored-apps findability
+- ✅ [AGENT] Detail: why this shield decision
+
 ## Sequential — M16 Wake Shield
 
 - ✅ [AGENT] Scaffold `wakeshield/` + prefs + Room `shieldOutcome` + `ShieldPolicy` unit tests

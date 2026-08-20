@@ -77,6 +77,7 @@ fun SettingsScreen(
     val startHour by viewModel.nighttimeStartHour.collectAsState()
     val endHour by viewModel.nighttimeEndHour.collectAsState()
     val ignoredPackages by viewModel.ignoredPackages.collectAsState()
+    val nightIgnoredPackages by viewModel.nightIgnoredPackages.collectAsState()
     val retentionDays by viewModel.retentionDays.collectAsState()
     val minWakeDuration by viewModel.minWakeDurationMs.collectAsState()
     val monitorSchedule by viewModel.monitorScheduleEnabled.collectAsState()
@@ -90,6 +91,7 @@ fun SettingsScreen(
     val shieldAllowlist by viewModel.shieldAllowlistPackages.collectAsState()
     val shieldDenied by viewModel.shieldDeniedPackages.collectAsState()
     val shieldBackupConfirm by viewModel.shieldBackupConfirmPending.collectAsState()
+    val shieldDigestEnabled by viewModel.shieldDigestEnabled.collectAsState()
     val appDisplayResolver = rememberAppDisplayResolver()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -98,7 +100,6 @@ fun SettingsScreen(
     val snackbar = remember { SnackbarHostState() }
     val linkOpenFailedMessage = stringResource(R.string.about_no_handler)
     var showExportSheet by remember { mutableStateOf(false) }
-    var showAddIgnoredMenu by remember { mutableStateOf(false) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
     var importPreview by remember { mutableStateOf<BackupUtils.ImportPreview?>(null) }
 
@@ -194,19 +195,11 @@ fun SettingsScreen(
         )
     }
 
-    val recentPackages = remember(allEvents) {
-        allEvents.mapNotNull { it.attributedPackage }
+    val recentPackages = remember(allEvents, ignoredPackages, nightIgnoredPackages) {
+        allEvents.mapNotNull { WakeEventIdentity.effectivePackage(it) }
             .distinct()
-            .filter { it !in ignoredPackages }
+            .filter { it !in ignoredPackages && it !in nightIgnoredPackages }
             .take(20)
-    }
-
-    val packageLabels = remember(allEvents, ignoredPackages) {
-        ignoredPackages.associateWith { pkg ->
-            allEvents.firstOrNull { WakeEventIdentity.effectivePackage(it) == pkg }
-                ?.let { appDisplayResolver.resolveAppName(it) }
-                ?: pkg
-        }
     }
 
     if (showExportSheet) {
@@ -353,7 +346,7 @@ fun SettingsScreen(
                     supportingContent = {
                         Text(
                             if (quietHours) {
-                                "Suppress alerts from ${formatHour(startHour)} to ${formatHour(endHour)}"
+                                "Suppress alerts from ${formatHour(startHour)} to ${formatHour(endHour)}; night-only ignore uses this window"
                             } else {
                                 "Suppress threshold and wake alerts during a custom window"
                             },
@@ -403,6 +396,20 @@ fun SettingsScreen(
                     )
                 }
             }
+            ignoredAppsSettingsItems(
+                ignoredPackages = ignoredPackages,
+                nightIgnoredPackages = nightIgnoredPackages,
+                recentPackages = recentPackages,
+                packageLabel = { pkg ->
+                    allEvents.firstOrNull { WakeEventIdentity.effectivePackage(it) == pkg }
+                        ?.let { appDisplayResolver.resolveAppName(it) }
+                        ?: pkg
+                },
+                onAddAlways = { pkg -> scope.launch { viewModel.addIgnoredPackage(pkg) } },
+                onRemoveAlways = { pkg -> scope.launch { viewModel.removeIgnoredPackage(pkg) } },
+                onAddNight = { pkg -> scope.launch { viewModel.addNightIgnoredPackage(pkg) } },
+                onRemoveNight = { pkg -> scope.launch { viewModel.removeNightIgnoredPackage(pkg) } },
+            )
             if (!alertsPermissionGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 item {
                     ListItem(
@@ -442,6 +449,22 @@ fun SettingsScreen(
                 onUndoDenied = { viewModel.undoShieldDeniedPackage(it) },
                 onPanic = { viewModel.panicDisableShield() },
             )
+            item {
+                ListItem(
+                    headlineContent = { Text("Weekly shield digest") },
+                    supportingContent = {
+                        Text("Low-priority summary of shielded vs allowed wakes")
+                    },
+                    trailingContent = {
+                        Switch(
+                            checked = shieldDigestEnabled,
+                            onCheckedChange = {
+                                scope.launch { viewModel.setShieldDigestEnabled(it) }
+                            },
+                        )
+                    },
+                )
+            }
             item {
                 Text(
                     "Data & privacy",
@@ -491,73 +514,6 @@ fun SettingsScreen(
                     headlineContent = { Text("Import backup") },
                     supportingContent = { Text("Restore from a local JSON backup file") },
                 )
-            }
-            item {
-                ListItem(
-                    headlineContent = { Text("Ignored apps") },
-                    supportingContent = {
-                        Text(
-                            if (ignoredPackages.isEmpty()) {
-                                "No apps ignored — alerts and insights include all apps"
-                            } else {
-                                "${ignoredPackages.size} app(s) ignored — hidden from History; remove below to restore"
-                            },
-                        )
-                    },
-                )
-            }
-            ignoredPackages.forEach { pkg ->
-                item(key = "ignored-$pkg") {
-                    ListItem(
-                        headlineContent = { Text(packageLabels[pkg] ?: pkg) },
-                        supportingContent = { Text(pkg) },
-                        trailingContent = {
-                            TextButton(
-                                onClick = { scope.launch { viewModel.removeIgnoredPackage(pkg) } },
-                            ) {
-                                Text("Remove")
-                            }
-                        },
-                    )
-                }
-            }
-            if (recentPackages.isNotEmpty()) {
-                item {
-                    ExposedDropdownMenuBox(
-                        expanded = showAddIgnoredMenu,
-                        onExpandedChange = { showAddIgnoredMenu = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                    ) {
-                        OutlinedTextField(
-                            value = "Add from recent apps",
-                            onValueChange = {},
-                            readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showAddIgnoredMenu) },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth(),
-                        )
-                        DropdownMenu(
-                            expanded = showAddIgnoredMenu,
-                            onDismissRequest = { showAddIgnoredMenu = false },
-                        ) {
-                            recentPackages.forEach { pkg ->
-                                val label = allEvents.firstOrNull { WakeEventIdentity.effectivePackage(it) == pkg }
-                                    ?.let { appDisplayResolver.resolveAppName(it) }
-                                    ?: pkg
-                                DropdownMenuItem(
-                                    text = { Text(label) },
-                                    onClick = {
-                                        showAddIgnoredMenu = false
-                                        scope.launch { viewModel.addIgnoredPackage(pkg) }
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
             }
             item {
                 ListItem(

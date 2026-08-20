@@ -6,11 +6,13 @@ import com.screenwakelock.detector.data.repository.PermissionStatusRepository
 import com.screenwakelock.detector.data.repository.PreferencesRepository
 import com.screenwakelock.detector.data.repository.WakeEventRepository
 import com.screenwakelock.detector.domain.attributor.AppDisplayResolver
+import com.screenwakelock.detector.domain.insights.ShieldListFilter
 import com.screenwakelock.detector.domain.model.ReasonFilterGroup
 import com.screenwakelock.detector.domain.model.WakeEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import com.screenwakelock.detector.util.BackupUtils
 import kotlinx.coroutines.flow.first
@@ -25,12 +27,34 @@ class HomeViewModel @Inject constructor(
     val latestWake: StateFlow<WakeEvent?> = kotlinx.coroutines.flow.combine(
         wakeEventRepository.observeAll(),
         preferencesRepository.ignoredPackages,
-    ) { events, ignored ->
-        events.firstOrNull { com.screenwakelock.detector.util.WakeEventFilters.isVisibleInLists(it, ignored) }
+        preferencesRepository.nightIgnoredPackages,
+        preferencesRepository.nighttimeStartHour,
+        preferencesRepository.nighttimeEndHour,
+    ) { events, ignored, nightIgnored, start, end ->
+        val policy = com.screenwakelock.detector.domain.model.IgnorePolicy(
+            always = ignored,
+            nightOnly = nightIgnored,
+            nightStartHour = start,
+            nightEndHour = end,
+        )
+        events.firstOrNull {
+            com.screenwakelock.detector.util.WakeEventFilters.isVisibleInLists(it, policy)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val ignoredPackages = preferencesRepository.ignoredPackages
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
+    val unknownRate = wakeEventRepository.observeAll()
+        .map { com.screenwakelock.detector.domain.insights.UnknownRate.compute(it) }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            com.screenwakelock.detector.domain.insights.UnknownRateSnapshot(0, 0),
+        )
+
+    val shieldEnabled = preferencesRepository.shieldEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     val permissionHealthScore: Int = permissionStatusRepository.healthScore()
 
@@ -75,17 +99,33 @@ class HistoryViewModel @Inject constructor(
     private val _reasonFilterGroup = kotlinx.coroutines.flow.MutableStateFlow<ReasonFilterGroup?>(null)
     val reasonFilterGroup: StateFlow<ReasonFilterGroup?> = _reasonFilterGroup
 
+    private val _shieldFilter = kotlinx.coroutines.flow.MutableStateFlow<ShieldListFilter?>(null)
+    val shieldFilter: StateFlow<ShieldListFilter?> = _shieldFilter
+
     val ignoredPackages = preferencesRepository.ignoredPackages
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
+    private val ignorePolicy = kotlinx.coroutines.flow.combine(
+        preferencesRepository.ignoredPackages,
+        preferencesRepository.nightIgnoredPackages,
+        preferencesRepository.nighttimeStartHour,
+        preferencesRepository.nighttimeEndHour,
+    ) { always, night, start, end ->
+        com.screenwakelock.detector.domain.model.IgnorePolicy(always, night, start, end)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        com.screenwakelock.detector.domain.model.IgnorePolicy(),
+    )
 
     val events: StateFlow<List<WakeEvent>> = kotlinx.coroutines.flow.combine(
         kotlinx.coroutines.flow.combine(
             allEvents,
-            ignoredPackages,
+            ignorePolicy,
             _query,
             _nightOnly,
-        ) { events, ignored, query, nightOnly ->
-            Quadruple(events, ignored, query, nightOnly)
+        ) { events, policy, query, nightOnly ->
+            Quadruple(events, policy, query, nightOnly)
         },
         kotlinx.coroutines.flow.combine(
             _startDateMillis,
@@ -97,16 +137,17 @@ class HistoryViewModel @Inject constructor(
         kotlinx.coroutines.flow.combine(
             _reasonFilterGroup,
             minWakeDurationMs,
-        ) { reasonGroup, minDuration ->
-            reasonGroup to minDuration
+            _shieldFilter,
+        ) { reasonGroup, minDuration, shieldFilter ->
+            Triple(reasonGroup, minDuration, shieldFilter)
         },
     ) { filters, dateFilters, extraFilters ->
-        val (events, ignored, query, nightOnly) = filters
+        val (events, policy, query, nightOnly) = filters
         val (startDate, endDate, hourFilter) = dateFilters
-        val (reasonGroup, minDuration) = extraFilters
+        val (reasonGroup, minDuration, shieldFilter) = extraFilters
         events.filter { event ->
             val isVisible = com.screenwakelock.detector.util.WakeEventFilters
-                .isVisibleInLists(event, ignored)
+                .isVisibleInLists(event, policy)
             val matchesQuery = com.screenwakelock.detector.util.WakeEventFilters
                 .matchesHistoryQuery(event, query, appDisplayResolver::resolveAppName)
             val hour = java.util.Calendar.getInstance().apply {
@@ -120,8 +161,9 @@ class HistoryViewModel @Inject constructor(
                 event.reasonCode.filterGroup() == reasonGroup
             val matchesDuration = minDuration <= 0 ||
                 (event.screenOffDurationMs ?: Long.MAX_VALUE) >= minDuration
+            val matchesShield = shieldFilter == null || shieldFilter.matches(event)
             isVisible && matchesQuery && matchesNight && matchesHour && matchesDate &&
-                matchesReason && matchesDuration
+                matchesReason && matchesDuration && matchesShield
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -163,6 +205,10 @@ class HistoryViewModel @Inject constructor(
 
     fun toggleReasonFilterGroup(group: ReasonFilterGroup) {
         _reasonFilterGroup.value = if (_reasonFilterGroup.value == group) null else group
+    }
+
+    fun toggleShieldFilter(filter: ShieldListFilter) {
+        _shieldFilter.value = if (_shieldFilter.value == filter) null else filter
     }
 
     private fun matchesDateRange(
@@ -258,6 +304,9 @@ class InsightsViewModel @Inject constructor(
     val ignoredPackages = preferencesRepository.ignoredPackages
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
+    val nightIgnoredPackages = preferencesRepository.nightIgnoredPackages
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
     val nightlyBudgets = preferencesRepository.nightlyBudgets
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
@@ -269,6 +318,12 @@ class InsightsViewModel @Inject constructor(
 
     suspend fun ignoreApp(packageName: String) =
         preferencesRepository.addIgnoredPackage(packageName)
+
+    suspend fun nightIgnoreApp(packageName: String) =
+        preferencesRepository.addNightIgnoredPackage(packageName)
+
+    suspend fun neverShieldApp(packageName: String) =
+        preferencesRepository.addShieldAllowlistPackage(packageName)
 }
 
 @HiltViewModel
@@ -296,6 +351,8 @@ class SettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
     val ignoredPackages = preferencesRepository.ignoredPackages
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+    val nightIgnoredPackages = preferencesRepository.nightIgnoredPackages
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
     val retentionDays = preferencesRepository.retentionDays
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
     val minWakeDurationMs = preferencesRepository.minWakeDurationMs
@@ -320,6 +377,8 @@ class SettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
     val shieldBackupConfirmPending = preferencesRepository.shieldBackupConfirmPending
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val shieldDigestEnabled = preferencesRepository.shieldDigestEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     suspend fun setMonitoringEnabled(v: Boolean) = preferencesRepository.setMonitoringEnabled(v)
     suspend fun setAlertOnEveryWake(v: Boolean) = preferencesRepository.setAlertOnEveryWake(v)
@@ -331,6 +390,9 @@ class SettingsViewModel @Inject constructor(
     suspend fun setRootEnabled(v: Boolean) = preferencesRepository.setRootEnabled(v)
     suspend fun addIgnoredPackage(pkg: String) = preferencesRepository.addIgnoredPackage(pkg)
     suspend fun removeIgnoredPackage(pkg: String) = preferencesRepository.removeIgnoredPackage(pkg)
+    suspend fun addNightIgnoredPackage(pkg: String) = preferencesRepository.addNightIgnoredPackage(pkg)
+    suspend fun removeNightIgnoredPackage(pkg: String) =
+        preferencesRepository.removeNightIgnoredPackage(pkg)
     suspend fun setRetentionDays(days: Int) = preferencesRepository.setRetentionDays(days)
     suspend fun setMinWakeDurationMs(ms: Int) = preferencesRepository.setMinWakeDurationMs(ms)
     suspend fun setMonitorSchedule(enabled: Boolean, start: Int, end: Int) =
@@ -338,6 +400,7 @@ class SettingsViewModel @Inject constructor(
     suspend fun setNightlyBudget(packageName: String, maxWakes: Int) =
         preferencesRepository.setNightlyBudget(packageName, maxWakes)
 
+    suspend fun setShieldDigestEnabled(v: Boolean) = preferencesRepository.setShieldDigestEnabled(v)
     suspend fun setShieldEnabled(v: Boolean) = preferencesRepository.setShieldEnabled(v)
     suspend fun setShieldRootKillEnabled(v: Boolean) =
         preferencesRepository.setShieldRootKillEnabled(v)
@@ -370,6 +433,7 @@ class SettingsViewModel @Inject constructor(
             nighttimeEndHour = preferencesRepository.nighttimeEndHour.first(),
             quietHoursEnabled = preferencesRepository.quietHoursEnabled.first(),
             ignoredPackages = preferencesRepository.ignoredPackages.first(),
+            nightIgnoredPackages = preferencesRepository.nightIgnoredPackages.first(),
             retentionDays = preferencesRepository.retentionDays.first(),
             minWakeDurationMs = preferencesRepository.minWakeDurationMs.first(),
             monitorScheduleEnabled = preferencesRepository.monitorScheduleEnabled.first(),
@@ -412,6 +476,12 @@ class SettingsViewModel @Inject constructor(
         if (ignored != null) {
             for (i in 0 until ignored.length()) {
                 preferencesRepository.addIgnoredPackage(ignored.getString(i))
+            }
+        }
+        val nightIgnored = settingsObj.optJSONArray("nightIgnoredPackages")
+        if (nightIgnored != null) {
+            for (i in 0 until nightIgnored.length()) {
+                preferencesRepository.addNightIgnoredPackage(nightIgnored.getString(i))
             }
         }
         val budgets = settingsObj.optJSONObject("nightlyBudgets")

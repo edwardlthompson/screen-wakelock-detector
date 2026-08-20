@@ -14,6 +14,7 @@ data class DeepLinkParams(
     val donateAutomation: String? = null,
     /** Debug smoke: pre-fill History search query */
     val historyQuery: String? = null,
+    val onboardingPage: String? = null,
 )
 
 fun parseDeepLinkString(raw: String?): DeepLinkParams {
@@ -71,6 +72,20 @@ fun parseDeepLinkString(raw: String?): DeepLinkParams {
         }
         raw.startsWith("screenwakelock://insights") ->
             DeepLinkParams(route = "insights")
+        raw.startsWith("screenwakelock://onboarding") -> {
+            val page = raw.removePrefix("screenwakelock://onboarding")
+                .trimStart('/')
+                .substringBefore('?')
+                .takeIf { it.isNotEmpty() }
+            DeepLinkParams(route = "onboarding", onboardingPage = page)
+        }
+        raw.startsWith("screenwakelock://permissions") -> {
+            val highlight = raw.substringAfter('?', missingDelimiterValue = "")
+                .substringAfter("highlight=", missingDelimiterValue = "")
+                .substringBefore('&')
+                .takeIf { it.isNotEmpty() }
+            DeepLinkParams(route = "permissions", highlight = highlight)
+        }
         raw.startsWith("screenwakelock://history") -> {
             val query = raw.substringAfter('?', missingDelimiterValue = "")
                 .substringAfter("q=", missingDelimiterValue = "")

@@ -1,5 +1,6 @@
 package com.screenwakelock.detector.domain.model
 
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -60,5 +61,20 @@ class WakeEventIdentityTest {
     @Test
     fun isIgnored_falseWhenNoEffectivePackage() {
         assertFalse(WakeEventIdentity.isIgnored(event(), setOf("com.any.app")))
+    }
+
+    @Test
+    fun isIgnored_nightOnlyDuringNightWindow() {
+        val cal = java.util.Calendar.getInstance()
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 2)
+        cal.set(java.util.Calendar.MINUTE, 0)
+        cal.set(java.util.Calendar.SECOND, 0)
+        cal.set(java.util.Calendar.MILLISECOND, 0)
+        val night = event(attributedPackage = "com.night.app").copy(timestampMillis = cal.timeInMillis)
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 14)
+        val day = night.copy(timestampMillis = cal.timeInMillis)
+        val policy = IgnorePolicy(nightOnly = setOf("com.night.app"))
+        assertTrue(WakeEventIdentity.isIgnored(night, policy))
+        assertFalse(WakeEventIdentity.isIgnored(day, policy))
     }
 }
