@@ -14,9 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.17] — 2026-08-20
+
+High-refresh display preference plus FOSS Cursor bootstrap surface.
+
 ### Added
 
 - FOSS Cursor surface from agent-project-bootstrap v0.21.0: hooks, skills, agents, worktrees, `/cleanup` `/coach` `/tour` `/ideas`, seed `HUMAN_BACKLOG` / `KNOWLEDGE_BASE`, and `TEMPLATE_INDEX.json` (`.template-version` stays `0.11.0`)
+
+### Changed
+
+- Prefer fastest same-resolution display mode on the activity window; mark scroll surfaces High so adaptive panels can ramp during flings (API 35+)
 
 ## [1.2.16] — 2026-07-22
 

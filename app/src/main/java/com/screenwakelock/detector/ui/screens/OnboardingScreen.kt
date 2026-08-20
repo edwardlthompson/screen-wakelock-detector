@@ -30,6 +30,7 @@ import com.screenwakelock.detector.ui.components.PermissionGuideState
 import com.screenwakelock.detector.ui.components.PermissionSetupRow
 import com.screenwakelock.detector.ui.components.rememberPermissionGuideState
 import com.screenwakelock.detector.ui.hooks.usePermissionStatuses
+import com.screenwakelock.detector.ui.modifiers.highRefreshScroll
 import com.screenwakelock.detector.ui.viewmodel.OnboardingViewModel
 import com.screenwakelock.detector.util.PermissionSetupGuide
 import com.screenwakelock.detector.util.RestrictedSettingsHelper
@@ -130,7 +131,8 @@ private fun OnboardingIntro() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .highRefreshScroll(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
@@ -167,7 +169,8 @@ private fun OnboardingPermissions(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .highRefreshScroll(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text("Permissions", style = MaterialTheme.typography.headlineSmall)

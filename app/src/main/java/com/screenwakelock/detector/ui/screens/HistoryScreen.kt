@@ -46,6 +46,7 @@ import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.ui.components.QuickFixBottomSheet
 import com.screenwakelock.detector.ui.components.WakeEventCard
 import com.screenwakelock.detector.ui.components.rememberAppDisplayResolver
+import com.screenwakelock.detector.ui.modifiers.highRefreshScroll
 import com.screenwakelock.detector.ui.viewmodel.HistoryViewModel
 import com.screenwakelock.detector.util.ChannelMuter
 import com.screenwakelock.detector.util.IntentUtils
@@ -226,7 +227,9 @@ fun HistoryScreen(
                 ) {}
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .highRefreshScroll(),
                 ) {
                     items(ReasonFilterGroup.entries.toList()) { group ->
                         FilterChip(
@@ -273,6 +276,7 @@ fun HistoryScreen(
                     )
                 }
                 LazyColumn(
+                    modifier = Modifier.highRefreshScroll(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(events, key = { it.id }) { event ->

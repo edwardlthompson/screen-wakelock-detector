@@ -15,6 +15,7 @@ import com.screenwakelock.detector.service.WakeMonitorService
 import com.screenwakelock.detector.ui.navigation.AppNavigation
 import com.screenwakelock.detector.ui.theme.ScreenWakelockTheme
 import com.screenwakelock.detector.util.DeepLinkParams
+import com.screenwakelock.detector.util.DisplayRefresh
 import com.screenwakelock.detector.util.parseDeepLinkString
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -44,6 +45,19 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        DisplayRefresh.preferFastestSameResolutionMode(window)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Re-apply after display/config changes (fold, external display, etc.).
+        if (window.decorView.isAttachedToWindow) {
+            DisplayRefresh.preferFastestSameResolutionMode(window)
         }
     }
 

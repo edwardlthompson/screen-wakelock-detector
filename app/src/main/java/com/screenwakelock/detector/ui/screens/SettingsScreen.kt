@@ -50,6 +50,7 @@ import com.screenwakelock.detector.data.repository.PermissionStatusRepository
 import com.screenwakelock.detector.data.repository.PreferencesRepository
 import com.screenwakelock.detector.service.WakeMonitorService
 import com.screenwakelock.detector.ui.components.rememberAppDisplayResolver
+import com.screenwakelock.detector.ui.modifiers.highRefreshScroll
 import com.screenwakelock.detector.ui.viewmodel.HistoryViewModel
 import com.screenwakelock.detector.ui.viewmodel.SettingsViewModel
 import com.screenwakelock.detector.util.BackupUtils
@@ -222,7 +223,8 @@ fun SettingsScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
+                .highRefreshScroll(),
         ) {
             item {
                 ListItem(

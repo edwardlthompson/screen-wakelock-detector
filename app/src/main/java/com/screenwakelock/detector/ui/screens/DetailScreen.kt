@@ -45,6 +45,7 @@ import com.screenwakelock.detector.root.RootAttributor
 import com.screenwakelock.detector.ui.components.ConfidenceIndicator
 import com.screenwakelock.detector.ui.components.MissingPermissionsBanner
 import com.screenwakelock.detector.ui.components.rememberAppDisplayResolver
+import com.screenwakelock.detector.ui.modifiers.highRefreshScroll
 import com.screenwakelock.detector.ui.viewmodel.DetailViewModel
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.SilenceWake
@@ -108,7 +109,8 @@ fun DetailScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .highRefreshScroll(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 if (!e.shieldOutcome.isNullOrBlank() &&

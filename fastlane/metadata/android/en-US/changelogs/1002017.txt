@@ -1,0 +1,1 @@
+Prefer the fastest same-resolution display mode and mark scroll surfaces High so adaptive panels can ramp during flings. Agent tooling aligned with bootstrap v0.21.0 FOSS Cursor surface.

@@ -50,6 +50,7 @@ import com.screenwakelock.detector.domain.insights.InsightsCalculator
 import com.screenwakelock.detector.domain.model.OffenderSummary
 import com.screenwakelock.detector.domain.model.RecurringPattern
 import com.screenwakelock.detector.ui.viewmodel.InsightsViewModel
+import com.screenwakelock.detector.ui.modifiers.highRefreshScroll
 import com.screenwakelock.detector.util.ChannelMuter
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.SilenceWake
@@ -249,7 +250,8 @@ fun InsightsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .highRefreshScroll(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item { StatsRow(insights) }

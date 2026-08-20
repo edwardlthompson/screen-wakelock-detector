@@ -25,6 +25,7 @@ import com.screenwakelock.detector.domain.model.PermissionKind
 import com.screenwakelock.detector.ui.components.PermissionGuideHost
 import com.screenwakelock.detector.ui.components.rememberPermissionGuideState
 import com.screenwakelock.detector.ui.hooks.usePermissionStatuses
+import com.screenwakelock.detector.ui.modifiers.highRefreshScroll
 import com.screenwakelock.detector.util.PermissionSetupGuide
 import com.screenwakelock.detector.util.SettingsOpenResult
 
@@ -57,7 +58,8 @@ fun PermissionsScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
+                .highRefreshScroll(),
         ) {
             item {
                 ListItem(

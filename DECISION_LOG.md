@@ -4,6 +4,13 @@ Major architectural and process decisions. Living summary tables remain in [`AGE
 
 ---
 
+## 2026-08-20 — Prefer fastest same-resolution display mode
+
+- **Status:** Accepted
+- **Context:** Adaptive-refresh panels stay in a low mode unless the window selects a matching high-refresh mode and scroll surfaces vote High.
+- **Decision:** `preferredDisplayModeId` = highest refresh at current resolution; ARR power-savings balanced on API 35+; `highRefreshScroll()` on History/Detail/Settings/Insights/Permissions/Onboarding.
+- **Consequences:** Smoother flings on 120 Hz-class panels; no resolution switch. Unit tests in `DisplayRefreshTest`.
+
 ## 2026-08-20 — Partial bootstrap FOSS Cursor surface (0.21.0)
 
 - **Status:** Accepted
