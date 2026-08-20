@@ -352,7 +352,7 @@ Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md
 - [x] `CHANGELOG [Unreleased]` finalized; `AGENT_MEMORY` updated `[AGENT]`
 - [x] FOSS audit + no `INTERNET` permission (CI checks) `[AGENT]`
 - [x] `scripts/benchmark/memory_baseline.sh` PASS when device connected `[ADB]` (device-keyed `baselines/devices/{MODEL}.json`; CPH2583 2026-08-20 PSS≈167MB after warm-up)
-- [x] Signed APK verify via `scripts/release/build-signed-apk.sh` / `publish-signed-release.sh` (calls `verify-signed-apk.sh`) `[AGENT]` (v1.2.18 local verify pending prepare)
+- [x] Signed APK verify via `scripts/release/build-signed-apk.sh` / `publish-signed-release.sh` (calls `verify-signed-apk.sh`) `[AGENT]` (v1.2.18 local verify 2026-08-20)
 - [ ] Optional debug: LeakCanary manual session before major releases (no release dep) `[HUMAN]`
 
 ---
@@ -401,6 +401,7 @@ Runs before every version tag. See [`PROJECT_ALIGNMENT.md`](PROJECT_ALIGNMENT.md
 - [x] v1.2.15 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.15 `[AGENT]`
 - [x] v1.2.16 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.16 `[AGENT]`
 - [x] v1.2.17 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.17 `[AGENT]`
+- [x] v1.2.18 published: https://github.com/edwardlthompson/screen-wakelock-detector/releases/tag/v1.2.18 `[AGENT]`
 
 ---
 
