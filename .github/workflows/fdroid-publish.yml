@@ -20,7 +20,7 @@ jobs:
       - name: Bump metadata from Gradle
         run: python3 scripts/fdroid/bump-metadata.py --commit "${{ github.ref_name }}"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: fdroid-metadata
           path: fdroid/metadata/com.screenwakelock.detector.yml
@@ -57,7 +57,7 @@ jobs:
           EXPECT_SIGNED: ${{ secrets.RELEASE_STORE_FILE_B64 != '' && '1' || '0' }}
         run: bash scripts/release/verify-release-apk.sh
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-apk
           path: |
@@ -96,7 +96,7 @@ jobs:
             echo "Set REQUIRE_REPRO_VERIFY=1 in GitLab fdroid pipeline when fdroid-build artifact exists"
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: repro-verify-stamp
