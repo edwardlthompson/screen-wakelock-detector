@@ -53,7 +53,7 @@ class WakeCountWidget : GlanceAppWidget() {
         val offenderLabel = topOffender?.let { resolver.resolveAppName(it) } ?: "None yet"
         val homeIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            data = android.net.Uri.parse("screenwakelock://insights")
+            data = android.net.Uri.parse("screenwakelock://history?night=1")
         }
         provideContent {
             WakeCountWidgetContent(
@@ -82,7 +82,7 @@ private fun WakeCountWidgetContent(
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(R.color.widget_background)
+            .background(R.color.widget_background_oled)
             .padding(12.dp)
             .clickable(actionStartActivity(homeIntent)),
         verticalAlignment = Alignment.Vertical.CenterVertically,

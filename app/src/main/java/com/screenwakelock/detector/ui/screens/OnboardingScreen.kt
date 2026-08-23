@@ -153,7 +153,7 @@ private fun OnboardingIntro() {
             )
         }
         Text(
-            "All data stays on your device — no account, no cloud, no Internet permission. " +
+            "Wake data stays on your device — no account, no cloud, no analytics. " +
                 "We read notification metadata only, never message text.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -36,6 +36,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.R
@@ -125,6 +127,15 @@ fun DetailScreen(
                             onNeverShield = { pkg ->
                                 scope.launch { viewModel.neverShieldApp(pkg) }
                             },
+                            onNeverTonight = { pkg ->
+                                scope.launch { viewModel.neverTonight(pkg) }
+                            },
+                            onNightOnly = { pkg ->
+                                scope.launch { viewModel.nightOnlyShield(pkg) }
+                            },
+                            onUndoDenied = { pkg ->
+                                scope.launch { viewModel.undoDenied(pkg) }
+                            },
                         )
                     }
                 }
@@ -186,6 +197,17 @@ fun DetailScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(top = 4.dp),
                     )
+                    Text(
+                        e.reasonCode.explainer(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    if (com.screenwakelock.detector.domain.insights.UnknownWakeEvidenceBuilder.isLowImportanceHint(e)) {
+                        Text(
+                            "This looks like a silent / low-importance notification.",
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
                 }
                 if (e.wakelockTag != null) {
                     item {
@@ -310,6 +332,33 @@ fun DetailScreen(
                         ) {
                             Text("App info")
                         }
+                        OutlinedButton(
+                            onClick = {
+                                IntentUtils.startFirstResolvable(
+                                    context,
+                                    IntentUtils.appBatterySettings(pkg),
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text("Restrict battery")
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                scope.launch { viewModel.neverTonight(pkg) }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text("Never shield tonight")
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                scope.launch { viewModel.nightOnlyShield(pkg) }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text("Shield only at night")
+                        }
                         if (pkg !in ignoredPackages) {
                             OutlinedButton(
                                 onClick = {
@@ -364,7 +413,17 @@ fun DetailScreen(
                                 )
                             },
                             trailingContent = {
-                                if (!candidateIgnored && e.attributedPackage != candidate.packageName) {
+                                if (e.attributedPackage != candidate.packageName) {
+                                    TextButton(
+                                        onClick = {
+                                            scope.launch {
+                                                viewModel.chooseCandidate(e, candidate)
+                                            }
+                                        },
+                                    ) {
+                                        Text("This one")
+                                    }
+                                } else if (!candidateIgnored) {
                                     TextButton(
                                         onClick = {
                                             scope.launch {
@@ -423,11 +482,15 @@ private fun ShieldOutcomeBanner(
     evidenceJson: String?,
     packageName: String?,
     onNeverShield: (String) -> Unit,
+    onNeverTonight: (String) -> Unit,
+    onNightOnly: (String) -> Unit,
+    onUndoDenied: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp),
+            .padding(bottom = 8.dp)
+            .semantics { contentDescription = "Shield outcome ${outcome.friendlyLabel()}" },
     ) {
         Text(
             stringResource(R.string.shield_detail_banner_title),
@@ -454,6 +517,26 @@ private fun ShieldOutcomeBanner(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(R.string.shield_never_shield))
+            }
+            OutlinedButton(
+                onClick = { onNeverTonight(packageName) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Never shield tonight")
+            }
+            OutlinedButton(
+                onClick = { onNightOnly(packageName) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Shield only at night")
+            }
+            if (outcome == ShieldOutcome.DENIED_APPOP) {
+                OutlinedButton(
+                    onClick = { onUndoDenied(packageName) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Undo screen-on deny")
+                }
             }
         }
     }

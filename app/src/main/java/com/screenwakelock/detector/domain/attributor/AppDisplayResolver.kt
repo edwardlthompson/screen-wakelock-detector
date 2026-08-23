@@ -33,7 +33,7 @@ class AppDisplayResolver @Inject constructor(
     private fun resolveAppNameInternal(event: WakeEvent): String {
         event.attributedAppLabel?.let { return it }
         event.attributedPackage?.let { pkg ->
-            return resolvePmLabel(pkg) ?: pkg
+            return resolvePmLabel(pkg) ?: WakelockTagDictionary.labelFor(pkg) ?: pkg
         }
         PackageFromWakelockTag.extractPackage(event.wakelockTag)?.let { pkg ->
             return resolvePmLabel(pkg) ?: pkg

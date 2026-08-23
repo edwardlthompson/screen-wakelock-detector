@@ -4,6 +4,20 @@ Major architectural and process decisions. Living summary tables remain in [`AGE
 
 ---
 
+## 2026-08-22 — CPH2583 memory baseline rebase (1.2.19)
+
+- **Status:** Accepted
+- **Context:** After installing 1.2.19 debug, Home+update-host steady-state on OP12 was PSS≈214MB / Java heap≈48MB vs the old CPH2583 file (PSS 161MB / heap 12MB). Thresholds 176MB / 27MB failed. 1.2.18 ship had already been ~167MB PSS.
+- **Decision:** Rebase `scripts/benchmark/baselines/devices/CPH2583.json` from a warm 1.2.19 capture. Keep 8% / 15MB slack.
+- **Consequences:** New Home tonight flows, update host, and extra Compose surfaces are the expected cost. Revisit if PSS climbs monotonically after this rebase.
+
+## 2026-08-20 — Donations and GitHub update checks
+
+- **Status:** Accepted
+- **Context:** Continuum Calendar’s quiet Venmo + daily GitHub latest-release flow; this app previously forbade `INTERNET`.
+- **Decision:** Same behavior: always-available Donate via Venmo; one donate note per version change; daily fetch of `releases/latest` compared from APK filenames, not tags. Prefs in a private SharedPreferences file, never backed up or exported.
+- **Consequences:** Release manifest includes `INTERNET` for that fetch only (10s timeout, silent on failure). Wake data still never leaves the device. CI no longer forbids `INTERNET`.
+
 ## 2026-08-20 — M17/M18 shield visibility and listing pack
 
 - **Status:** Accepted

@@ -48,6 +48,12 @@ fun LazyListScope.wakeShieldSettingsItems(
     onRemoveAllowlist: suspend (String) -> Unit,
     onUndoDenied: suspend (String) -> Unit,
     onPanic: suspend () -> Unit,
+    dryRun: Boolean = false,
+    graceMs: Int = 1500,
+    windDown: Boolean = false,
+    onSetDryRun: suspend (Boolean) -> Unit = {},
+    onSetGrace: suspend (Int) -> Unit = {},
+    onSetWindDown: suspend (Boolean) -> Unit = {},
 ) {
     item {
         Text(
@@ -67,6 +73,46 @@ fun LazyListScope.wakeShieldSettingsItems(
                         scope.launch { onSetShieldEnabled(enabled) }
                     },
                 )
+            },
+        )
+    }
+    item {
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.shield_dry_run_title)) },
+            supportingContent = { Text(stringResource(R.string.shield_dry_run_summary)) },
+            trailingContent = {
+                Switch(
+                    checked = dryRun,
+                    onCheckedChange = { scope.launch { onSetDryRun(it) } },
+                )
+            },
+        )
+    }
+    item {
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.shield_wind_down_title)) },
+            supportingContent = { Text(stringResource(R.string.shield_wind_down_summary)) },
+            trailingContent = {
+                Switch(
+                    checked = windDown,
+                    onCheckedChange = { scope.launch { onSetWindDown(it) } },
+                )
+            },
+        )
+    }
+    item {
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.shield_grace_title)) },
+            supportingContent = { Text("${graceMs} ms") },
+            trailingContent = {
+                TextButton(onClick = {
+                    val next = when (graceMs) {
+                        500 -> 1500
+                        1500 -> 3000
+                        else -> 500
+                    }
+                    scope.launch { onSetGrace(next) }
+                }) { Text("Change") }
             },
         )
     }

@@ -16,6 +16,7 @@ enum class ShieldOutcome {
     PARTIAL,
     SUPPRESSED_SELF,
     PANIC_DISABLED,
+    WOULD_HAVE_BLOCKED,
     ;
 
     fun friendlyLabel(): String = when (this) {
@@ -31,6 +32,7 @@ enum class ShieldOutcome {
         PARTIAL -> "Partial enforcement"
         SUPPRESSED_SELF -> "Suppressed (self-wake)"
         PANIC_DISABLED -> "Panic disabled"
+        WOULD_HAVE_BLOCKED -> "Would have blocked (preview)"
     }
 
     companion object {

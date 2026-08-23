@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # M13 ADB verify: tag-only QuickFix ignore, History search, M12 attributed ignore+undo
 set -euo pipefail
+# Git Bash otherwise rewrites /sdcard and /dev paths to C:/Program Files/Git/...
+export MSYS_NO_PATHCONV=1
+export MSYS2_ARG_CONV_EXCL="*"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -52,7 +55,16 @@ VERSION="$("${ADB_S[@]}" shell dumpsys package "${PACKAGE}" | grep versionName |
 log "Installed ${VERSION}"
 
 ui_dump() {
-  "${ADB_S[@]}" exec-out uiautomator dump /dev/stdout 2>/dev/null || true
+  local i out
+  for i in 1 2 3 4 5 6 7 8; do
+    out="$("${ADB_S[@]}" exec-out uiautomator dump /dev/stdout 2>/dev/null || true)"
+    if echo "${out}" | grep -q "<hierarchy"; then
+      printf '%s' "${out}"
+      return 0
+    fi
+    sleep 1
+  done
+  printf '%s' "${out}"
 }
 
 run_sql() {
@@ -88,8 +100,33 @@ tap_text() {
   sleep 1
 }
 
+current_focus_pkg() {
+  "${ADB_S[@]}" shell dumpsys window 2>/dev/null \
+    | grep -E "mCurrentFocus|mFocusedApp" \
+    | head -2 \
+    | tr -d '\r'
+}
+
+ensure_app_foreground() {
+  local i
+  "${ADB_S[@]}" shell input keyevent KEYCODE_HOME 2>/dev/null || true
+  sleep 1
+  "${ADB_S[@]}" shell am start -n "${PACKAGE}/.MainActivity" \
+    -f 0x10008000 >/dev/null 2>&1 || true
+  for i in 1 2 3 4 5; do
+    if current_focus_pkg | grep -q "${PACKAGE}"; then
+      return 0
+    fi
+    sleep 1
+    "${ADB_S[@]}" shell am start -n "${PACKAGE}/.MainActivity" \
+      -f 0x10008000 >/dev/null 2>&1 || true
+  done
+  log "WARN: foreground is not ${PACKAGE}: $(current_focus_pkg)"
+  return 1
+}
+
 launch_home() {
-  "${ADB_S[@]}" shell am start -n "${PACKAGE}/.MainActivity" >/dev/null 2>&1 || true
+  ensure_app_foreground || true
   sleep 2
 }
 
@@ -116,14 +153,42 @@ complete_onboarding_if_needed() {
 
 complete_onboarding_if_needed
 
+dismiss_launch_prompts() {
+  local ui
+  ui="$(ui_dump)"
+  if echo "${ui}" | grep -q "Not now"; then
+    tap_text "Not now" || true
+    sleep 1
+  fi
+  ui="$(ui_dump)"
+  if echo "${ui}" | grep -q "Later"; then
+    tap_text "Later" || true
+    sleep 1
+  fi
+}
+
 open_quickfix() {
   local wake_id="$1"
+  local ui
   smoke_unlock "${ADB_S[@]}" || fail "Unlock device before QuickFix UI test"
   "${ADB_S[@]}" shell am force-stop "${PACKAGE}" 2>/dev/null || true
   sleep 1
+  ensure_app_foreground || fail "Could not bring ${PACKAGE} to foreground"
   "${ADB_S[@]}" shell am start -a android.intent.action.VIEW \
     -d "screenwakelock://app/quickfix/${wake_id}" -p "${PACKAGE}" >/dev/null 2>&1 || true
   sleep 5
+  dismiss_launch_prompts
+  ui="$(ui_dump)"
+  if ! echo "${ui}" | grep -q "Ignore this app"; then
+    "${ADB_S[@]}" shell am start -a android.intent.action.VIEW \
+      -d "screenwakelock://app/quickfix/${wake_id}" -p "${PACKAGE}" >/dev/null 2>&1 || true
+    sleep 3
+  fi
+  ui="$(ui_dump)"
+  if ! echo "${ui}" | grep -q "Ignore this app"; then
+    tap_text "Fix it" || true
+    sleep 2
+  fi
 }
 
 open_history() {
@@ -266,7 +331,10 @@ open_quickfix "${ATTR_ID}"
 UI="$(ui_dump)"
 echo "${UI}" | grep -q "Ignore this app" \
   && pass "M12 QuickFix shows Ignore this app (attributed wake)" \
-  || fail "M12 QuickFix missing Ignore this app"
+  || {
+    log "UI dump excerpt: $(echo "${UI}" | tr '\n' ' ' | head -c 800)"
+    fail "M12 QuickFix missing Ignore this app"
+  }
 tap_text "Ignore this app" || fail "Could not tap Ignore this app (M12)"
 sleep 1
 UI="$(ui_dump)"
@@ -293,7 +361,10 @@ open_quickfix "${TAG_ID}"
 UI="$(ui_dump)"
 echo "${UI}" | grep -q "Ignore this app" \
   && pass "M13 QuickFix shows Ignore this app (tag-only wake)" \
-  || fail "M13 QuickFix missing Ignore this app for tag-only wake"
+  || {
+    log "UI dump excerpt: $(echo "${UI}" | tr '\n' ' ' | head -c 800)"
+    fail "M13 QuickFix missing Ignore this app for tag-only wake"
+  }
 echo "${UI}" | grep -q "${TAG_PKG}" \
   && pass "M13 QuickFix shows tag-derived package name" \
   || warn "M13 tag-derived name not matched in QuickFix UI"

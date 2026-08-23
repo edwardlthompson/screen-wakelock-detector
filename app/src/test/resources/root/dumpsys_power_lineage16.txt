@@ -1,0 +1,13 @@
+POWER MANAGER (dumpsys power) Lineage 16 / Android 16
+
+Wake Locks: size=2
+  PARTIAL_WAKE_LOCK              'com.life360.android.safetymapd:location' (uid=10200 pid=3321)
+  PARTIAL_WAKE_LOCK              'com.huawei.health:wear' (uid=10210 pid=4410)
+
+Display Power: state=ON
+
+mWakeReason=wake_lock
+
+UID states (changing=false):
+  uid=10200: active
+  uid=10210: active

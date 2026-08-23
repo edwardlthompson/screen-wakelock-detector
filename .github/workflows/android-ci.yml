@@ -29,9 +29,13 @@ jobs:
             exit 1
           fi
 
-      - name: No INTERNET permission
+      - name: INTERNET only for GitHub update checks
         run: |
-          if grep -q 'android.permission.INTERNET' app/src/main/AndroidManifest.xml; then
+          if ! grep -q 'android.permission.INTERNET' app/src/main/AndroidManifest.xml; then
+            echo "INTERNET missing — GitHub update checks will stay silent"
+          fi
+          if grep -qiE 'firebase|crashlytics|play-services-ads|AD_ID' app/src/main/AndroidManifest.xml; then
+            echo "Tracking or ads permission/SDK marker found in manifest"
             exit 1
           fi
 

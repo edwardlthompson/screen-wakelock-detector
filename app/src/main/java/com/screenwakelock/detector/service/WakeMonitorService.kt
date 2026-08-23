@@ -126,10 +126,12 @@ class WakeMonitorService : LifecycleService() {
 
         val captureStartedAt = now
         val rootEnabled = preferencesRepository.rootEnabled.first()
+        val windowMs = preferencesRepository.correlationWindowMs.first().toLong()
         val attribution = wakeAttributor.attribute(
             screenOnMillis = now,
             notificationCache = notificationCacheRepository,
             rootEnabled = rootEnabled,
+            correlationWindowMs = windowMs,
         )
         val event = WakeEvent(
             timestampMillis = now,

@@ -11,5 +11,6 @@ class ScreenWakelockApp : Application() {
         super.onCreate()
         RetentionWorker.schedule(this)
         ShieldDigestWorker.schedule(this)
+        com.screenwakelock.detector.worker.MorningDigestWorker.schedule(this)
     }
 }

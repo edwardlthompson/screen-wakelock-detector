@@ -57,7 +57,7 @@ flowchart TD
 | **Notification listener abuse (if app compromised)** | Minimize stored fields (channel ID + package; no bodies by default); Room DB app-private |
 | **Backup / cloud sync leakage** | `android:allowBackup="false"` or `backup_rules.xml` excluding wake DB |
 | **User-initiated SAF export** | Settings → Export backup writes JSON to user-chosen storage via Storage Access Framework; no network; user controls destination file |
-| **Network exfiltration** | No `INTERNET` permission; no WebView remote URLs |
+| **Network exfiltration** | `INTERNET` only for GitHub `releases/latest`; no WebView remote URLs; wake data never sent |
 | **Supply-chain / trojaned build** | Reproducible builds, FOSS license CI, Dependabot, signed release tags |
 | **Privilege escalation via exported service** | `NotificationListenerService` system-bound only; no custom IPC exported to other apps |
 | **Deep link abuse** | Internal navigation validated; reject unknown `highlight=` permission keys |
@@ -79,7 +79,7 @@ flowchart TD
 
 See [`docs/GATES.md`](docs/GATES.md) for full checklist:
 
-- INTERNET absent from release manifest (CI)
+- INTERNET used only for GitHub update checks (CI forbids ads/tracking markers)
 - Only launcher activity exported
 - Root allowlist unit tests
 - Notification schema review — no message body by default

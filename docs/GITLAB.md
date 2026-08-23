@@ -93,7 +93,7 @@ See [`.gitlab-ci.yml`](../.gitlab-ci.yml):
 
 | Stage | Jobs | Trigger |
 |-------|------|---------|
-| **validate** | license-check, foss-audit, no-internet-manifest | MR, main, tags |
+| **validate** | license-check, foss-audit, no-internet-manifest (GitHub-update INTERNET only) | MR, main, tags |
 | **test** | lint, detekt, unit-test | MR, main, tags |
 | **build** | assemble-debug | MR, main |
 | **release** | assemble-release | tags `v*` |

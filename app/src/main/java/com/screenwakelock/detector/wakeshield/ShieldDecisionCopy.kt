@@ -30,6 +30,8 @@ object ShieldDecisionCopy {
                 "Ignored a wake caused by the shield itself."
             ShieldOutcome.PANIC_DISABLED ->
                 "Shield was panic-disabled."
+            ShieldOutcome.WOULD_HAVE_BLOCKED ->
+                "Preview only — shield would have blocked this wake."
         }
         val packages = packagesFrom(evidenceJson).take(4)
         val evidence = if (packages.isEmpty()) {

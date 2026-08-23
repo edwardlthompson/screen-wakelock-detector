@@ -162,7 +162,7 @@ If this app has helped you, consider a tip via [Venmo](https://venmo.com/code?us
 This app uses notification listener access and optional root. See [`SECURITY.md`](SECURITY.md) for threat model, exported component policy, and vulnerability reporting.
 
 - Metadata-only notification storage by default
-- No `INTERNET` permission
+- `INTERNET` only for a daily GitHub latest-release check; wake data stays on device
 - Root command allowlist with unit tests
 
 ---

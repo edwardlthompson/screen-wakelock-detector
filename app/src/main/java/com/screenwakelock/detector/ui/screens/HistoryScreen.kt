@@ -64,6 +64,7 @@ import kotlinx.coroutines.launch
 fun HistoryScreen(
     initialFilterHour: Int? = null,
     initialSearchQuery: String? = null,
+    initialNightOnly: Boolean = false,
     onNavigateDetail: (Long) -> Unit,
     viewModel: HistoryViewModel = hiltViewModel(),
 ) {
@@ -95,6 +96,10 @@ fun HistoryScreen(
         if (!initialSearchQuery.isNullOrBlank()) {
             viewModel.setQuery(initialSearchQuery)
         }
+    }
+
+    LaunchedEffect(initialNightOnly) {
+        if (initialNightOnly) viewModel.setNightOnly(true)
     }
 
     if (showDatePicker) {
@@ -193,7 +198,23 @@ fun HistoryScreen(
     )
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("History") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("History") },
+                actions = {
+                    TextButton(onClick = { viewModel.setNightOnly(true) }) { Text("Tonight") }
+                    TextButton(
+                        onClick = {
+                            scope.launch {
+                                events.mapNotNull { it.attributedPackage }.distinct().forEach {
+                                    viewModel.ignoreApp(it)
+                                }
+                            }
+                        },
+                    ) { Text("Ignore visible") }
+                },
+            )
+        },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         if (events.isEmpty()) {

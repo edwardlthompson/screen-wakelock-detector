@@ -34,7 +34,7 @@ Settings → Permissions remains available anytime. Tapping a permission opens t
 
 **Compact bullets:** Detect → Match → Show history → Fix (open settings or mute offenders)
 
-**Privacy one-liner:** All data stays on device — no account, no cloud, no Internet permission. Notification metadata only.
+**Privacy one-liner:** Wake data stays on device — no account, no cloud, no analytics. Notification metadata only.
 
 **Primary CTA:** Next
 

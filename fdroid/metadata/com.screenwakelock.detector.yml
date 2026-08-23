@@ -16,8 +16,9 @@ Description: |
   or notification channel most likely caused it. Fix unwanted wakes in one tap—open
   that app's notification settings or mute the channel.
 
-  All data stays on your device. No account, no cloud, no analytics. Notification
-  listener access reads metadata locally to attribute wakes—not message contents.
+  All wake data stays on your device. No account, no cloud, no analytics.
+  Notification listener access reads metadata locally to attribute wakes—not
+  message contents. The app may check GitHub once a day for a newer APK.
 
   Optional root (Magisk, KernelSU, etc.) unlocks deeper wakelock diagnostics via an
   in-app stack—no Shizuku or extra modules required.

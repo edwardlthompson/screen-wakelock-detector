@@ -1,7 +1,9 @@
 package com.screenwakelock.detector.util
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DeepLinkParserTest {
@@ -63,6 +65,14 @@ class DeepLinkParserTest {
         val params = parseDeepLinkString("screenwakelock://history?q=search.test")
         assertEquals("history", params.route)
         assertEquals("search.test", params.historyQuery)
+        assertFalse(params.historyNight)
+    }
+
+    @Test
+    fun parseHistoryNight() {
+        val params = parseDeepLinkString("screenwakelock://history?night=1")
+        assertEquals("history", params.route)
+        assertTrue(params.historyNight)
     }
 
     @Test

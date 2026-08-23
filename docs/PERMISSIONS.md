@@ -17,8 +17,9 @@ All special permissions are **optional for basic screen-on logging** except wher
 | **Battery unrestricted** | `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Recommended | Reliable capture during Doze/deep sleep | Missed wakes when aggressively optimized |
 | **Root (`su`)** | Runtime via libsu | Optional | Live wakelock holder from dumpsys parsers; Wake Shield L3 sleep/deny | Root UI grayed; non-root attribution only |
 | **Accessibility (Wake Shield)** | `BIND_ACCESSIBILITY_SERVICE` | Optional | `GLOBAL_ACTION_LOCK_SCREEN` only when Wake Shield armed | L2 re-lock skipped; L1 (+ L3 if root) still work |
+| **Internet** | `INTERNET` | Optional | Once-daily GitHub latest-release check for an optional APK | Stay on the installed build; no prompt |
 
-**Not used:** `INTERNET`, location, contacts, SMS, microphone, camera. Accessibility does **not** retrieve window content.
+**Not used:** location, contacts, SMS, microphone, camera. Accessibility does **not** retrieve window content. `INTERNET` is not used for wake data, analytics, or ads.
 
 ---
 

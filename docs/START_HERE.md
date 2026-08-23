@@ -40,4 +40,4 @@ All feature work targets **`app/`** — not `examples/android/`. See [`docs/BOOT
 
 ## Security
 
-No `INTERNET` in release manifest. FOSS audit: [`docs/FOSS.md`](FOSS.md). Report issues: [`SECURITY.md`](../SECURITY.md).
+`INTERNET` is only for GitHub latest-release checks. FOSS audit: [`docs/FOSS.md`](FOSS.md). Report issues: [`SECURITY.md`](../SECURITY.md).

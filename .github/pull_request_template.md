@@ -6,7 +6,7 @@
 
 - [ ] `./gradlew lint test assembleDebug` PASS
 - [ ] Applicable smoke script PASS (`scripts/smoke/m{N}_*.sh`) — record device serial in GATES if run
-- [ ] FOSS: no forbidden deps; no `INTERNET` in manifest
+- [ ] FOSS: no forbidden deps; `INTERNET` only for GitHub update checks
 - [ ] UI follows Material 3 / [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md)
 - [ ] `CHANGELOG.md` updated if user-visible
 - [ ] `docs/AGENT_MEMORY.md` updated if architectural decision

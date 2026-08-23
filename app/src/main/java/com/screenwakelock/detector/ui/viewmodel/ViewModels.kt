@@ -56,6 +56,33 @@ class HomeViewModel @Inject constructor(
     val shieldEnabled = preferencesRepository.shieldEnabled
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    val tonight = kotlinx.coroutines.flow.combine(
+        wakeEventRepository.observeAll(),
+        preferencesRepository.nighttimeStartHour,
+        preferencesRepository.nighttimeEndHour,
+    ) { events, start, end ->
+        com.screenwakelock.detector.domain.insights.TonightStats.compute(
+            events = events,
+            nightStartHour = start,
+            nightEndHour = end,
+        )
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        com.screenwakelock.detector.domain.insights.TonightSnapshot(0, null, null, 0, emptyList(), List(7) { 0 }),
+    )
+
+    val windDownEnabled = preferencesRepository.windDownEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val grantImpact = unknownRate.map { rate ->
+        com.screenwakelock.detector.domain.insights.UnknownWakeEvidenceBuilder.grantImpactHint(
+            snapshot = rate,
+            listenerGranted = permissionStatusRepository.isNotificationListenerEnabled(),
+            usageGranted = permissionStatusRepository.isUsageStatsGranted(),
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     val permissionHealthScore: Int = permissionStatusRepository.healthScore()
 
     suspend fun loadEvent(id: Long): WakeEvent? = wakeEventRepository.getById(id)
@@ -153,7 +180,11 @@ class HistoryViewModel @Inject constructor(
             val hour = java.util.Calendar.getInstance().apply {
                 timeInMillis = event.timestampMillis
             }.get(java.util.Calendar.HOUR_OF_DAY)
-            val isNight = hour >= 23 || hour < 6
+            val isNight = com.screenwakelock.detector.util.TimeUtils.isNighttime(
+                event.timestampMillis,
+                policy.nightStartHour,
+                policy.nightEndHour,
+            )
             val matchesNight = !nightOnly || isNight
             val matchesHour = hourFilter == null || hour == hourFilter
             val matchesDate = matchesDateRange(event.timestampMillis, startDate, endDate)
@@ -276,6 +307,32 @@ class DetailViewModel @Inject constructor(
     suspend fun neverShieldApp(packageName: String) =
         preferencesRepository.addShieldAllowlistPackage(packageName)
 
+    suspend fun neverTonight(packageName: String) {
+        val end = java.util.Calendar.getInstance().apply {
+            add(java.util.Calendar.DAY_OF_YEAR, 1)
+            set(java.util.Calendar.HOUR_OF_DAY, preferencesRepository.nighttimeEndHour.first())
+            set(java.util.Calendar.MINUTE, 0)
+        }.timeInMillis
+        preferencesRepository.addNeverTonightPackage(packageName, end)
+    }
+
+    suspend fun nightOnlyShield(packageName: String) =
+        preferencesRepository.addShieldNightOnlyPackage(packageName)
+
+    suspend fun undoDenied(packageName: String) =
+        preferencesRepository.removeShieldDeniedPackage(packageName)
+
+    suspend fun chooseCandidate(event: WakeEvent, candidate: com.screenwakelock.detector.domain.model.WakeCandidate) {
+        wakeEventRepository.insert(
+            event.copy(
+                attributedPackage = candidate.packageName,
+                attributedAppLabel = candidate.appLabel,
+                reasonCode = candidate.reasonCode,
+                confidence = 1f,
+            ),
+        )
+    }
+
     val ignoredPackages = preferencesRepository.ignoredPackages
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 }
@@ -324,6 +381,22 @@ class InsightsViewModel @Inject constructor(
 
     suspend fun neverShieldApp(packageName: String) =
         preferencesRepository.addShieldAllowlistPackage(packageName)
+
+    suspend fun neverTonight(packageName: String) {
+        val end = java.util.Calendar.getInstance().apply {
+            add(java.util.Calendar.DAY_OF_YEAR, 1)
+            set(java.util.Calendar.HOUR_OF_DAY, preferencesRepository.nighttimeEndHour.first())
+            set(java.util.Calendar.MINUTE, 0)
+        }.timeInMillis
+        preferencesRepository.addNeverTonightPackage(packageName, end)
+    }
+
+    suspend fun nightOnlyShield(packageName: String) =
+        preferencesRepository.addShieldNightOnlyPackage(packageName)
+
+    suspend fun undoDenied(packageName: String) {
+        preferencesRepository.removeShieldDeniedPackage(packageName)
+    }
 }
 
 @HiltViewModel
@@ -379,6 +452,18 @@ class SettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
     val shieldDigestEnabled = preferencesRepository.shieldDigestEnabled
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+    val shieldDryRun = preferencesRepository.shieldDryRun
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val shieldGraceMs = preferencesRepository.shieldGraceMs
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1500)
+    val windDownEnabled = preferencesRepository.windDownEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val correlationWindowMs = preferencesRepository.correlationWindowMs
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 5000)
+    val muteHistory = preferencesRepository.muteHistory
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+    val morningDigestEnabled = preferencesRepository.morningDigestEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     suspend fun setMonitoringEnabled(v: Boolean) = preferencesRepository.setMonitoringEnabled(v)
     suspend fun setAlertOnEveryWake(v: Boolean) = preferencesRepository.setAlertOnEveryWake(v)
@@ -401,6 +486,12 @@ class SettingsViewModel @Inject constructor(
         preferencesRepository.setNightlyBudget(packageName, maxWakes)
 
     suspend fun setShieldDigestEnabled(v: Boolean) = preferencesRepository.setShieldDigestEnabled(v)
+    suspend fun setShieldDryRun(v: Boolean) = preferencesRepository.setShieldDryRun(v)
+    suspend fun setShieldGraceMs(ms: Int) = preferencesRepository.setShieldGraceMs(ms)
+    suspend fun setWindDownEnabled(v: Boolean) = preferencesRepository.setWindDownEnabled(v)
+    suspend fun setCorrelationWindowMs(ms: Int) = preferencesRepository.setCorrelationWindowMs(ms)
+    suspend fun setMorningDigestEnabled(v: Boolean) = preferencesRepository.setMorningDigestEnabled(v)
+    suspend fun recordMute(label: String) = preferencesRepository.recordMute(label)
     suspend fun setShieldEnabled(v: Boolean) = preferencesRepository.setShieldEnabled(v)
     suspend fun setShieldRootKillEnabled(v: Boolean) =
         preferencesRepository.setShieldRootKillEnabled(v)
@@ -531,11 +622,20 @@ class RootViewModel @Inject constructor(
 ) : ViewModel() {
     val rootEnabled = preferencesRepository.rootEnabled
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val lastDumpsysAt = preferencesRepository.lastDumpsysAt
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
+    val lastDumpsysOk = preferencesRepository.lastDumpsysOk
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     suspend fun probe() = rootAvailability.probe()
 
-    suspend fun runDiagnostics() =
-        rootCommandRunner.execute(com.screenwakelock.detector.root.RootCommandAllowlist.DUMPSYS_POWER)
+    suspend fun runDiagnostics(): com.screenwakelock.detector.root.RootCommandResult {
+        val result = rootCommandRunner.execute(
+            com.screenwakelock.detector.root.RootCommandAllowlist.DUMPSYS_POWER,
+        )
+        preferencesRepository.setLastDumpsys(result.success)
+        return result
+    }
 
     suspend fun setRootEnabled(enabled: Boolean) = preferencesRepository.setRootEnabled(enabled)
 

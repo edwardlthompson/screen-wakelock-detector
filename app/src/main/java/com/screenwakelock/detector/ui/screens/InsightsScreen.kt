@@ -52,6 +52,7 @@ import com.screenwakelock.detector.domain.model.RecurringPattern
 import com.screenwakelock.detector.ui.viewmodel.InsightsViewModel
 import com.screenwakelock.detector.ui.modifiers.highRefreshScroll
 import com.screenwakelock.detector.util.ChannelMuter
+import com.screenwakelock.detector.util.ExportUtils
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.SilenceWake
 import com.screenwakelock.detector.util.TimeUtils
@@ -103,6 +104,19 @@ fun InsightsScreen(
             val label = offender.appLabel ?: offender.packageName
             snackbar.showSnackbar("Never shield $label — Wake Shield will allow it")
         }
+    }
+
+    fun onNightOnlyShieldOffender(offender: OffenderSummary) {
+        scope.launch {
+            viewModel.nightOnlyShield(offender.packageName)
+            val label = offender.appLabel ?: offender.packageName
+            snackbar.showSnackbar("Shield $label only at night")
+        }
+    }
+
+    fun onExportOffender(offender: OffenderSummary) {
+        val subset = events.filter { it.attributedPackage == offender.packageName }
+        ExportUtils.shareCsv(context, subset)
     }
 
     budgetTarget?.let { offender ->
@@ -220,6 +234,15 @@ fun InsightsScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     StatsRow(insights)
+                    MonthLine(events)
+                    if (insights.topOffenders.size >= 2) {
+                        val a = insights.topOffenders[0]
+                        val b = insights.topOffenders[1]
+                        Text(
+                            "${a.appLabel ?: a.packageName} ${a.count} vs ${b.appLabel ?: b.packageName} ${b.count}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                     InsightsShieldWeekSection(insights)
                     TopOffendersSection(
                         offenders = insights.topOffenders,
@@ -232,6 +255,8 @@ fun InsightsScreen(
                         onIgnoreApp = ::onIgnoreOffender,
                         onNightIgnoreApp = ::onNightIgnoreOffender,
                         onNeverShield = ::onNeverShieldOffender,
+                        onNightOnlyShield = ::onNightOnlyShieldOffender,
+                        onExport = ::onExportOffender,
                     )
                 }
                 Column(
@@ -262,7 +287,12 @@ fun InsightsScreen(
                             context.startActivity(intent)
                         },
                     )
-                    HeatmapSection(cells = insights.heatmap, onCellClick = onFilterHour)
+                    HeatmapSection(
+                        cells = insights.heatmap,
+                        onCellClick = onFilterHour,
+                        nightStartHour = startHour,
+                        nightEndHour = endHour,
+                    )
                 }
             }
         } else {
@@ -275,6 +305,17 @@ fun InsightsScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item { StatsRow(insights) }
+                item { MonthLine(events) }
+                if (insights.topOffenders.size >= 2) {
+                    item {
+                        val a = insights.topOffenders[0]
+                        val b = insights.topOffenders[1]
+                        Text(
+                            "${a.appLabel ?: a.packageName} ${a.count} vs ${b.appLabel ?: b.packageName} ${b.count}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
                 item { InsightsShieldWeekSection(insights) }
                 item { Text("Top offenders", style = MaterialTheme.typography.titleMedium) }
                 if (insights.topOffenders.isEmpty()) {
@@ -297,6 +338,8 @@ fun InsightsScreen(
                             onIgnoreApp = { onIgnoreOffender(offender) },
                             onNightIgnoreApp = { onNightIgnoreOffender(offender) },
                             onNeverShield = { onNeverShieldOffender(offender) },
+                            onNightOnlyShield = { onNightOnlyShieldOffender(offender) },
+                            onExport = { onExportOffender(offender) },
                         )
                     }
                 }
@@ -329,7 +372,14 @@ fun InsightsScreen(
                         )
                     }
                 }
-                item { HeatmapSection(cells = insights.heatmap, onCellClick = onFilterHour) }
+                item {
+                    HeatmapSection(
+                        cells = insights.heatmap,
+                        onCellClick = onFilterHour,
+                        nightStartHour = startHour,
+                        nightEndHour = endHour,
+                    )
+                }
             }
         }
     }
@@ -343,6 +393,15 @@ private fun StatsRow(insights: com.screenwakelock.detector.domain.model.Insights
         StatCard("Nighttime", insights.nighttimeWakes.toString(), Modifier.weight(1f))
         StatCard("Week over week", wowLabel, Modifier.weight(1f))
     }
+}
+
+@Composable
+private fun MonthLine(events: List<com.screenwakelock.detector.domain.model.WakeEvent>) {
+    Text(
+        "Last 30 days: ${com.screenwakelock.detector.domain.insights.TonightStats.monthCount(events)} wakes",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 private fun formatWeekOverWeek(insights: com.screenwakelock.detector.domain.model.InsightsData): String {
@@ -366,6 +425,8 @@ private fun TopOffendersSection(
     onIgnoreApp: (OffenderSummary) -> Unit,
     onNightIgnoreApp: (OffenderSummary) -> Unit,
     onNeverShield: (OffenderSummary) -> Unit,
+    onNightOnlyShield: (OffenderSummary) -> Unit,
+    onExport: (OffenderSummary) -> Unit,
 ) {
     Text("Top offenders", style = MaterialTheme.typography.titleMedium)
     if (offenders.isEmpty()) {
@@ -380,6 +441,8 @@ private fun TopOffendersSection(
                 onIgnoreApp = { onIgnoreApp(offender) },
                 onNightIgnoreApp = { onNightIgnoreApp(offender) },
                 onNeverShield = { onNeverShield(offender) },
+                onNightOnlyShield = { onNightOnlyShield(offender) },
+                onExport = { onExport(offender) },
             )
         }
     }
@@ -395,6 +458,8 @@ private fun TopOffenderRow(
     onIgnoreApp: () -> Unit,
     onNightIgnoreApp: () -> Unit,
     onNeverShield: () -> Unit,
+    onNightOnlyShield: () -> Unit,
+    onExport: () -> Unit,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     ListItem(
@@ -451,6 +516,20 @@ private fun TopOffenderRow(
                             onNeverShield()
                         },
                     )
+                    DropdownMenuItem(
+                        text = { Text("Shield only at night") },
+                        onClick = {
+                            menuExpanded = false
+                            onNightOnlyShield()
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Export this app") },
+                        onClick = {
+                            menuExpanded = false
+                            onExport()
+                        },
+                    )
                 }
             }
         },
@@ -501,9 +580,19 @@ private fun PatternCard(
 private fun HeatmapSection(
     cells: List<com.screenwakelock.detector.domain.model.HeatmapCell>,
     onCellClick: (Int) -> Unit,
+    nightStartHour: Int,
+    nightEndHour: Int,
 ) {
-    Text("7-day heatmap", style = MaterialTheme.typography.titleMedium)
-    HeatmapGrid(cells = cells, onCellClick = onCellClick)
+    Text(
+        "7-day heatmap — night window $nightStartHour:00–$nightEndHour:00 shaded",
+        style = MaterialTheme.typography.titleMedium,
+    )
+    HeatmapGrid(
+        cells = cells,
+        onCellClick = onCellClick,
+        nightStartHour = nightStartHour,
+        nightEndHour = nightEndHour,
+    )
 }
 
 @Composable
@@ -520,6 +609,8 @@ private fun StatCard(title: String, value: String, modifier: Modifier = Modifier
 private fun HeatmapGrid(
     cells: List<com.screenwakelock.detector.domain.model.HeatmapCell>,
     onCellClick: (Int) -> Unit,
+    nightStartHour: Int,
+    nightEndHour: Int,
 ) {
     val maxCount = cells.maxOfOrNull { it.count } ?: 1
     val days = listOf("S", "M", "T", "W", "T", "F", "S")
@@ -549,12 +640,26 @@ private fun HeatmapGrid(
                 (0..23).forEach { hour ->
                     val count = cells.find { it.dayOfWeek == day && it.hourOfDay == hour }?.count ?: 0
                     val intensity = count.toFloat() / maxCount
+                    val nightHour = if (nightStartHour > nightEndHour) {
+                        hour >= nightStartHour || hour < nightEndHour
+                    } else {
+                        hour >= nightStartHour && hour < nightEndHour
+                    }
+                    val color = if (nightHour) {
+                        MaterialTheme.colorScheme.tertiary
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
                     Box(
                         modifier = Modifier
                             .size(12.dp)
                             .background(
-                                MaterialTheme.colorScheme.primary.copy(
-                                    alpha = if (count == 0) 0.1f else 0.2f + intensity * 0.8f,
+                                color.copy(
+                                    alpha = if (count == 0) {
+                                        if (nightHour) 0.18f else 0.1f
+                                    } else {
+                                        0.2f + intensity * 0.8f
+                                    },
                                 ),
                             )
                             .clickable(enabled = count > 0) { onCellClick(hour) },

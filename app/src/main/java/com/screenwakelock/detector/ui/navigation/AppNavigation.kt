@@ -1,8 +1,10 @@
 package com.screenwakelock.detector.ui.navigation
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -42,12 +44,13 @@ import com.screenwakelock.detector.ui.screens.OnboardingScreen
 import com.screenwakelock.detector.ui.screens.PermissionsScreen
 import com.screenwakelock.detector.ui.screens.RootScreen
 import com.screenwakelock.detector.ui.screens.SettingsScreen
+import com.screenwakelock.detector.ui.updates.AppUpdatesHost
 import com.screenwakelock.detector.ui.viewmodel.OnboardingViewModel
 
 object Routes {
     const val ONBOARDING = "onboarding"
     const val HOME = "home"
-    const val HISTORY = "history?filterHour={filterHour}&q={q}"
+    const val HISTORY = "history?filterHour={filterHour}&q={q}&night={night}"
     const val INSIGHTS = "insights"
     const val SETTINGS = "settings"
     const val DETAIL = "detail/{wakeEventId}"
@@ -55,8 +58,8 @@ object Routes {
     const val ROOT = "root"
 
     fun detail(id: Long) = "detail/$id"
-    fun history(filterHour: Int = -1, query: String = "") =
-        "history?filterHour=$filterHour&q=${android.net.Uri.encode(query)}"
+    fun history(filterHour: Int = -1, query: String = "", night: Boolean = false) =
+        "history?filterHour=$filterHour&q=${android.net.Uri.encode(query)}&night=${if (night) 1 else 0}"
     fun permissions(highlight: String? = null) =
         if (highlight != null) "permissions?highlight=$highlight" else "permissions?highlight="
 }
@@ -70,6 +73,7 @@ fun AppNavigation(
     deepLinkRootAutomation: String? = null,
     deepLinkDonateAutomation: String? = null,
     deepLinkHistoryQuery: String? = null,
+    deepLinkHistoryNight: Boolean = false,
     deepLinkOnboardingPage: String? = null,
     onDeepLinkConsumed: () -> Unit = {},
 ) {
@@ -91,6 +95,7 @@ fun AppNavigation(
     var pendingRootAutomation by remember { mutableStateOf<String?>(null) }
     var pendingDonateAutomation by remember { mutableStateOf<String?>(null) }
     var pendingOnboardingPage by remember { mutableStateOf<String?>(null) }
+    var tabletDetailId by remember { mutableStateOf<Long?>(null) }
 
     androidx.compose.runtime.LaunchedEffect(
         hasCompletedIntro,
@@ -101,6 +106,7 @@ fun AppNavigation(
         deepLinkRootAutomation,
         deepLinkDonateAutomation,
         deepLinkHistoryQuery,
+        deepLinkHistoryNight,
         deepLinkOnboardingPage,
     ) {
         if (BuildConfig.DEBUG && deepLinkRootAutomation == "enable" && deepLinkRoute == "root") {
@@ -144,7 +150,12 @@ fun AppNavigation(
                 "permissions" -> navController.navigate(Routes.permissions(deepLinkHighlight))
                 "insights" -> navController.navigate(Routes.INSIGHTS)
                 "history" -> {
-                    navController.navigate(Routes.history(query = deepLinkHistoryQuery.orEmpty()))
+                    navController.navigate(
+                        Routes.history(
+                            query = deepLinkHistoryQuery.orEmpty(),
+                            night = deepLinkHistoryNight,
+                        ),
+                    )
                     onDeepLinkConsumed()
                 }
                 else -> {
@@ -199,13 +210,45 @@ fun AppNavigation(
                 }
             }
             composable(Routes.HOME) {
-                HomeScreen(
-                    onNavigateHistory = { navigateTo(Routes.history()) },
-                    onNavigateDetail = { navController.navigate(Routes.detail(it)) },
-                    onNavigatePermissions = { navController.navigate(Routes.permissions(it)) },
-                    deepLinkQuickFixWakeId = deepLinkQuickFixWakeId,
-                    onDeepLinkConsumed = onDeepLinkConsumed,
-                )
+                BoxWithConstraints(Modifier.fillMaxSize()) {
+                    val twoPane = maxWidth >= 840.dp
+                    if (twoPane) {
+                        Row(Modifier.fillMaxSize()) {
+                            Box(Modifier.weight(1f).fillMaxHeight()) {
+                                HomeScreen(
+                                    onNavigateHistory = { navigateTo(Routes.history()) },
+                                    onNavigateHistoryNight = { navigateTo(Routes.history(night = true)) },
+                                    onNavigateDetail = { tabletDetailId = it },
+                                    onNavigatePermissions = { navController.navigate(Routes.permissions(it)) },
+                                    onReplayOnboarding = { navController.navigate(Routes.ONBOARDING) },
+                                    deepLinkQuickFixWakeId = deepLinkQuickFixWakeId,
+                                    onDeepLinkConsumed = onDeepLinkConsumed,
+                                )
+                            }
+                            tabletDetailId?.let { id ->
+                                Box(Modifier.weight(1f).fillMaxHeight()) {
+                                    DetailScreen(
+                                        wakeEventId = id,
+                                        onBack = { tabletDetailId = null },
+                                        onNavigatePermissions = {
+                                            navController.navigate(Routes.permissions(it))
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        HomeScreen(
+                            onNavigateHistory = { navigateTo(Routes.history()) },
+                            onNavigateHistoryNight = { navigateTo(Routes.history(night = true)) },
+                            onNavigateDetail = { navController.navigate(Routes.detail(it)) },
+                            onNavigatePermissions = { navController.navigate(Routes.permissions(it)) },
+                            onReplayOnboarding = { navController.navigate(Routes.ONBOARDING) },
+                            deepLinkQuickFixWakeId = deepLinkQuickFixWakeId,
+                            onDeepLinkConsumed = onDeepLinkConsumed,
+                        )
+                    }
+                }
             }
             composable(
                 route = Routes.HISTORY,
@@ -218,13 +261,19 @@ fun AppNavigation(
                         type = NavType.StringType
                         defaultValue = ""
                     },
+                    navArgument("night") {
+                        type = NavType.IntType
+                        defaultValue = 0
+                    },
                 ),
             ) { entry ->
                 val filterHour = entry.arguments?.getInt("filterHour") ?: -1
                 val searchQuery = entry.arguments?.getString("q").orEmpty()
+                val nightOnly = (entry.arguments?.getInt("night") ?: 0) == 1
                 HistoryScreen(
                     initialFilterHour = filterHour.takeIf { it >= 0 },
                     initialSearchQuery = searchQuery.takeIf { it.isNotEmpty() },
+                    initialNightOnly = nightOnly,
                     onNavigateDetail = { navController.navigate(Routes.detail(it)) },
                 )
             }
@@ -281,7 +330,9 @@ fun AppNavigation(
         }
     }
 
-    BoxWithConstraints {
+    Box(Modifier.fillMaxSize()) {
+        AppUpdatesHost(enabled = hasCompletedIntro)
+        BoxWithConstraints(Modifier.fillMaxSize()) {
         val useRail = maxWidth >= 600.dp
         if (useRail && showNavChrome) {
             Row {
@@ -326,6 +377,7 @@ fun AppNavigation(
             ) { padding ->
                 navHost(Modifier.padding(padding))
             }
+        }
         }
     }
 }

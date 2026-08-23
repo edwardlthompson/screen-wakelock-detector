@@ -22,7 +22,7 @@
 
 ## Architecture constraints
 
-- Apache-2.0 FOSS; F-Droid only; **no `INTERNET`** in release manifest
+- Apache-2.0 FOSS; F-Droid only; `INTERNET` only for GitHub latest-release checks
 - Material Design 3 (`androidx.compose.material3` only)
 - libsu in-app root; command allowlist — see [`docs/ROOT.md`](docs/ROOT.md)
 

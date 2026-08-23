@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.screenwakelock.detector.data.PreferenceKeys
 import com.screenwakelock.detector.data.settingsDataStore
@@ -39,6 +40,15 @@ class PreferencesRepository @Inject constructor(
         val WAKE_FORENSICS_ENABLED = booleanPreferencesKey("wake_forensics_enabled")
         val SHIELD_BACKUP_CONFIRM_PENDING = booleanPreferencesKey("shield_backup_confirm_pending")
         val SHIELD_DIGEST_ENABLED = booleanPreferencesKey("shield_digest_enabled")
+        val SHIELD_DRY_RUN = booleanPreferencesKey("shield_dry_run")
+        val SHIELD_GRACE_MS = intPreferencesKey("shield_grace_ms")
+        val WIND_DOWN_ENABLED = booleanPreferencesKey("wind_down_enabled")
+        val CORRELATION_WINDOW_MS = intPreferencesKey("correlation_window_ms")
+        val LAST_DUMPSYS_AT = longPreferencesKey("last_dumpsys_at")
+        val LAST_DUMPSYS_OK = booleanPreferencesKey("last_dumpsys_ok")
+        val MUTE_HISTORY = stringPreferencesKey("mute_history")
+        val MORNING_DIGEST_ENABLED = booleanPreferencesKey("morning_digest_enabled")
+        val SHIELD_NEVER_TONIGHT_UNTIL = longPreferencesKey("shield_never_tonight_until")
     }
 
     val hasCompletedIntro: Flow<Boolean> =
@@ -123,6 +133,43 @@ class PreferencesRepository @Inject constructor(
 
     val shieldDigestEnabled: Flow<Boolean> =
         context.settingsDataStore.data.map { it[Keys.SHIELD_DIGEST_ENABLED] ?: true }
+
+    val shieldDryRun: Flow<Boolean> =
+        context.settingsDataStore.data.map { it[Keys.SHIELD_DRY_RUN] ?: false }
+
+    val shieldGraceMs: Flow<Int> =
+        context.settingsDataStore.data.map { it[Keys.SHIELD_GRACE_MS] ?: 1500 }
+
+    val windDownEnabled: Flow<Boolean> =
+        context.settingsDataStore.data.map { it[Keys.WIND_DOWN_ENABLED] ?: false }
+
+    val correlationWindowMs: Flow<Int> =
+        context.settingsDataStore.data.map { it[Keys.CORRELATION_WINDOW_MS] ?: 5000 }
+
+    val lastDumpsysAt: Flow<Long> =
+        context.settingsDataStore.data.map { it[Keys.LAST_DUMPSYS_AT] ?: 0L }
+
+    val lastDumpsysOk: Flow<Boolean> =
+        context.settingsDataStore.data.map { it[Keys.LAST_DUMPSYS_OK] ?: true }
+
+    val muteHistory: Flow<String> =
+        context.settingsDataStore.data.map { it[Keys.MUTE_HISTORY] ?: "" }
+
+    val morningDigestEnabled: Flow<Boolean> =
+        context.settingsDataStore.data.map { it[Keys.MORNING_DIGEST_ENABLED] ?: true }
+
+    val shieldNightOnlyPackages: Flow<Set<String>> =
+        context.settingsDataStore.data.map {
+            it[PreferenceKeys.SHIELD_NIGHT_ONLY_PACKAGES] ?: emptySet()
+        }
+
+    val shieldNeverTonightPackages: Flow<Set<String>> =
+        context.settingsDataStore.data.map {
+            it[PreferenceKeys.SHIELD_NEVER_TONIGHT_PACKAGES] ?: emptySet()
+        }
+
+    val shieldNeverTonightUntil: Flow<Long> =
+        context.settingsDataStore.data.map { it[Keys.SHIELD_NEVER_TONIGHT_UNTIL] ?: 0L }
 
     suspend fun setHasCompletedIntro(completed: Boolean) {
         context.settingsDataStore.edit { it[Keys.HAS_COMPLETED_INTRO] = completed }
@@ -279,6 +326,65 @@ class PreferencesRepository @Inject constructor(
 
     suspend fun setShieldDigestEnabled(enabled: Boolean) {
         context.settingsDataStore.edit { it[Keys.SHIELD_DIGEST_ENABLED] = enabled }
+    }
+
+    suspend fun setShieldDryRun(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.SHIELD_DRY_RUN] = enabled }
+    }
+
+    suspend fun setShieldGraceMs(ms: Int) {
+        context.settingsDataStore.edit { it[Keys.SHIELD_GRACE_MS] = ms.coerceIn(500, 5000) }
+    }
+
+    suspend fun setWindDownEnabled(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.WIND_DOWN_ENABLED] = enabled }
+    }
+
+    suspend fun setCorrelationWindowMs(ms: Int) {
+        context.settingsDataStore.edit { it[Keys.CORRELATION_WINDOW_MS] = ms.coerceIn(2000, 15000) }
+    }
+
+    suspend fun setLastDumpsys(ok: Boolean, at: Long = System.currentTimeMillis()) {
+        context.settingsDataStore.edit {
+            it[Keys.LAST_DUMPSYS_OK] = ok
+            it[Keys.LAST_DUMPSYS_AT] = at
+        }
+    }
+
+    suspend fun recordMute(label: String) {
+        context.settingsDataStore.edit { prefs ->
+            val current = (prefs[Keys.MUTE_HISTORY] ?: "").split('|').filter { it.isNotBlank() }
+            prefs[Keys.MUTE_HISTORY] = (listOf(label) + current).take(3).joinToString("|")
+        }
+    }
+
+    suspend fun setMorningDigestEnabled(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.MORNING_DIGEST_ENABLED] = enabled }
+    }
+
+    suspend fun addShieldNightOnlyPackage(packageName: String) {
+        context.settingsDataStore.edit { prefs ->
+            val current = prefs[PreferenceKeys.SHIELD_NIGHT_ONLY_PACKAGES] ?: emptySet()
+            prefs[PreferenceKeys.SHIELD_NIGHT_ONLY_PACKAGES] = current + packageName
+        }
+    }
+
+    suspend fun addNeverTonightPackage(packageName: String, untilMillis: Long) {
+        context.settingsDataStore.edit { prefs ->
+            val current = prefs[PreferenceKeys.SHIELD_NEVER_TONIGHT_PACKAGES] ?: emptySet()
+            prefs[PreferenceKeys.SHIELD_NEVER_TONIGHT_PACKAGES] = current + packageName
+            prefs[Keys.SHIELD_NEVER_TONIGHT_UNTIL] = untilMillis
+        }
+    }
+
+    suspend fun clearExpiredNeverTonight(now: Long) {
+        val until = context.settingsDataStore.data.first().let { it[Keys.SHIELD_NEVER_TONIGHT_UNTIL] ?: 0L }
+        if (until > 0L && now >= until) {
+            context.settingsDataStore.edit {
+                it[PreferenceKeys.SHIELD_NEVER_TONIGHT_PACKAGES] = emptySet()
+                it[Keys.SHIELD_NEVER_TONIGHT_UNTIL] = 0L
+            }
+        }
     }
 
     suspend fun nightlyBudgetFor(packageName: String): Int? {

@@ -15,7 +15,7 @@ Free and open source software requirements for **Screen Wakelock Detector**.
 | **No proprietary SDKs** | No Firebase, Play Services, Crashlytics, proprietary analytics/ads |
 | **No closed blobs** | No prebuilt proprietary `.aar` without source |
 | **Public source** | GitLab public repo; tags match releases |
-| **No network in default flavor** | No `INTERNET` permission — CI grep in validate stage |
+| **No analytics network SDKs** | `INTERNET` is allowed only for GitHub latest-release checks; CI still forbids ads/analytics SDKs |
 | **Reproducible builds** | From v1.0.0 — pinned toolchain |
 
 **Wake Shield (optional):** Accessibility is used only for `GLOBAL_ACTION_LOCK_SCREEN` with `canRetrieveWindowContent=false`. Default OFF; disclose in Settings/PRIVACY for F-Droid reviewers.
@@ -73,7 +73,7 @@ Pin versions in Gradle version catalog. Document new deps in [`AGENT_MEMORY.md`]
 |-----|-------|--------|
 | `license-check` | validate | Reports non-allowed licenses |
 | `foss-audit` | validate | Dependency policy script / allowlist |
-| `no-internet-manifest` | validate | Release manifest lacks INTERNET |
+| `no-internet-manifest` | validate | Documents INTERNET for GitHub updates; fails on ads/tracking markers |
 
 Fail pipeline on violation.
 
@@ -102,7 +102,7 @@ If required by dependency licenses, aggregate notices in `app/src/main/assets/op
 FOSS policy complements [`SECURITY.md`](../SECURITY.md):
 
 - Reproducible builds + Dependabot reduce supply-chain risk
-- No network permission reduces exfil surface
+- GitHub update fetch is the only network use; wake data stays on device
 - libsu root usage constrained by command allowlist
 
 ---

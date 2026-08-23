@@ -11,6 +11,8 @@ import java.io.InputStreamReader
 object BackupUtils {
     private const val BACKUP_VERSION = 1
 
+    // Donate/update timestamps live in UpdatePrefs SharedPreferences — never export them.
+
     data class BackupSettings(
         val monitoringEnabled: Boolean,
         val rootEnabled: Boolean,

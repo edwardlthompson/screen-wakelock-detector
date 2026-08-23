@@ -43,6 +43,8 @@ fun RootScreen(
     viewModel: RootViewModel = hiltViewModel(),
 ) {
     val rootEnabled by viewModel.rootEnabled.collectAsState()
+    val lastDumpsysAt by viewModel.lastDumpsysAt.collectAsState()
+    val lastDumpsysOk by viewModel.lastDumpsysOk.collectAsState()
     var probeState by remember { mutableStateOf<RootAvailabilityState?>(null) }
     var diagnostics by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
@@ -92,6 +94,13 @@ fun RootScreen(
             Text(
                 "Requires root — all tooling is built into this app. No modules or Shizuku needed.",
                 style = MaterialTheme.typography.bodyMedium,
+                color = mutedColor,
+            )
+            Text(
+                "Allowlisted commands: " +
+                    com.screenwakelock.detector.root.RootCommandAllowlist.entries
+                        .joinToString { it.command },
+                style = MaterialTheme.typography.bodySmall,
                 color = mutedColor,
             )
             if (!isRootAvailable) {
@@ -169,6 +178,17 @@ fun RootScreen(
             }
             diagnostics?.let {
                 Text(it, style = MaterialTheme.typography.labelMedium)
+            }
+            if (lastDumpsysAt > 0L) {
+                Text(
+                    if (lastDumpsysOk) {
+                        "Last dumpsys OK"
+                    } else {
+                        "Last dumpsys failed — wakeup_sources may be blocked on this kernel."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = mutedColor,
+                )
             }
         }
     }

@@ -8,16 +8,38 @@
     <string name="monitoring_notification_title">Monitoring screen wakes</string>
     <string name="monitoring_notification_text">Tap to open history</string>
     <string name="monitoring_paused">Monitoring paused</string>
+    <string name="home_menu">More</string>
     <string name="about_section_title">About</string>
     <string name="about_version">Version %1$s</string>
     <string name="about_release_notes_fallback">See changelog for what\'s new in this release.</string>
     <string name="about_view_changelog">View changelog</string>
     <string name="about_view_changelog_summary">Full release history on GitHub</string>
-    <string name="about_support_development">Support development</string>
-    <string name="about_support_development_summary">If this app has been helpful, consider a tip via Venmo</string>
+    <string name="about_donate">Donate via Venmo</string>
+    <string name="about_donate_summary">If this app has been helpful, consider an optional tip via Venmo</string>
+    <string name="about_not_now">Not now</string>
+    <string name="about_later">Later</string>
+    <string name="about_install">Install</string>
+    <string name="about_donate_nudge_title">Development is still going</string>
+    <string name="about_donate_nudge_message">You just got a new build. If this app helps you, you can support ongoing work on Venmo. This is optional and will not appear again until the next update.</string>
+    <string name="about_update_title">Update available</string>
+    <string name="about_update_message">Screen Wakelock Detector %1$s is on GitHub. Install it when you are ready.</string>
     <string name="about_no_handler">No app found to open this link</string>
     <string name="changelog_url" translatable="false">https://github.com/edwardlthompson/screen-wakelock-detector/blob/main/docs/CHANGELOG.md</string>
     <string name="donate_venmo_url" translatable="false">https://venmo.com/code?user_id=1857304970395648420</string>
+    <string name="about_network_recap">The only network use is an optional daily GitHub latest-release check. Wake data never leaves the device.</string>
+    <string name="about_check_updates">Check GitHub for updates</string>
+    <string name="about_check_updates_summary">Once a day, look for a newer APK. Off = stay silent.</string>
+    <string name="about_check_now">Check now</string>
+    <string name="home_tonight_title">Tonight</string>
+    <string name="home_a11y_lost">Lock-screen access dropped — Shield cannot re-lock until Accessibility is on.</string>
+    <string name="home_replay_onboarding">Replay onboarding</string>
+    <string name="home_permissions">Permissions</string>
+    <string name="shield_dry_run_title">Preview only</string>
+    <string name="shield_dry_run_summary">Log would-have-blocked without cancelling, locking, or sleeping</string>
+    <string name="shield_grace_title">Grace before lock</string>
+    <string name="shield_wind_down_title">Wind-down (stricter at night)</string>
+    <string name="shield_wind_down_summary">Shorter grace during your nighttime window</string>
+    <string name="tile_shield_label">Wake Shield</string>
 
     <!-- Wake Shield -->
     <string name="shield_section_title">Wake Shield</string>

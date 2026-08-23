@@ -2,4 +2,5 @@
 <resources>
     <color name="ic_launcher_background">#004D57</color>
     <color name="widget_background">#E8F4F6</color>
+    <color name="widget_background_oled">#000000</color>
 </resources>

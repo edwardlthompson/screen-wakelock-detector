@@ -113,6 +113,16 @@ object IntentUtils {
         return intent
     }
 
+    /** Best-effort per-app battery screen; falls back to app info. */
+    fun appBatterySettings(packageName: String): List<Intent> = listOf(
+        Intent("android.settings.APP_BATTERY_SETTINGS").apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            data = Uri.parse("package:$packageName")
+            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        },
+        appDetailsSettings(packageName),
+    )
+
     fun batteryOptimizationSettings(): Intent =
         Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK

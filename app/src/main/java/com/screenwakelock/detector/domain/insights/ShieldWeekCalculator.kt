@@ -58,11 +58,18 @@ enum class ShieldListFilter(val label: String) {
     UNKNOWN("Unknown"),
     SHIELDED("Shielded"),
     ALLOWED("Allowed"),
+    EXEMPT("Exempt"),
+    ROOT("Root"),
     ;
 
     fun matches(event: WakeEvent): Boolean = when (this) {
         UNKNOWN -> UnknownRate.isUnknown(event)
         SHIELDED -> ShieldWeekCalculator.isShielded(event)
         ALLOWED -> ShieldWeekCalculator.isAllowed(event)
+        EXEMPT -> {
+            val o = ShieldOutcome.fromStorage(event.shieldOutcome)
+            o == ShieldOutcome.ALLOWED_EXEMPT || o == ShieldOutcome.ALLOWED_FSI
+        }
+        ROOT -> event.rootEnhanced
     }
 }

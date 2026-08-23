@@ -10,6 +10,7 @@ import com.screenwakelock.detector.data.repository.WakeEventRepository
 import com.screenwakelock.detector.domain.model.ReasonCode
 import com.screenwakelock.detector.domain.model.WakeEvent
 import com.screenwakelock.detector.service.NotificationCaptureService
+import com.screenwakelock.detector.util.TimeUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -32,7 +33,9 @@ class ShieldCoordinator @Inject constructor(
     suspend fun onWakeLogged(event: WakeEvent) {
         val forensics = preferencesRepository.wakeForensicsEnabled.first()
         val shieldEnabled = preferencesRepository.shieldEnabled.first()
+        val dryRun = preferencesRepository.shieldDryRun.first()
         if (!forensics && !shieldEnabled) return
+        preferencesRepository.clearExpiredNeverTonight(System.currentTimeMillis())
 
         val evidence = ShieldEvidence.build(
             active = NotificationCaptureService.snapshotActiveNotifications(),
@@ -60,7 +63,16 @@ class ShieldCoordinator @Inject constructor(
             return
         }
 
-        delay(ShieldPolicy.GRACE_MS)
+        val nightStart = preferencesRepository.nighttimeStartHour.first()
+        val nightEnd = preferencesRepository.nighttimeEndHour.first()
+        val isNight = TimeUtils.isNighttime(event.timestampMillis, nightStart, nightEnd)
+        val windDown = preferencesRepository.windDownEnabled.first() && isNight
+        val grace = if (windDown) {
+            minOf(preferencesRepository.shieldGraceMs.first().toLong(), 500L)
+        } else {
+            preferencesRepository.shieldGraceMs.first().toLong()
+        }
+        delay(grace.coerceAtLeast(0L))
 
         if (!preferencesRepository.shieldEnabled.first()) {
             wakeEventRepository.updateShieldFields(
@@ -79,7 +91,13 @@ class ShieldCoordinator @Inject constructor(
         val hasFsi = matched?.hasFullScreenIntent == true ||
             event.reasonCode == ReasonCode.NOTIFICATION_FULL_SCREEN
         val hardExempt = hardExemptResolver.resolve()
-        val allowlist = preferencesRepository.shieldAllowlistPackages.first()
+        val allowlist = preferencesRepository.shieldAllowlistPackages.first().toMutableSet()
+        val neverTonight = preferencesRepository.shieldNeverTonightPackages.first()
+        allowlist += neverTonight
+        val nightOnly = preferencesRepository.shieldNightOnlyPackages.first()
+        if (!isNight) {
+            allowlist += nightOnly
+        }
 
         var decision = ShieldPolicy.decide(
             ShieldPolicyInput(
@@ -129,6 +147,15 @@ class ShieldCoordinator @Inject constructor(
             is ShieldDecision.Hostile -> {
                 if (!preferencesRepository.shieldEnabled.first()) {
                     persist(event.id, ShieldOutcome.PANIC_DISABLED, evidence.summary, evidence)
+                    return
+                }
+                if (dryRun) {
+                    persist(
+                        event.id,
+                        ShieldOutcome.WOULD_HAVE_BLOCKED,
+                        "dry-run:${decision.packageName ?: "unknown"}",
+                        evidence,
+                    )
                     return
                 }
                 enforceHostile(event, decision, event.wakelockTag, evidence)

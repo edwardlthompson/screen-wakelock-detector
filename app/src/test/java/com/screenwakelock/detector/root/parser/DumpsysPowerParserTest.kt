@@ -21,6 +21,14 @@ class DumpsysPowerParserTest {
         assertPowerFixture("root/dumpsys_power_api31.txt", "com.example.app:fg_service")
     }
 
+    @Test
+    fun parse_lineage16_fixture_findsKnownHolders() {
+        val result = DumpsysPowerParser.parse(loadFixture("root/dumpsys_power_lineage16.txt"))
+        assertEquals(2, result.wakelocks.size)
+        assertEquals("com.life360.android.safetymapd:location", result.wakelocks[0].tag)
+        assertEquals("com.huawei.health:wear", result.wakelocks[1].tag)
+    }
+
     private fun assertPowerFixture(path: String, expectedTag: String) {
         val fixture = loadFixture(path)
         val result = DumpsysPowerParser.parse(fixture)

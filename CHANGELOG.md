@@ -14,6 +14,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.19] — 2026-08-22
+
+Donate, GitHub update checks, and M19 product slices (dry-run Shield, tonight Home, morning digest).
+
+### Added
+
+- Quiet **Donate via Venmo** in Settings → About and the Home menu
+- After a version change, one optional Venmo note (never mixed with the update prompt)
+- Daily GitHub latest-release check using the APK filename version; Install or Later (Later silences that build)
+- Shield dry-run (would-have-blocked), wind-down, grace slider, QS tile, tonight strip, morning digest
+- GitHub update opt-out + Check now; privacy recap for the daily fetch
+- History tonight / exempt / root filters; Home overflow for Permissions and onboarding
+- Life360/Health tag labels, Lineage 16 dumpsys fixture, correlation-window setting
+- Detail: pick a candidate (“This one”), never-tonight / night-only Shield, L3 deny undo, battery restriction
+- Home shows Shield cooldown / self-wake; tablet Home+Detail two-pane; heatmap shades the night window
+- Insights: compare top two apps and export one offender’s timeline
+
+### Changed
+
+- Release manifest includes `INTERNET` only for the GitHub update check; donate/update prefs stay on-device and out of backup
+- Tonight-count widget opens night History and uses an OLED background
+
 ## [1.2.18] — 2026-08-20
 
 Wake Shield visibility, night-only ignore, and F-Droid listing pack.

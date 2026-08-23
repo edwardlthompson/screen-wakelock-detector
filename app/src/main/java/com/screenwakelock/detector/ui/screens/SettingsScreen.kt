@@ -92,6 +92,12 @@ fun SettingsScreen(
     val shieldDenied by viewModel.shieldDeniedPackages.collectAsState()
     val shieldBackupConfirm by viewModel.shieldBackupConfirmPending.collectAsState()
     val shieldDigestEnabled by viewModel.shieldDigestEnabled.collectAsState()
+    val shieldDryRun by viewModel.shieldDryRun.collectAsState()
+    val shieldGraceMs by viewModel.shieldGraceMs.collectAsState()
+    val windDownEnabled by viewModel.windDownEnabled.collectAsState()
+    val correlationWindowMs by viewModel.correlationWindowMs.collectAsState()
+    val muteHistory by viewModel.muteHistory.collectAsState()
+    val morningDigest by viewModel.morningDigestEnabled.collectAsState()
     val appDisplayResolver = rememberAppDisplayResolver()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -448,6 +454,12 @@ fun SettingsScreen(
                 onRemoveAllowlist = { viewModel.removeShieldAllowlistPackage(it) },
                 onUndoDenied = { viewModel.undoShieldDeniedPackage(it) },
                 onPanic = { viewModel.panicDisableShield() },
+                dryRun = shieldDryRun,
+                graceMs = shieldGraceMs,
+                windDown = windDownEnabled,
+                onSetDryRun = { viewModel.setShieldDryRun(it) },
+                onSetGrace = { viewModel.setShieldGraceMs(it) },
+                onSetWindDown = { viewModel.setWindDownEnabled(it) },
             )
             item {
                 ListItem(
@@ -461,6 +473,74 @@ fun SettingsScreen(
                             onCheckedChange = {
                                 scope.launch { viewModel.setShieldDigestEnabled(it) }
                             },
+                        )
+                    },
+                )
+            }
+            item {
+                ListItem(
+                    headlineContent = { Text("Morning digest") },
+                    supportingContent = { Text("Local summary of last night after you wake") },
+                    trailingContent = {
+                        Switch(
+                            checked = morningDigest,
+                            onCheckedChange = {
+                                scope.launch { viewModel.setMorningDigestEnabled(it) }
+                            },
+                        )
+                    },
+                )
+            }
+            item {
+                ListItem(
+                    headlineContent = { Text("Attribution window") },
+                    supportingContent = { Text("$correlationWindowMs ms around each screen-on") },
+                    trailingContent = {
+                        TextButton(onClick = {
+                            val next = when (correlationWindowMs) {
+                                2000 -> 5000
+                                5000 -> 10000
+                                else -> 2000
+                            }
+                            scope.launch { viewModel.setCorrelationWindowMs(next) }
+                        }) { Text("Change") }
+                    },
+                )
+            }
+            if (muteHistory.isNotBlank()) {
+                item {
+                    ListItem(
+                        headlineContent = { Text("Recent mutes") },
+                        supportingContent = { Text(muteHistory.replace("|", " · ")) },
+                    )
+                }
+            }
+            item {
+                val still = com.screenwakelock.detector.domain.insights.TonightStats.stillWakeAtNight(
+                    events = allEvents,
+                    ignored = ignoredPackages,
+                    nightIgnored = nightIgnoredPackages,
+                    startHour = startHour,
+                    endHour = endHour,
+                )
+                ListItem(
+                    headlineContent = { Text("Would still wake at night") },
+                    supportingContent = {
+                        Text(if (still.isEmpty()) "No recent nighttime offenders" else still.joinToString())
+                    },
+                )
+            }
+            item {
+                val doomed = if (retentionDays <= 0) 0 else allEvents.count {
+                    it.timestampMillis < System.currentTimeMillis() -
+                        retentionDays * 24L * 60 * 60 * 1000
+                }
+                ListItem(
+                    headlineContent = { Text("Retention preview") },
+                    supportingContent = {
+                        Text(
+                            if (retentionDays <= 0) "Auto-delete is off"
+                            else "$doomed events older than ${PreferencesRepository.retentionLabel(retentionDays)}",
                         )
                     },
                 )

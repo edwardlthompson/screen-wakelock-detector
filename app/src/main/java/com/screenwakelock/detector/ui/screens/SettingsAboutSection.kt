@@ -9,17 +9,24 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.screenwakelock.detector.BuildConfig
 import com.screenwakelock.detector.R
+import com.screenwakelock.detector.ui.viewmodel.AppUpdatesViewModel
+import com.screenwakelock.detector.updates.UpdatePrefs
 import com.screenwakelock.detector.util.IntentUtils
 import com.screenwakelock.detector.util.ReleaseNotesLoader
 
@@ -28,6 +35,7 @@ fun SettingsAboutSection(
     onLinkOpenFailed: () -> Unit,
     donateAutomation: Boolean = false,
     modifier: Modifier = Modifier,
+    updatesViewModel: AppUpdatesViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val releaseNotes = remember {
@@ -35,6 +43,8 @@ fun SettingsAboutSection(
     }
     val changelogUrl = stringResource(R.string.changelog_url)
     val donateUrl = stringResource(R.string.donate_venmo_url)
+    val updatePrefs = remember { UpdatePrefs(context) }
+    var checksEnabled by remember { mutableStateOf(updatePrefs.githubChecksEnabled()) }
 
     LaunchedEffect(donateAutomation) {
         if (BuildConfig.DEBUG && donateAutomation) {
@@ -87,8 +97,31 @@ fun SettingsAboutSection(
                     onLinkOpenFailed()
                 }
             },
-            headlineContent = { Text(stringResource(R.string.about_support_development)) },
-            supportingContent = { Text(stringResource(R.string.about_support_development_summary)) },
+            headlineContent = { Text(stringResource(R.string.about_donate)) },
+            supportingContent = { Text(stringResource(R.string.about_donate_summary)) },
+        )
+        Text(
+            text = stringResource(R.string.about_network_recap),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.about_check_updates)) },
+            supportingContent = { Text(stringResource(R.string.about_check_updates_summary)) },
+            trailingContent = {
+                Switch(
+                    checked = checksEnabled,
+                    onCheckedChange = {
+                        checksEnabled = it
+                        updatePrefs.setGithubChecksEnabled(it)
+                    },
+                )
+            },
+        )
+        ListItem(
+            modifier = Modifier.clickable { updatesViewModel.checkNow() },
+            headlineContent = { Text(stringResource(R.string.about_check_now)) },
         )
     }
 }

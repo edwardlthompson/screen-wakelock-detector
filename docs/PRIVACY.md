@@ -2,7 +2,7 @@
 
 **Screen Wakelock Detector** (`com.screenwakelock.detector`)
 
-**Last updated:** 2026-07-21
+**Last updated:** 2026-08-20
 
 ---
 
@@ -35,7 +35,10 @@ This app helps you understand **what wakes your phone screen**. All processing a
 - Contacts, SMS, call logs, photos, or files from other apps
 - Location, microphone, or camera data
 - Advertising identifiers
-- **Any network transmission** — the release app does not request `INTERNET` permission
+- Analytics, crash reporting, or accounts
+- Wake history, notification metadata, or settings over the network
+
+**Network:** `INTERNET` is used only to fetch GitHub `releases/latest` about once per day so the app can offer an optional installer. That request does not include wake data. Donate opens Venmo in another app. Failed or skipped checks stay silent.
 
 ---
 
@@ -50,6 +53,7 @@ See [`PERMISSIONS.md`](PERMISSIONS.md) for full detail. Summary:
 - **Battery exemption** — reduce missed wakes in Doze
 - **Root (optional)** — local shell commands from fixed allowlist; parsed on device; optional Wake Shield L3 sleep/deny
 - **Accessibility (optional)** — Wake Shield re-lock only; does not read screen content
+- **Internet** — GitHub latest-release check only; no wake data sent
 
 ---
 

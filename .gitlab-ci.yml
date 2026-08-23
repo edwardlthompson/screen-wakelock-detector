@@ -82,10 +82,14 @@ no-internet-manifest:
       MANIFEST="app/src/main/AndroidManifest.xml"
       if [ -f "${MANIFEST}" ]; then
         if grep -q 'android.permission.INTERNET' "${MANIFEST}"; then
-          echo "INTERNET permission found in manifest — forbidden for release"
+          echo "INTERNET present — allowed for GitHub update checks only"
+        else
+          echo "INTERNET missing — update checks will stay silent"
+        fi
+        if grep -qiE 'firebase|crashlytics|play-services-ads|AD_ID' "${MANIFEST}"; then
+          echo "Tracking or ads permission/SDK marker found in manifest"
           exit 1
         fi
-        echo "No INTERNET permission in manifest"
       else
         echo "Manifest not present yet — policy documented in docs/FOSS.md"
       fi

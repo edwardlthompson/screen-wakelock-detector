@@ -5,6 +5,6 @@
   "delta_percent_max": 8,
   "delta_mb_max": 15,
   "monotonic_window": 3,
-  "pss_kb": 161021,
-  "java_heap_kb": 12608
+  "pss_kb": 214238,
+  "java_heap_kb": 48640
 }

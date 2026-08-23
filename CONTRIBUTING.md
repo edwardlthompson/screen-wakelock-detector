@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for helping improve Screen Wakelock Detector. This project is Apache-2.0, F-Droid-only, and ships with **no `INTERNET` permission**.
+Thank you for helping improve Screen Wakelock Detector. This project is Apache-2.0, F-Droid-only, and uses `INTERNET` only for GitHub latest-release checks.
 
 ---
 
