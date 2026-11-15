@@ -113,3 +113,9 @@ Prep already done: metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS (20
 |--------|---------|
 | M0–M15 | [`docs/COMPLETED.md`](docs/COMPLETED.md) |
 | TM · AR · AU · ATTR · human backlog automation | [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md) |
+
+## News inbox (synced)
+
+P1/P2 tasks auto-synced by News Bot from [`docs/NEWS_INBOX.md`](docs/NEWS_INBOX.md).
+
+- 🔲 [AGENT][LOCAL] Plan dependency refresh (Compose BOM 2024.12, SDK 35) and Kotlin 2.5 — scope: app/build.gradle.kts (news P2, 2026-11-13) https://github.com/JetBrains/kotlin/releases/tag/v2.5.0-RC
