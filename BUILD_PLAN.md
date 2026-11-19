@@ -110,6 +110,15 @@ Active tasks only. Completed work: [`docs/COMPLETED.md`](docs/COMPLETED.md), [`C
 
 Prep already done: metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS (2026-06-19). v1.2.15 released 2026-07-22.
 
+## Child Repo Playbook
+
+### Sprint News — News Bot follow-ups
+
+<!-- parallel_exception: independent news follow-ups; run sequentially -->
+
+1. 🔲 [AGENT] Plan dependency refresh (Compose BOM 2024.12, SDK 35) and Kotlin 2.5 — scope: app/build.gradle.kts (news P2, 2026-11-13) https://github.com/JetBrains/kotlin/releases/tag/v2.5.0-RC
+
+
 ---
 
 ## Archived sprints
@@ -123,7 +132,7 @@ Prep already done: metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS (20
 Standing queue for This Computer. Rows: `🔲 [AGENT][LOCAL] … — scope: path`.
 
 <!-- local-agent-lane:begin -->
-- 🔲 [AGENT][LOCAL] Plan dependency refresh (Compose BOM 2024.12, SDK 35) and Kotlin 2.5 — scope: app/build.gradle.kts (news P2, 2026-11-13) https://github.com/JetBrains/kotlin/releases/tag/v2.5.0-RC
+_No local agent items._
 <!-- local-agent-lane:end -->
 
 ### Cloud agent (Cursor Cloud)
