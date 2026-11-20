@@ -117,6 +117,7 @@ Prep already done: metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS (20
 <!-- parallel_exception: independent news follow-ups; run sequentially -->
 
 1. 🔲 [AGENT] Plan dependency refresh (Compose BOM 2024.12, SDK 35) and Kotlin 2.5 — scope: app/build.gradle.kts (news P2, 2026-11-13) https://github.com/JetBrains/kotlin/releases/tag/v2.5.0-RC
+2. 🔲 [AGENT] Bump the Gradle wrapper 8.11.1 → 8.14.8 and commit the regenerated wrapper jar and distributionSha256Sum (4 High security fixes: SFTP host keys, snapshot dependency verification, TestKit temp dir, daemon registry, also gets the 9.9.1 Critical version-catalog fix) — scope: gradle/wrapper/ (news P2, 2026-11-20) https://docs.gradle.org/8.14.8/release-notes.html
 
 
 ---
