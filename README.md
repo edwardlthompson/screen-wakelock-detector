@@ -189,3 +189,10 @@ Licensed under the **Apache License 2.0** — see [`LICENSE`](LICENSE).
 | F-Droid guide | [`docs/F-DROID.md`](docs/F-DROID.md) |
 | GitLab CI setup | [`docs/GITLAB.md`](docs/GITLAB.md) |
 | GitLab issues | _https://gitlab.com/\<namespace\>/screen-wakelock-detector/-/issues_ |
+
+## What this is not
+
+- A finished commercial product promise
+- A place for secrets or production credentials
+- An unbounded scope — see README goals above
+

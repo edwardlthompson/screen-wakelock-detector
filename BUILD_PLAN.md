@@ -1,5 +1,10 @@
 # Build Plan
 
+<!-- remaining-tally -->
+**Remaining:** (tally on next sync)
+<!-- /remaining-tally -->
+
+
 Active tasks only. Completed work: [`docs/COMPLETED.md`](docs/COMPLETED.md), [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md), [`docs/GATES.md`](docs/GATES.md).
 
 **Current sprint:** M19 product slices
@@ -105,6 +110,16 @@ Active tasks only. Completed work: [`docs/COMPLETED.md`](docs/COMPLETED.md), [`C
 
 Prep already done: metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS (2026-06-19). v1.2.15 released 2026-07-22.
 
+## Child Repo Playbook
+
+### Sprint News — News Bot follow-ups
+
+<!-- parallel_exception: independent news follow-ups; run sequentially -->
+
+1. 🔲 [AGENT] Plan dependency refresh (Compose BOM 2024.12, SDK 35) and Kotlin 2.5 — scope: app/build.gradle.kts (news P2, 2026-11-13) https://github.com/JetBrains/kotlin/releases/tag/v2.5.0-RC
+2. 🔲 [AGENT] Bump the Gradle wrapper 8.11.1 → 8.14.8 and commit the regenerated wrapper jar and distributionSha256Sum (4 High security fixes: SFTP host keys, snapshot dependency verification, TestKit temp dir, daemon registry, also gets the 9.9.1 Critical version-catalog fix) — scope: gradle/wrapper/ (news P2, 2026-11-20) https://docs.gradle.org/8.14.8/release-notes.html
+
+
 ---
 
 ## Archived sprints
@@ -113,3 +128,35 @@ Prep already done: metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS (20
 |--------|---------|
 | M0–M15 | [`docs/COMPLETED.md`](docs/COMPLETED.md) |
 | TM · AR · AU · ATTR · human backlog automation | [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md) |
+### Local agent (This Computer)
+
+Standing queue for This Computer. Rows: `🔲 [AGENT][LOCAL] … — scope: path`.
+
+<!-- local-agent-lane:begin -->
+_No local agent items._
+<!-- local-agent-lane:end -->
+
+### Cloud agent (Cursor Cloud)
+
+Standing queue for Cursor Cloud. Rows: `🔲 [AGENT][CLOUD] … — scope: path`.
+
+<!-- cloud-agent-lane:begin -->
+_No cloud agent items._
+<!-- cloud-agent-lane:end -->
+
+### Open PRs (synced)
+
+> Auto-managed. Do not hand-edit inside the markers.
+
+<!-- open-prs-sync:begin -->
+_No open Dependabot or Release Please PRs._
+<!-- open-prs-sync:end -->
+
+### Template gaps (synced)
+
+> Auto-managed. Do not hand-edit inside the markers.
+
+<!-- template-gaps-sync:begin -->
+_No template gaps._
+<!-- template-gaps-sync:end -->
+
