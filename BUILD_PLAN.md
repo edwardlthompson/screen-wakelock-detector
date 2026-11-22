@@ -122,12 +122,6 @@ Prep already done: metadata lint + `DRY_RUN=1 prepare-fdroiddata-mr.sh` PASS (20
 
 ---
 
-## Archived sprints
-
-| Sprint | Archive |
-|--------|---------|
-| M0–M15 | [`docs/COMPLETED.md`](docs/COMPLETED.md) |
-| TM · AR · AU · ATTR · human backlog automation | [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md) |
 ### Local agent (This Computer)
 
 Standing queue for This Computer. Rows: `🔲 [AGENT][LOCAL] … — scope: path`.
@@ -143,6 +137,13 @@ Standing queue for Cursor Cloud. Rows: `🔲 [AGENT][CLOUD] … — scope: path`
 <!-- cloud-agent-lane:begin -->
 _No cloud agent items._
 <!-- cloud-agent-lane:end -->
+
+## Archived sprints
+
+| Sprint | Archive |
+|--------|---------|
+| M0–M15 | [`docs/COMPLETED.md`](docs/COMPLETED.md) |
+| TM · AR · AU · ATTR · human backlog automation | [`COMPLETED_TASKS.md`](COMPLETED_TASKS.md) |
 
 ### Open PRs (synced)
 
